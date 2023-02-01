@@ -2,19 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-}
-
-body {
   color: #0f100f;
   background: #f1f4ea;
+  padding: 0;
+  margin: 0;
+}
+
+@font-face {
+  font-family: "KansasNew-Regular";
+  src: url("../public/fonts/KansasNew-Regular.otf");
+}
+
+@font-face {
+  font-family: "KansasNew-Medium";
+  src: url("../public/fonts/KansasNew-Medium.otf");
+}
+
+@font-face {
+  font-family: "KansasNew-SemiBold";
+  src: url("../public/fonts/KansasNew-SemiBold.otf");
+}
+
+@font-face {
+  font-family: "KansasNew-Bold";
+  src: url("../public/fonts/KansasNew-Bold.otf");
 }
