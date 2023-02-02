@@ -31,3 +31,13 @@ body {
   font-family: "KansasNew-Bold";
   src: url("../public/fonts/KansasNew-Bold.otf");
 }
+
+@font-face {
+  font-family: "SharpGrotesk-Book";
+  src: url("../public/fonts/SharpGroteskBook20.otf");
+}
+
+@font-face {
+  font-family: "SharpGrotesk-Medium";
+  src: url("../public/fonts/SharpGroteskMedium20-Regular.ttf");
+}
