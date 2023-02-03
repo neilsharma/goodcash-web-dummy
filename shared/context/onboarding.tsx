@@ -5,8 +5,11 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
+  useMemo,
   useState,
 } from "react";
+import isEmail from "validator/lib/isEmail";
+import isMobilePhone from "validator/lib/isMobilePhone";
 
 interface IOnboardingContext {
   firstName: string;
@@ -17,6 +20,9 @@ interface IOnboardingContext {
   setPhone: Dispatch<SetStateAction<string>>;
   email: string;
   setEmail: Dispatch<SetStateAction<string>>;
+  agreedToTosAndPp: boolean;
+  setAgreedToTosAndPp: Dispatch<SetStateAction<boolean>>;
+  indexPageIsValid: boolean;
 
   phoneVerified: boolean;
   setPhoneVerified: Dispatch<SetStateAction<boolean>>;
@@ -62,6 +68,17 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [agreedToTosAndPp, setAgreedToTosAndPp] = useState(false);
+
+  const indexPageIsValid = useMemo(() => {
+    return !!(
+      firstName &&
+      lastName &&
+      isMobilePhone(phone, "en-US", { strictMode: true }) &&
+      isEmail(email) &&
+      agreedToTosAndPp
+    );
+  }, [firstName, lastName, phone, email, agreedToTosAndPp]);
 
   const [phoneVerified, setPhoneVerified] = useState(false);
 
@@ -95,10 +112,16 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({
         setPhone,
         email,
         setEmail,
+        agreedToTosAndPp,
+        setAgreedToTosAndPp,
+        indexPageIsValid,
+
         phoneVerified,
         setPhoneVerified,
+
         plan,
         setPlan,
+
         dateOfBirth,
         setDateOfBirth,
         legalAddress,
@@ -119,8 +142,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({
         setAgreedToAutopay,
         agreedToTermsOfService,
         setAgreedToTermsOfService,
+
         plaid,
         setPlaid,
+
         howDidYouHearAboutUs,
         setHowDidYouHearAboutUs,
       }}
