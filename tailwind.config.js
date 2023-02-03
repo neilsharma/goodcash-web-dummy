@@ -11,6 +11,7 @@ module.exports = {
         bgPrimary: "#F1F4EA",
         text: "#333836",
         boldText: "#0F100F",
+        thinText: "#565D59",
       },
       fontFamily: {
         kansasNew: ["KansasNew-Regular"],
