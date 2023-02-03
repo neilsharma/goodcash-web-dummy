@@ -63,7 +63,10 @@ export default function OnboardingIndexPage() {
       <FormControl
         value={phone}
         onChange={(e) => {
-          setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
+          const value = e.target.value.replace(/[^0-9\+]/g, "");
+
+          if (value.startsWith("+") || value === "")
+            setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
         }}
         label="Phone number"
         placeholder="+12223334445"

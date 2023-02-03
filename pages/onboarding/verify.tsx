@@ -34,10 +34,15 @@ export default function OnboardingVerifyPage() {
       <SubTitle>A text message with a verification code has been sent to {phone}.</SubTitle>
 
       <FormControl
+        className="tracking-[0.3em]"
         label="Verification code"
         value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="- - - -"
+        onChange={(e) => {
+          const value = e.target.value.replace(/[^0-9]/g, "");
+
+          if (value.length < 5) setCode(value);
+        }}
+        placeholder="----"
       />
 
       {!phoneVerified && <Button onClick={confirmPhone}>Verify</Button>}
