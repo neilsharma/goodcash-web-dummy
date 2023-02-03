@@ -1,8 +1,24 @@
 import Button from "@/components/Button";
+import CheckBox from "@/components/CheckBox";
 import FormControl from "@/components/FormControl";
 import OnboardingLayout from "@/components/OnboardingLayout";
+import { useOnboarding } from "@/shared/context/onboarding";
 
 export default function OnboardingIndexPage() {
+  const {
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    phone,
+    setPhone,
+    email,
+    setEmail,
+    agreedToTosAndPp,
+    setAgreedToTosAndPp,
+    indexPageIsValid,
+  } = useOnboarding();
+
   return (
     <OnboardingLayout>
       <h1 className="font-kansasNewSemiBold text-4xl mb-4 text-boldText">
@@ -13,16 +29,48 @@ export default function OnboardingIndexPage() {
         No interest, no credit checks, no surprises.
       </p>
 
-      <div className="flex gap-6">
-        <FormControl label="First Name" placeholder="John" />
-        <FormControl label="Last Name" placeholder="Smith" />
+      <div className="flex gap-6 my-7">
+        <FormControl
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          label="First Name"
+          placeholder="John"
+          containerProps={{ className: "m-0" }}
+        />
+        <FormControl
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          label="Last Name"
+          placeholder="Smith"
+          containerProps={{ className: "m-0" }}
+        />
       </div>
 
-      <FormControl label="Phone number" placeholder="415 555 5555" />
+      <FormControl
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
+        }}
+        label="Phone number"
+        placeholder="+12223334445"
+      />
 
-      <FormControl label="Email address" placeholder="john@example.com" />
+      <FormControl
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        label="Email address"
+        placeholder="john@example.com"
+      />
 
-      <Button>Continue</Button>
+      <CheckBox
+        checked={agreedToTosAndPp}
+        onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}
+      >
+        By continuing, you agree to GoodCash’s <a href="#">terms of service</a>{" "}
+        and <a href="#">privacy policy</a>
+      </CheckBox>
+
+      <Button disabled={!indexPageIsValid}>Continue</Button>
     </OnboardingLayout>
   );
 }
