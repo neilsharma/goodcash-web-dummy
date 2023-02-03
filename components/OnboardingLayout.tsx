@@ -12,6 +12,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode }> = ({
           alt="GoodCash"
           width={106}
           height={16}
+          priority={true}
         />
       </div>
       <main className="max-w-[500px] m-auto">{children}</main>
