@@ -2,9 +2,7 @@ import type { FC, ReactNode } from "react";
 import Head from "next/head";
 import Image from "next/image";
 
-export const OnboardingLayout: FC<{ children?: ReactNode }> = ({
-  children,
-}) => {
+export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => {
   return (
     <>
       <Head>
