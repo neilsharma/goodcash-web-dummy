@@ -6,8 +6,13 @@ import CheckBox from "@/components/CheckBox";
 import FormControl from "@/components/FormControl";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { useOnboarding } from "@/shared/onboarding/context";
+import { useConfirmUnload } from "@/shared/hooks";
+import Title from "@/components/Title";
+import SubTitle from "@/components/SubTitle";
 
 export default function OnboardingIndexPage() {
+  useConfirmUnload();
+
   const {
     firstName,
     setFirstName,
@@ -32,13 +37,11 @@ export default function OnboardingIndexPage() {
 
   return (
     <OnboardingLayout>
-      <h1 className="font-kansasNewSemiBold text-4xl mb-4 text-boldText">
-        Welcome to GoodCash
-      </h1>
-      <p className="font-sharpGroteskBook text-lg">
-        Grow your credit with your existing bank account and the GoodCash card.
-        No interest, no credit checks, no surprises.
-      </p>
+      <Title>Welcome to GoodCash</Title>
+      <SubTitle>
+        Grow your credit with your existing bank account and the GoodCash card. No interest, no
+        credit checks, no surprises.
+      </SubTitle>
 
       <div className="flex gap-6 my-7">
         <FormControl
@@ -73,12 +76,9 @@ export default function OnboardingIndexPage() {
         placeholder="john@example.com"
       />
 
-      <CheckBox
-        checked={agreedToTosAndPp}
-        onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}
-      >
-        By continuing, you agree to GoodCash’s <a href="#">terms of service</a>{" "}
-        and <a href="#">privacy policy</a>
+      <CheckBox checked={agreedToTosAndPp} onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}>
+        By continuing, you agree to GoodCash’s <a href="#">terms of service</a> and{" "}
+        <a href="#">privacy policy</a>
       </CheckBox>
 
       <Button disabled={!indexPageIsValid} onClick={onContinue}>
