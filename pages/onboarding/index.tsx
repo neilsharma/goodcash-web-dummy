@@ -31,64 +31,59 @@ export default function OnboardingIndexPage() {
   }, [indexPageIsValid, push]);
 
   return (
-    <>
-      <Head>
-        <title>GoodCash App Onboarding</title>
-      </Head>
-      <OnboardingLayout>
-        <h1 className="font-kansasNewSemiBold text-4xl mb-4 text-boldText">
-          Welcome to GoodCash
-        </h1>
-        <p className="font-sharpGroteskBook text-lg text-text">
-          Grow your credit with your existing bank account and the GoodCash
-          card. No interest, no credit checks, no surprises.
-        </p>
+    <OnboardingLayout>
+      <h1 className="font-kansasNewSemiBold text-4xl mb-4 text-boldText">
+        Welcome to GoodCash
+      </h1>
+      <p className="font-sharpGroteskBook text-lg">
+        Grow your credit with your existing bank account and the GoodCash card.
+        No interest, no credit checks, no surprises.
+      </p>
 
-        <div className="flex gap-6 my-7">
-          <FormControl
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            label="First Name"
-            placeholder="John"
-            containerProps={{ className: "m-0" }}
-          />
-          <FormControl
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            label="Last Name"
-            placeholder="Smith"
-            containerProps={{ className: "m-0" }}
-          />
-        </div>
-
+      <div className="flex gap-6 my-7">
         <FormControl
-          value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
-          }}
-          label="Phone number"
-          placeholder="+12223334445"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          label="First Name"
+          placeholder="John"
+          containerProps={{ className: "m-0" }}
         />
-
         <FormControl
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          label="Email address"
-          placeholder="john@example.com"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          label="Last Name"
+          placeholder="Smith"
+          containerProps={{ className: "m-0" }}
         />
+      </div>
 
-        <CheckBox
-          checked={agreedToTosAndPp}
-          onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}
-        >
-          By continuing, you agree to GoodCash’s{" "}
-          <a href="#">terms of service</a> and <a href="#">privacy policy</a>
-        </CheckBox>
+      <FormControl
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
+        }}
+        label="Phone number"
+        placeholder="+12223334445"
+      />
 
-        <Button disabled={!indexPageIsValid} onClick={onContinue}>
-          Continue
-        </Button>
-      </OnboardingLayout>
-    </>
+      <FormControl
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        label="Email address"
+        placeholder="john@example.com"
+      />
+
+      <CheckBox
+        checked={agreedToTosAndPp}
+        onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}
+      >
+        By continuing, you agree to GoodCash’s <a href="#">terms of service</a>{" "}
+        and <a href="#">privacy policy</a>
+      </CheckBox>
+
+      <Button disabled={!indexPageIsValid} onClick={onContinue}>
+        Continue
+      </Button>
+    </OnboardingLayout>
   );
 }

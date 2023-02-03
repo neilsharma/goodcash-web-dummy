@@ -1,11 +1,15 @@
-import Image from "next/image";
 import type { FC, ReactNode } from "react";
+import Head from "next/head";
+import Image from "next/image";
 
 export const OnboardingLayout: FC<{ children?: ReactNode }> = ({
   children,
 }) => {
   return (
     <>
+      <Head>
+        <title>GoodCash App Onboarding</title>
+      </Head>
       <div className="flex justify-center mt-8 mb-24">
         <Image
           src="/img/logo/goodcash.svg"
