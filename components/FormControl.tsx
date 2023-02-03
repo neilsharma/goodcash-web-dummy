@@ -1,4 +1,9 @@
-import { DetailedHTMLProps, FC, InputHTMLAttributes } from "react";
+import {
+  DetailedHTMLProps,
+  FC,
+  HTMLAttributes,
+  InputHTMLAttributes,
+} from "react";
 import { twMerge } from "tailwind-merge";
 
 export interface FormControlProps
@@ -7,15 +12,23 @@ export interface FormControlProps
     HTMLInputElement
   > {
   label?: string;
+  containerProps?: DetailedHTMLProps<
+    HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  >;
 }
 
 export const FormControl: FC<FormControlProps> = ({
   label,
+  containerProps,
   className,
   ...props
 }) => {
   return (
-    <div className="w-full my-7">
+    <div
+      {...containerProps}
+      className={twMerge("w-full my-7", containerProps?.className)}
+    >
       <label>
         {label && (
           <span className="my-3 block text-text font-sharpGroteskMedium text-sm">
