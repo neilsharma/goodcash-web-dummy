@@ -1,29 +1,37 @@
 import Button from "@/components/Button";
 import FormControl from "@/components/FormControl";
 import OnboardingLayout from "@/components/OnboardingLayout";
-import {
-  redirectIfServerSideRendered,
-  useIndexPageComplected,
-} from "@/shared/hooks";
+import SubTitle from "@/components/SubTitle";
+import Title from "@/components/Title";
+import { redirectIfServerSideRendered, useConfirmUnload, useVerifyPageGuard } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/onboarding/context";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useState } from "react";
 
 export default function OnboardingVerifyPage() {
+  useConfirmUnload();
+  const { push } = useRouter();
+  const allowed = useVerifyPageGuard();
   const { phone, phoneVerified, setPhoneVerified } = useOnboarding();
-  const indexPageCompleted = useIndexPageComplected();
 
   const [code, setCode] = useState("");
 
-  if (!indexPageCompleted) return <OnboardingLayout />;
+  const confirmPhone = useCallback(() => {
+    if (code === "1234") setPhoneVerified(true);
+  }, [setPhoneVerified, code]);
+
+  const onContinue = useCallback(() => {
+    if (!phoneVerified) return;
+
+    push("/onboarding/plan");
+  }, [phoneVerified, push]);
+
+  if (!allowed) return <OnboardingLayout />;
 
   return (
     <OnboardingLayout>
-      <h1 className="font-kansasNewSemiBold text-4xl mb-4 text-boldText">
-        Verify your phone number
-      </h1>
-      <p className="font-sharpGroteskBook text-lg">
-        A text message with a verification code has been sent to {phone}.
-      </p>
+      <Title>Verify your phone number</Title>
+      <SubTitle>A text message with a verification code has been sent to {phone}.</SubTitle>
 
       <FormControl
         label="Verification code"
@@ -32,11 +40,9 @@ export default function OnboardingVerifyPage() {
         placeholder="- - - -"
       />
 
-      {!phoneVerified && (
-        <Button onClick={() => setPhoneVerified(true)}>Verify</Button>
-      )}
+      {!phoneVerified && <Button onClick={confirmPhone}>Verify</Button>}
 
-      <Button className="mt-12" disabled={!phoneVerified}>
+      <Button className="mt-12" disabled={!phoneVerified} onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>
