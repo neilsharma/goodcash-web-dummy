@@ -1,9 +1,11 @@
+import { useCallback } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
 import FormControl from "@/components/FormControl";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { useOnboarding } from "@/shared/onboarding/context";
-import Head from "next/head";
 
 export default function OnboardingIndexPage() {
   const {
@@ -19,6 +21,14 @@ export default function OnboardingIndexPage() {
     setAgreedToTosAndPp,
     indexPageIsValid,
   } = useOnboarding();
+
+  const { push } = useRouter();
+
+  const onContinue = useCallback(() => {
+    if (!indexPageIsValid) return;
+
+    push("/onboarding/verify");
+  }, [indexPageIsValid, push]);
 
   return (
     <>
@@ -75,7 +85,9 @@ export default function OnboardingIndexPage() {
           <a href="#">terms of service</a> and <a href="#">privacy policy</a>
         </CheckBox>
 
-        <Button disabled={!indexPageIsValid}>Continue</Button>
+        <Button disabled={!indexPageIsValid} onClick={onContinue}>
+          Continue
+        </Button>
       </OnboardingLayout>
     </>
   );
