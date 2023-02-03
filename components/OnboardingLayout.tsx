@@ -17,7 +17,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => 
           priority={true}
         />
       </div>
-      <main className="max-w-[500px] m-auto">{children}</main>
+      <main className="max-w-[500px] px-6 box-content m-auto">{children}</main>
     </>
   );
 };
