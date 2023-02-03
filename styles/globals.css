@@ -15,7 +15,7 @@ body {
 }
 
 a {
-  color: #296B4A;
+  color: #296b4a;
 }
 
 @font-face {
@@ -46,4 +46,10 @@ a {
 @font-face {
   font-family: "SharpGrotesk-Medium";
   src: url("../public/fonts/SharpGroteskMedium20-Regular.ttf");
+}
+
+@media screen and (max-width: 550px) {
+  :root {
+    font-size: 80%;
+  }
 }
