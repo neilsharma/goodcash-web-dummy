@@ -11,7 +11,7 @@ import {
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 
-interface IOnboardingContext {
+export interface IOnboardingContext {
   firstName: string;
   setFirstName: Dispatch<SetStateAction<string>>;
   lastName: string;
@@ -61,9 +61,7 @@ interface IOnboardingContext {
 
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
-export const OnboardingProvider: FC<{ children?: ReactNode }> = ({
-  children,
-}) => {
+export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -92,8 +90,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({
   const [zipCode, setZipCode] = useState("");
   const [ssn, setSsn] = useState("");
 
-  const [agreedToCardHolderAgreement, setAgreedToCardHolderAgreement] =
-    useState(false);
+  const [agreedToCardHolderAgreement, setAgreedToCardHolderAgreement] = useState(false);
   const [agreedToAutopay, setAgreedToAutopay] = useState(false);
   const [agreedToTermsOfService, setAgreedToTermsOfService] = useState(false);
 
