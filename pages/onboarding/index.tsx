@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
 import FormControl from "@/components/FormControl";
 import OnboardingLayout from "@/components/OnboardingLayout";
-import { useOnboarding } from "@/shared/onboaring/context";
+import { useOnboarding } from "@/shared/onboarding/context";
 import Head from "next/head";
 
 export default function OnboardingIndexPage() {
