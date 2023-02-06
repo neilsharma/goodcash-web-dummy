@@ -12,7 +12,11 @@ export const CheckBox: FC<CheckBoxProps> = ({ containerProps, children, ...props
       {...containerProps}
       className={twMerge("flex gap-3 items-start cursor-pointer my-6", containerProps?.className)}
     >
-      <input {...props} type="checkbox" className={twMerge("h-5 w-5", containerProps?.className)} />
+      <input
+        {...props}
+        type="checkbox"
+        className={twMerge("h-5 w-5 flex-shrink-0", props?.className)}
+      />
       <span className="font-sharpGroteskBook text-thinText text-sm">{children}</span>
     </label>
   );
