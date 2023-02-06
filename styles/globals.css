@@ -48,8 +48,15 @@ a {
   src: url("../public/fonts/SharpGroteskMedium20-Regular.ttf");
 }
 
-@media screen and (max-width: 550px) {
+@media screen and (min-width: 351px) and (max-width: 550px) {
   :root {
     font-size: 80%;
+  }
+}
+
+
+@media screen and (max-width: 350px) {
+  :root {
+    font-size: 75%;
   }
 }
