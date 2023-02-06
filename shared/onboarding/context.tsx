@@ -30,8 +30,8 @@ export interface IOnboardingContext {
   plan: string | null;
   setPlan: Dispatch<SetStateAction<string | null>>;
 
-  dateOfBirth: string;
-  setDateOfBirth: Dispatch<SetStateAction<string>>;
+  dateOfBirth: Date | null;
+  setDateOfBirth: Dispatch<SetStateAction<Date | null>>;
   legalAddress: string;
   setLegalAddress: Dispatch<SetStateAction<string>>;
   aptNumber: string;
@@ -44,6 +44,8 @@ export interface IOnboardingContext {
   setZipCode: Dispatch<SetStateAction<string>>;
   ssn: string;
   setSsn: Dispatch<SetStateAction<string>>;
+  is18YearsOld: boolean;
+  contactInfoPageIsValid: boolean;
 
   agreedToCardHolderAgreement: boolean;
   setAgreedToCardHolderAgreement: Dispatch<SetStateAction<boolean>>;
@@ -82,7 +84,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const [plan, setPlan] = useState<string | null>(null);
 
-  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
   const [legalAddress, setLegalAddress] = useState("");
   const [aptNumber, setAptNumber] = useState("");
   const [city, setCity] = useState("");
@@ -93,6 +95,38 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [agreedToCardHolderAgreement, setAgreedToCardHolderAgreement] = useState(false);
   const [agreedToAutopay, setAgreedToAutopay] = useState(false);
   const [agreedToTermsOfService, setAgreedToTermsOfService] = useState(false);
+
+  const is18YearsOld = useMemo(() => {
+    if (!dateOfBirth) return false;
+
+    const age = ~~((Date.now() - dateOfBirth.getTime()) / 31557600000);
+
+    return age >= 18;
+  }, [dateOfBirth]);
+
+  const contactInfoPageIsValid = useMemo(
+    () =>
+      is18YearsOld &&
+      !!legalAddress &&
+      !!city &&
+      !!state &&
+      !!zipCode &&
+      !!ssn &&
+      agreedToCardHolderAgreement &&
+      agreedToAutopay &&
+      agreedToTermsOfService,
+    [
+      is18YearsOld,
+      legalAddress,
+      city,
+      state,
+      zipCode,
+      ssn,
+      agreedToCardHolderAgreement,
+      agreedToAutopay,
+      agreedToTermsOfService,
+    ]
+  );
 
   const [plaid, setPlaid] = useState(null);
 
@@ -139,6 +173,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         setAgreedToAutopay,
         agreedToTermsOfService,
         setAgreedToTermsOfService,
+        is18YearsOld,
+        contactInfoPageIsValid,
 
         plaid,
         setPlaid,
