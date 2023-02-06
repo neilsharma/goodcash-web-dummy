@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
-import FormControl from "@/components/FormControl";
+import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
@@ -12,6 +12,8 @@ import {
   useContactInfoGuard,
 } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/onboarding/context";
+import { EUsaStates } from "@/shared/types";
+import FormControlSelect from "@/components/form-control/FormControlSelect";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
@@ -25,7 +27,6 @@ export default function OnboardingContactInfoPage() {
     setAptNumber,
     city,
     setCity,
-    state,
     setState,
     zipCode,
     setZipCode,
@@ -43,6 +44,7 @@ export default function OnboardingContactInfoPage() {
 
   const [dateOfBirthMask, setDateOfBirthMask] = useState("");
   const [ssnMask, setSsnMask] = useState("");
+  const [stateMask, setStateMask] = useState("");
 
   const onContinue = useCallback(() => {
     if (!contactInfoPageIsValid) return;
@@ -57,7 +59,7 @@ export default function OnboardingContactInfoPage() {
       <Title>A few more things...</Title>
       <SubTitle>GoodCash is required by law to collect this information.</SubTitle>
 
-      <FormControl
+      <FormControlText
         value={dateOfBirthMask}
         onChange={(e) => {
           setDateOfBirthMask(e.target.value);
@@ -78,7 +80,7 @@ export default function OnboardingContactInfoPage() {
         error={!is18YearsOld && dateOfBirth ? "You must be 18 years old to use GoodCash." : false}
       />
 
-      <FormControl
+      <FormControlText
         value={legalAddress}
         onChange={(e) => setLegalAddress(e.target.value)}
         label="Legal address"
@@ -87,14 +89,14 @@ export default function OnboardingContactInfoPage() {
         description="Your GoodCash card will be shipped here"
       />
 
-      <FormControl
+      <FormControlText
         value={aptNumber}
         onChange={(e) => setAptNumber(e.target.value)}
         label="Apt/suite number"
         placeholder="Optional"
       />
 
-      <FormControl
+      <FormControlText
         value={city}
         onChange={(e) => setCity(e.target.value)}
         label="City"
@@ -102,15 +104,19 @@ export default function OnboardingContactInfoPage() {
       />
 
       <div className="flex gap-6 my-7">
-        <FormControl
-          value={state}
-          onChange={(e) => setState(e.target.value)}
+        <FormControlSelect
+          options={Object.keys(EUsaStates).map((e) => ({ value: e, label: e }))}
+          value={stateMask}
+          onChange={(v) => {
+            setStateMask(v as any);
+            setState(((v as any)?.value || "") as EUsaStates | "");
+          }}
           label="State"
           placeholder="State"
           containerProps={{ className: "m-0" }}
         />
 
-        <FormControl
+        <FormControlText
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           label="Zipcode"
@@ -119,7 +125,7 @@ export default function OnboardingContactInfoPage() {
         />
       </div>
 
-      <FormControl
+      <FormControlText
         value={ssnMask}
         onChange={(e) => {
           setSsnMask(e.target.value);
