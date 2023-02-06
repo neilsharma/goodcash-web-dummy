@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import FormControl from "@/components/FormControl";
+import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
@@ -39,7 +39,7 @@ export default function OnboardingVerifyPage() {
       <Title>Verify your phone number</Title>
       <SubTitle>A text message with a verification code has been sent to {phone}.</SubTitle>
 
-      <FormControl
+      <FormControlText
         className="tracking-[0.3em]"
         label="Verification code"
         value={codeMask}

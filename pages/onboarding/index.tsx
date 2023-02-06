@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
-import FormControl from "@/components/FormControl";
+import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { useOnboarding } from "@/shared/onboarding/context";
 import { useConfirmUnload } from "@/shared/hooks";
@@ -44,14 +44,14 @@ export default function OnboardingIndexPage() {
       </SubTitle>
 
       <div className="flex gap-6 my-7">
-        <FormControl
+        <FormControlText
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           label="First Name"
           placeholder="John"
           containerProps={{ className: "m-0" }}
         />
-        <FormControl
+        <FormControlText
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           label="Last Name"
@@ -60,7 +60,7 @@ export default function OnboardingIndexPage() {
         />
       </div>
 
-      <FormControl
+      <FormControlText
         value={phoneMask}
         onChange={(e) => {
           setPhoneMask(e.target.value);
@@ -72,7 +72,7 @@ export default function OnboardingIndexPage() {
         inputMask="+1 999 999 9999"
       />
 
-      <FormControl
+      <FormControlText
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         label="Email address"
