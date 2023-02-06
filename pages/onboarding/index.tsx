@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import Head from "next/head";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
@@ -18,7 +17,6 @@ export default function OnboardingIndexPage() {
     setFirstName,
     lastName,
     setLastName,
-    phone,
     setPhone,
     email,
     setEmail,
@@ -26,6 +24,8 @@ export default function OnboardingIndexPage() {
     setAgreedToTosAndPp,
     indexPageIsValid,
   } = useOnboarding();
+
+  const [phoneMask, setPhoneMask] = useState("");
 
   const { push } = useRouter();
 
@@ -61,15 +61,15 @@ export default function OnboardingIndexPage() {
       </div>
 
       <FormControl
-        value={phone}
+        value={phoneMask}
         onChange={(e) => {
-          const value = e.target.value.replace(/[^0-9\+]/g, "");
-
-          if (value.startsWith("+") || value === "")
-            setPhone(e.target.value.replace(/[^0-9\+]/g, ""));
+          setPhoneMask(e.target.value);
+          setPhone(e.target.value.replace(/\s|\_/g, ""));
         }}
         label="Phone number"
-        placeholder="+12223334445"
+        type="tel"
+        placeholder="+1 999 999 9999"
+        inputMask="+1 999 999 9999"
       />
 
       <FormControl
