@@ -1,3 +1,5 @@
+import { useCallback, useState } from "react";
+import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
 import FormControl from "@/components/FormControl";
@@ -21,11 +23,12 @@ export default function OnboardingContactInfoPage() {
     setLegalAddress,
     aptNumber,
     setAptNumber,
+    city,
+    setCity,
     state,
     setState,
     zipCode,
     setZipCode,
-    ssn,
     setSsn,
     agreedToCardHolderAgreement,
     setAgreedToCardHolderAgreement,
@@ -33,7 +36,19 @@ export default function OnboardingContactInfoPage() {
     setAgreedToAutopay,
     agreedToTermsOfService,
     setAgreedToTermsOfService,
+    is18YearsOld,
+    contactInfoPageIsValid,
   } = useOnboarding();
+  const { push } = useRouter();
+
+  const [dateOfBirthMask, setDateOfBirthMask] = useState("");
+  const [ssnMask, setSsnMask] = useState("");
+
+  const onContinue = useCallback(() => {
+    if (!contactInfoPageIsValid) return;
+
+    push("/onboarding/connect-bank-account");
+  }, [push, contactInfoPageIsValid]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -43,10 +58,24 @@ export default function OnboardingContactInfoPage() {
       <SubTitle>GoodCash is required by law to collect this information.</SubTitle>
 
       <FormControl
-        value={dateOfBirth}
-        onChange={(e) => setDateOfBirth(e.target.value)}
+        value={dateOfBirthMask}
+        onChange={(e) => {
+          setDateOfBirthMask(e.target.value);
+
+          if (e.target.value === "" || e.target.value.includes("_")) return setDateOfBirth(null);
+
+          const date = new Date();
+          const [month, day, year] = e.target.value.replace(/\s/g, "").split("/");
+          date.setMonth(Number(month) + 1);
+          date.setDate(Number(day));
+          date.setFullYear(Number(year));
+
+          setDateOfBirth(date);
+        }}
         label="Date of birth"
+        inputMask="99 / 99 / 9999"
         placeholder="MM / DD / YYYY"
+        error={!is18YearsOld && dateOfBirth ? "You must be 18 years old to use GoodCash." : false}
       />
 
       <FormControl
@@ -63,6 +92,13 @@ export default function OnboardingContactInfoPage() {
         onChange={(e) => setAptNumber(e.target.value)}
         label="Apt/suite number"
         placeholder="Optional"
+      />
+
+      <FormControl
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        label="City"
+        placeholder="City"
       />
 
       <div className="flex gap-6 my-7">
@@ -84,10 +120,17 @@ export default function OnboardingContactInfoPage() {
       </div>
 
       <FormControl
-        value={ssn}
-        onChange={(e) => setSsn(e.target.value)}
+        value={ssnMask}
+        onChange={(e) => {
+          setSsnMask(e.target.value);
+
+          if (e.target.value === "" || e.target.value.includes("_")) return setSsn("");
+
+          setSsn(e.target.value.replace(/\-/g, ""));
+        }}
         label="Social security number"
         placeholder="XXX-XXX-XXXX"
+        inputMask="999-999-9999"
         description="Your SSN will not be shared without your permission, except as required by law. Your SSN will only be used to verify your identity. This will not affect your credit score. Your data will be encrypted and transmitted via a secure (TLS) connection."
       />
 
@@ -111,7 +154,9 @@ export default function OnboardingContactInfoPage() {
         I agree to the GoodCash Terms of Service.
       </CheckBox>
 
-      <Button className="my-7">Continue</Button>
+      <Button className="my-7" disabled={!contactInfoPageIsValid} onClick={onContinue}>
+        Continue
+      </Button>
     </OnboardingLayout>
   );
 }
