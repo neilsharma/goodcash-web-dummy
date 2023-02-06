@@ -15,16 +15,22 @@ export default function OnboardingVerifyPage() {
   const { phone, phoneVerified, setPhoneVerified } = useOnboarding();
 
   const [code, setCode] = useState("");
+  const [codeMask, setCodeMask] = useState("");
 
   const confirmPhone = useCallback(() => {
-    if (code === "1234") setPhoneVerified(true);
-  }, [setPhoneVerified, code]);
+    if (phoneVerified) return phoneVerified;
+
+    const isValid = code === "1234";
+
+    if (isValid) setPhoneVerified(isValid);
+    return isValid;
+  }, [setPhoneVerified, code, phoneVerified]);
 
   const onContinue = useCallback(() => {
-    if (!phoneVerified) return;
+    if (!confirmPhone()) return;
 
     push("/onboarding/plan");
-  }, [phoneVerified, push]);
+  }, [push, confirmPhone]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -36,18 +42,16 @@ export default function OnboardingVerifyPage() {
       <FormControl
         className="tracking-[0.3em]"
         label="Verification code"
-        value={code}
+        value={codeMask}
         onChange={(e) => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
-
-          if (value.length < 5) setCode(value);
+          setCodeMask(e.target.value);
+          setCode(e.target.value.replace(/\_/g, ""));
         }}
         placeholder="----"
+        inputMask="9999"
       />
 
-      {!phoneVerified && <Button onClick={confirmPhone}>Verify</Button>}
-
-      <Button className="mt-12" disabled={!phoneVerified} onClick={onContinue}>
+      <Button className="mt-12" onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>
