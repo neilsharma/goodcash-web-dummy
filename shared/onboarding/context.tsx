@@ -10,6 +10,7 @@ import {
 } from "react";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
+import { EUsaStates } from "../types";
 
 export interface IOnboardingContext {
   firstName: string;
@@ -38,8 +39,8 @@ export interface IOnboardingContext {
   setAptNumber: Dispatch<SetStateAction<string>>;
   city: string;
   setCity: Dispatch<SetStateAction<string>>;
-  state: string;
-  setState: Dispatch<SetStateAction<string>>;
+  state: EUsaStates | "";
+  setState: Dispatch<SetStateAction<EUsaStates | "">>;
   zipCode: string;
   setZipCode: Dispatch<SetStateAction<string>>;
   ssn: string;
@@ -88,7 +89,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [legalAddress, setLegalAddress] = useState("");
   const [aptNumber, setAptNumber] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const [state, setState] = useState<EUsaStates | "">("");
   const [zipCode, setZipCode] = useState("");
   const [ssn, setSsn] = useState("");
 
