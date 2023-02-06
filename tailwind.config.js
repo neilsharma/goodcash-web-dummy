@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -12,6 +9,7 @@ module.exports = {
         text: "#333836",
         boldText: "#0F100F",
         thinText: "#565D59",
+        error: "#CE0D35",
       },
       fontFamily: {
         kansasNew: ["KansasNew-Regular"],
