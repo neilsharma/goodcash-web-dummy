@@ -20,7 +20,7 @@ export const getInputClassName = (
   isError: boolean
 ) => {
   return twMerge(
-    `w-full p-4 rounded-lg font-sharpGroteskBook border border-${
+    `w-full p-4 rounded-lg font-sharpGroteskBook box-border h-14 border border-${
       isError ? "error" : "black/20"
     } outline-${isError ? "error" : "inherit"}`,
     className

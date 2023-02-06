@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import ReactSelect, { Props } from "react-select";
+import { twMerge } from "tailwind-merge";
 import {
   FormControlDescription,
   FormControlError,
@@ -24,7 +25,12 @@ export const FormControlSelect: FC<FormControlSelectProps> = ({
   return (
     <FormControlWrapper {...containerProps}>
       <FormControlLabel label={label} labelDescription={labelDescription} />
-      <ReactSelect {...props} className={getInputClassName(className, isError(error))} />
+      <ReactSelect
+        {...props}
+        classNames={{
+          control: () => getInputClassName(twMerge(className, "p-0", "pl-1"), isError(error)),
+        }}
+      />
       <FormControlDescription description={description} />
       <FormControlError error={error} />
     </FormControlWrapper>
