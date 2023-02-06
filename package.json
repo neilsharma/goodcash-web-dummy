@@ -13,6 +13,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-input-mask": "2.0.4",
+    "react-select": "5.7.0",
     "tailwind-merge": "1.9.0",
     "validator": "13.9.0"
   },
@@ -21,8 +22,8 @@
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
-    "@types/validator": "13.7.11",
     "@types/react-input-mask": "3.0.2",
+    "@types/validator": "13.7.11",
     "autoprefixer": "10.4.13",
     "eslint": "8.33.0",
     "eslint-config-next": "13.1.6",
