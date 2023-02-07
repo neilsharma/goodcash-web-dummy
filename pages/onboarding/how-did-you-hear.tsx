@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
@@ -6,6 +8,11 @@ import { redirectIfServerSideRendered, useConfirmUnload, useLastPageGuard } from
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
   const allowed = useLastPageGuard();
+  const { push } = useRouter();
+
+  const finish = useCallback(() => {
+    push("/onboarding/application-complete");
+  }, [push]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -23,8 +30,10 @@ export default function OnboardingHowDidYouHearPage() {
       </div>
 
       <div className="flex gap-4 mb-8">
-        <Button>Finish</Button>
-        <Button variant="text">Skip</Button>
+        <Button onClick={finish}>Finish</Button>
+        <Button onClick={finish} variant="text">
+          Skip
+        </Button>
       </div>
     </OnboardingLayout>
   );
