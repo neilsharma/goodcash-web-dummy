@@ -12,7 +12,7 @@ import {
   useConnectBankAccountGuard,
 } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { getPlaidToken } from "@/shared/http/services/plaid";
+import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -27,8 +27,10 @@ export default function OnboardingConnectBankAccountPage() {
 
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,
-    onSuccess: (publicToken, metadata) => {
+    onSuccess: async (publicToken, metadata) => {
       setPlaid({ publicToken, metadata });
+
+      await createBankAccount({ plaidPublicToken: publicToken });
 
       push("/onboarding/how-did-you-hear");
     },

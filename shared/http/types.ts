@@ -26,3 +26,7 @@ export interface IdentityBasics {
   birth_date?: string;
   email_address?: string;
 }
+
+export interface CreateBankAccount {
+  plaidPublicToken: string;
+}
