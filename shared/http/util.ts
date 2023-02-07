@@ -1,0 +1,17 @@
+export const urlPaths = {
+  USER_ME: "/v1/me",
+  USER_ME_CREATE: "/v1/me/create",
+  USER_ME_BANK_ACCOUNT_INFO: "/v1/me/bank-account-info",
+  KYC_ATTEMPT: "/v1/me/kyc_attempt",
+  KYC_IDENTITY_BASICS: "/v1/me/kyc_attempt/identity_basics",
+  KYC_ADDRESS: "/v1/me/kyc_attempt/address",
+  KYC_TAX_INFO: "/v1/me/kyc_attempt/tax_info",
+  KYC_BANK_ACCOUNT: "/v1/me/kyc_attempt/bank-account",
+  KYC_PLAID_LINK_TOKEN: "/v1/me/kyc_attempt/link-token",
+  KYC_ATTEMPT_SUBMIT: "/v1/me/kyc_attempt/submit",
+  USER_SETTINGS: "/v1/user-settings",
+  LOC: "/v1/lines_of_credit",
+  LOC_BALANCE: "/v1/lines_of_credit/:line_of_credit_id/balance",
+  CARD_URL: "/v1/cards/",
+  TRANSACTIONS_LIST: "/v1/transactions/list-loc-transactions",
+};
