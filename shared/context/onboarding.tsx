@@ -1,3 +1,4 @@
+import { ConfirmationResult } from "firebase/auth";
 import {
   createContext,
   Dispatch,
@@ -8,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import type { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 import { EUsaStates } from "../types";
@@ -55,12 +57,14 @@ export interface IOnboardingContext {
   agreedToTermsOfService: boolean;
   setAgreedToTermsOfService: Dispatch<SetStateAction<boolean>>;
 
-  plaid: null;
-  setPlaid: Dispatch<SetStateAction<null>>;
+  plaid: PlaidPayload;
+  setPlaid: Dispatch<SetStateAction<PlaidPayload>>;
 
   howDidYouHearAboutUs: string;
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 }
+
+type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMetadata };
 
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
@@ -129,7 +133,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     ]
   );
 
-  const [plaid, setPlaid] = useState(null);
+  const [plaid, setPlaid] = useState<PlaidPayload>(null);
 
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
