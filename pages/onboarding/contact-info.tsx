@@ -14,11 +14,15 @@ import {
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EUsaStates } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
+import { updateUserAddress, updateUserIdentityBasic } from "@/shared/http/services/user";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
   const allowed = useContactInfoGuard();
   const {
+    firstName,
+    lastName,
+    email,
     dateOfBirth,
     setDateOfBirth,
     legalAddress,
@@ -27,6 +31,7 @@ export default function OnboardingContactInfoPage() {
     setAptNumber,
     city,
     setCity,
+    state,
     setState,
     zipCode,
     setZipCode,
@@ -46,11 +51,37 @@ export default function OnboardingContactInfoPage() {
   const [ssnMask, setSsnMask] = useState("");
   const [stateMask, setStateMask] = useState("");
 
-  const onContinue = useCallback(() => {
+  const onContinue = useCallback(async () => {
     if (!contactInfoPageIsValid) return;
 
+    await updateUserAddress({
+      address_line_1: legalAddress,
+      city,
+      country: "USA",
+      postal_code: zipCode,
+      state,
+    });
+
+    await updateUserIdentityBasic({
+      birth_date: dateOfBirth?.toISOString(),
+      email_address: email,
+      first_name: firstName,
+      last_name: lastName,
+    });
+
     push("/onboarding/connect-bank-account");
-  }, [push, contactInfoPageIsValid]);
+  }, [
+    push,
+    contactInfoPageIsValid,
+    legalAddress,
+    city,
+    zipCode,
+    state,
+    dateOfBirth,
+    email,
+    firstName,
+    lastName,
+  ]);
 
   if (!allowed) return <OnboardingLayout />;
 
