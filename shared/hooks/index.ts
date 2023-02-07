@@ -2,17 +2,19 @@
 
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useOnboarding } from "../onboarding/context";
+import { useGlobal } from "../context/global";
+import { useOnboarding } from "../context/onboarding";
 
 export const useVerifyPageGuard = () => {
+  const { confirmationResult } = useGlobal();
   const { indexPageIsValid } = useOnboarding();
   const { replace } = useRouter();
 
   useEffect(() => {
-    if (!indexPageIsValid) replace("/onboarding");
-  }, [indexPageIsValid, replace]);
+    if (!indexPageIsValid || !confirmationResult) replace("/onboarding");
+  }, [indexPageIsValid, confirmationResult, replace]);
 
-  return indexPageIsValid;
+  return indexPageIsValid && !!confirmationResult;
 };
 
 export const usePlanPageGuard = () => {
@@ -38,6 +40,20 @@ export const useContactInfoGuard = () => {
   }, [indexPageIsValid, phoneVerified, plan, replace]);
 
   return indexPageIsValid && phoneVerified && !!plan;
+};
+
+export const useConnectBankAccountGuard = () => {
+  const { indexPageIsValid, phoneVerified, plan, contactInfoPageIsValid } = useOnboarding();
+  const { replace } = useRouter();
+
+  useEffect(() => {
+    if (!indexPageIsValid) replace("/onboarding");
+    else if (!phoneVerified) replace("/onboarding/verify");
+    else if (!plan) replace("/onboarding/plan");
+    else if (!contactInfoPageIsValid) replace("/onboarding/contact-info");
+  }, [indexPageIsValid, phoneVerified, plan, contactInfoPageIsValid, replace]);
+
+  return indexPageIsValid && phoneVerified && !!plan && contactInfoPageIsValid;
 };
 
 export const canUseDOM = () =>
