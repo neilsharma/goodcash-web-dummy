@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -11,24 +12,33 @@ import {
   useConnectBankAccountGuard,
 } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
+import { getPlaidToken } from "@/shared/http/services/plaid";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
   const allowed = useConnectBankAccountGuard();
-  const { plaid, setPlaid } = useOnboarding();
+  const { push } = useRouter();
+  const { setPlaid } = useOnboarding();
+  const [plaidLinkToken, setPlaidLinkToken] = useState("");
+
+  useEffect(() => {
+    getPlaidToken().then(setPlaidLinkToken);
+  }, [setPlaidLinkToken]);
 
   const { open, ready } = usePlaidLink({
-    token: "<GENERATED_LINK_TOKEN>",
+    token: plaidLinkToken,
     onSuccess: (publicToken, metadata) => {
       setPlaid({ publicToken, metadata });
+
+      push("/onboarding/how-did-you-hear");
     },
   });
 
   const onContinue = useCallback(() => {
-    if (!ready) return;
+    if (!ready || !plaidLinkToken) return;
 
     open();
-  }, [open, ready]);
+  }, [open, ready, plaidLinkToken]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -57,7 +67,7 @@ export default function OnboardingConnectBankAccountPage() {
         ))}
       </div>
 
-      <Button disabled={!ready} onClick={onContinue}>
+      <Button disabled={!ready || !plaidLinkToken} onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>
