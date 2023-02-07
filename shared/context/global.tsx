@@ -28,7 +28,6 @@ const firebaseConfig = {
 };
 
 export interface IGlobalContext {
-  app: FirebaseApp | null;
   analytics: Analytics | null;
   auth: Auth | null;
   recaptchaVerifier: RecaptchaVerifier | null;
@@ -36,26 +35,33 @@ export interface IGlobalContext {
   setConfirmationResult: Dispatch<SetStateAction<ConfirmationResult | null>>;
 }
 
+export const app = initializeApp(firebaseConfig);
+
+let computedAuth: IGlobalContext["auth"] = null;
+export const getComputedAuth = () => computedAuth;
+
+let computedAnalytics: IGlobalContext["analytics"] = null;
+export const getComputedAnalytics = () => computedAnalytics;
+
+let computedRecaptchaVerifier: IGlobalContext["recaptchaVerifier"] = null;
+export const getComputedRecaptchaVerifier = () => computedRecaptchaVerifier;
+
 const globalContext = createContext<IGlobalContext>(null as any);
 
 export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
-  // const app = useMemo(() => initializeApp(firebaseConfig), []);
-  // const analytics = useMemo(() => app && getAnalytics(app), [app]);
-  // const auth = useMemo(() => app && getAuth(app), [app]);
-
-  const [app, setApp] = useState<IGlobalContext["app"]>(null);
   const [analytics, setAnalytics] = useState<IGlobalContext["analytics"]>(null);
   const [auth, setAuth] = useState<IGlobalContext["auth"]>(null);
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<IGlobalContext["recaptchaVerifier"]>(null);
 
   useEffect(() => {
-    const _app = initializeApp(firebaseConfig);
-    const _analytics = getAnalytics(_app);
-    const _auth = getAuth(_app);
+    const _analytics = getAnalytics(app);
+    const _auth = getAuth(app);
     const _recaptchaVerifier = new RecaptchaVerifier("recaptcha-container", {}, _auth);
 
-    setApp(_app);
+    computedAuth = _auth;
+    computedAnalytics = _analytics;
+
     setAnalytics(_analytics);
     setAuth(_auth);
     setRecaptchaVerifier(_recaptchaVerifier);
@@ -66,7 +72,6 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   return (
     <globalContext.Provider
       value={{
-        app,
         analytics,
         auth,
         recaptchaVerifier,
