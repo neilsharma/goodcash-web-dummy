@@ -28,9 +28,9 @@ export default function OnboardingConnectBankAccountPage() {
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,
     onSuccess: async (publicToken, metadata) => {
-      setPlaid({ publicToken, metadata });
-
       await createBankAccount({ plaidPublicToken: publicToken });
+
+      setPlaid({ publicToken, metadata });
 
       push("/onboarding/how-did-you-hear");
     },
