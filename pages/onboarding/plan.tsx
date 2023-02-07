@@ -3,7 +3,7 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, usePlanPageGuard } from "@/shared/hooks";
-import { useOnboarding } from "@/shared/onboarding/context";
+import { useOnboarding } from "@/shared/context/onboarding";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback } from "react";

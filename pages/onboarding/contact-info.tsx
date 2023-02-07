@@ -11,7 +11,7 @@ import {
   useConfirmUnload,
   useContactInfoGuard,
 } from "@/shared/hooks";
-import { useOnboarding } from "@/shared/onboarding/context";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { EUsaStates } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
 
