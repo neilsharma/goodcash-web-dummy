@@ -30,3 +30,7 @@ export interface IdentityBasics {
 export interface CreateBankAccount {
   plaidPublicToken: string;
 }
+
+export interface KycTaxInfo {
+  social_security_number: string;
+}

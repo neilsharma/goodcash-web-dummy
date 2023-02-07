@@ -14,7 +14,11 @@ import {
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EUsaStates } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
-import { updateUserAddress, updateUserIdentityBasic } from "@/shared/http/services/user";
+import {
+  updateTaxInfo,
+  updateUserAddress,
+  updateUserIdentityBasic,
+} from "@/shared/http/services/user";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
@@ -35,6 +39,7 @@ export default function OnboardingContactInfoPage() {
     setState,
     zipCode,
     setZipCode,
+    ssn,
     setSsn,
     agreedToCardHolderAgreement,
     setAgreedToCardHolderAgreement,
@@ -69,6 +74,8 @@ export default function OnboardingContactInfoPage() {
       last_name: lastName,
     });
 
+    await updateTaxInfo({ social_security_number: ssn });
+
     push("/onboarding/connect-bank-account");
   }, [
     push,
@@ -81,6 +88,7 @@ export default function OnboardingContactInfoPage() {
     email,
     firstName,
     lastName,
+    ssn,
   ]);
 
   if (!allowed) return <OnboardingLayout />;
