@@ -12,6 +12,7 @@ import {
 import type { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
+import { GCUser } from "../http/types";
 import { EUsaStates } from "../types";
 
 export interface IOnboardingContext {
@@ -32,6 +33,8 @@ export interface IOnboardingContext {
 
   plan: string | null;
   setPlan: Dispatch<SetStateAction<string | null>>;
+  user: GCUser | null;
+  setUser: Dispatch<SetStateAction<GCUser | null>>;
 
   dateOfBirth: Date | null;
   setDateOfBirth: Dispatch<SetStateAction<Date | null>>;
@@ -134,6 +137,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const [plaid, setPlaid] = useState<PlaidPayload>(null);
+  const [user, setUser] = useState<IOnboardingContext["user"]>(null);
 
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
@@ -157,6 +161,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
         plan,
         setPlan,
+        user,
+        setUser,
 
         dateOfBirth,
         setDateOfBirth,
