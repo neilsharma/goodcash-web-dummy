@@ -56,6 +56,21 @@ export const useConnectBankAccountGuard = () => {
   return indexPageIsValid && phoneVerified && !!plan && contactInfoPageIsValid;
 };
 
+export const useLastPageGuard = () => {
+  const { indexPageIsValid, phoneVerified, plan, contactInfoPageIsValid, plaid } = useOnboarding();
+  const { replace } = useRouter();
+
+  useEffect(() => {
+    if (!indexPageIsValid) replace("/onboarding");
+    else if (!phoneVerified) replace("/onboarding/verify");
+    else if (!plan) replace("/onboarding/plan");
+    else if (!contactInfoPageIsValid) replace("/onboarding/contact-info");
+    else if (!plaid) replace("/onboarding/connect-bank-account");
+  }, [indexPageIsValid, phoneVerified, plan, contactInfoPageIsValid, plaid, replace]);
+
+  return indexPageIsValid && phoneVerified && !!plan && contactInfoPageIsValid && !!plaid;
+};
+
 export const canUseDOM = () =>
   !!(typeof window !== "undefined" && window.document && window.document.createElement);
 
