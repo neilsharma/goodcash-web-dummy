@@ -4,30 +4,34 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, useVerifyPageGuard } from "@/shared/hooks";
-import { useOnboarding } from "@/shared/onboarding/context";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
+import { useGlobal } from "@/shared/context/global";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
+  const { confirmationResult } = useGlobal();
+  const { phone, phoneVerified, setPhoneVerified } = useOnboarding();
   const { push } = useRouter();
   const allowed = useVerifyPageGuard();
-  const { phone, phoneVerified, setPhoneVerified } = useOnboarding();
 
   const [code, setCode] = useState("");
   const [codeMask, setCodeMask] = useState("");
 
-  const confirmPhone = useCallback(() => {
+  const confirmPhone = useCallback(async () => {
     if (phoneVerified) return phoneVerified;
 
-    const isValid = code === "1234";
+    const res = await confirmationResult?.confirm(code);
+
+    const isValid = !!res?.user;
 
     if (isValid) setPhoneVerified(isValid);
     return isValid;
-  }, [setPhoneVerified, code, phoneVerified]);
+  }, [setPhoneVerified, confirmationResult, code, phoneVerified]);
 
-  const onContinue = useCallback(() => {
-    if (!confirmPhone()) return;
+  const onContinue = useCallback(async () => {
+    if (!(await confirmPhone())) return;
 
     push("/onboarding/plan");
   }, [push, confirmPhone]);
@@ -47,8 +51,8 @@ export default function OnboardingVerifyPage() {
           setCodeMask(e.target.value);
           setCode(e.target.value.replace(/\_/g, ""));
         }}
-        placeholder="----"
-        inputMask="9999"
+        placeholder="------"
+        inputMask="999999"
       />
 
       <Button className="mt-12" onClick={onContinue}>

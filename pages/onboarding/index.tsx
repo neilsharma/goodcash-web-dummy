@@ -4,19 +4,24 @@ import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
 import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
-import { useOnboarding } from "@/shared/onboarding/context";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
 import Title from "@/components/Title";
 import SubTitle from "@/components/SubTitle";
+import { signInWithPhoneNumber } from "firebase/auth";
+import { useGlobal } from "@/shared/context/global";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
+  const { auth, recaptchaVerifier } = useGlobal();
+  const { setConfirmationResult } = useGlobal();
 
   const {
     firstName,
     setFirstName,
     lastName,
     setLastName,
+    phone,
     setPhone,
     email,
     setEmail,
@@ -29,11 +34,16 @@ export default function OnboardingIndexPage() {
 
   const { push } = useRouter();
 
-  const onContinue = useCallback(() => {
+  const onContinue = useCallback(async () => {
     if (!indexPageIsValid) return;
 
+    const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+    recaptchaVerifier?.clear();
+
+    setConfirmationResult(res);
+
     push("/onboarding/verify");
-  }, [indexPageIsValid, push]);
+  }, [auth, recaptchaVerifier, indexPageIsValid, phone, setConfirmationResult, push]);
 
   return (
     <OnboardingLayout>
