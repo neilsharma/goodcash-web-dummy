@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
@@ -5,8 +7,8 @@ import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, usePlanPageGuard } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { useGlobal } from "@/shared/context/global";
+import { createUser } from "@/shared/http/services/user";
 
 const CheckMark = () => (
   <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />
@@ -16,12 +18,16 @@ export default function OnboardingPlanPage() {
   useConfirmUnload();
   const allowed = usePlanPageGuard();
   const { push } = useRouter();
-  const { setPlan } = useOnboarding();
+  const { auth } = useGlobal();
+  const { setPlan, setUser } = useOnboarding();
 
-  const onContinue = useCallback(() => {
+  const onContinue = useCallback(async () => {
     setPlan("1");
+
+    setUser(await createUser(auth));
+
     push("/onboarding/contact-info");
-  }, [setPlan, push]);
+  }, [setPlan, setUser, push, auth]);
 
   if (!allowed) return <OnboardingLayout />;
 
