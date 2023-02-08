@@ -6,7 +6,7 @@ export default function Document() {
       <Head />
       <body>
         <Main />
-        <div id="recaptcha-container" />
+        <div id="recaptcha-container" className="fixed left-2/4 bottom-20 -translate-x-1/2" />
         <NextScript />
       </body>
     </Html>
