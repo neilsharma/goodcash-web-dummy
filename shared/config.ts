@@ -40,3 +40,6 @@ const firebaseConfigs: Record<GoodcashEnvironment, FirebaseOptions> = {
 };
 
 export const firebaseConfig = firebaseConfigs[goodcashEnvironment] ?? firebaseConfigs.local;
+
+export const appStoreId = "";
+export const googlePlayId = "";
