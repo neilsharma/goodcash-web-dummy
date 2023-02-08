@@ -24,8 +24,6 @@ export interface IOnboardingContext {
   setPhone: Dispatch<SetStateAction<string>>;
   email: string;
   setEmail: Dispatch<SetStateAction<string>>;
-  agreedToTosAndPp: boolean;
-  setAgreedToTosAndPp: Dispatch<SetStateAction<boolean>>;
   indexPageIsValid: boolean;
 
   phoneVerified: boolean;
@@ -76,17 +74,15 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [agreedToTosAndPp, setAgreedToTosAndPp] = useState(false);
 
   const indexPageIsValid = useMemo(() => {
     return !!(
       firstName &&
       lastName &&
       isMobilePhone(phone, "en-US", { strictMode: true }) &&
-      isEmail(email) &&
-      agreedToTosAndPp
+      isEmail(email)
     );
-  }, [firstName, lastName, phone, email, agreedToTosAndPp]);
+  }, [firstName, lastName, phone, email]);
 
   const [phoneVerified, setPhoneVerified] = useState(false);
 
@@ -152,8 +148,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         setPhone,
         email,
         setEmail,
-        agreedToTosAndPp,
-        setAgreedToTosAndPp,
         indexPageIsValid,
 
         phoneVerified,

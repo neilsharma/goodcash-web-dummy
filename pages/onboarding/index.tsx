@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
-import CheckBox from "@/components/CheckBox";
 import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { useOnboarding } from "@/shared/context/onboarding";
@@ -25,8 +24,6 @@ export default function OnboardingIndexPage() {
     setPhone,
     email,
     setEmail,
-    agreedToTosAndPp,
-    setAgreedToTosAndPp,
     indexPageIsValid,
   } = useOnboarding();
 
@@ -89,10 +86,10 @@ export default function OnboardingIndexPage() {
         placeholder="john@example.com"
       />
 
-      <CheckBox checked={agreedToTosAndPp} onChange={setAgreedToTosAndPp.bind(null, (v) => !v)}>
+      <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By continuing, you agree to GoodCash’s <a href="#">terms of service</a> and{" "}
         <a href="#">privacy policy</a>
-      </CheckBox>
+      </p>
 
       <Button disabled={!indexPageIsValid} onClick={onContinue}>
         Continue
