@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -21,12 +21,18 @@ export default function OnboardingPlanPage() {
   const { auth } = useGlobal();
   const { setPlan, setUser } = useOnboarding();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const onContinue = useCallback(async () => {
     setPlan("1");
 
-    setUser(await createUser(auth));
-
-    push("/onboarding/contact-info");
+    try {
+      setIsLoading(true);
+      setUser(await createUser(auth));
+      push("/onboarding/contact-info");
+    } catch (e) {
+      setIsLoading(false);
+    }
   }, [setPlan, setUser, push, auth]);
 
   if (!allowed) return <OnboardingLayout />;
@@ -59,7 +65,9 @@ export default function OnboardingPlanPage() {
         ))}
       </div>
 
-      <Button onClick={onContinue}>Continue</Button>
+      <Button isLoading={isLoading} onClick={onContinue}>
+        Continue
+      </Button>
     </OnboardingLayout>
   );
 }

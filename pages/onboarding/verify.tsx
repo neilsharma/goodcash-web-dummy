@@ -24,6 +24,7 @@ export default function OnboardingVerifyPage() {
     autoStart: true,
     expiryTimestamp: new Date(Date.now() + 30000),
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const resentCode = useCallback(async () => {
     const [auth, recaptchaVerifier] = resetAuth();
@@ -39,12 +40,19 @@ export default function OnboardingVerifyPage() {
   const confirmPhone = useCallback(async () => {
     if (phoneVerified) return phoneVerified;
 
-    const res = await confirmationResult?.confirm(code);
+    try {
+      setIsLoading(true);
 
-    const isValid = !!res?.user;
+      const res = await confirmationResult?.confirm(code);
 
-    if (isValid) setPhoneVerified(isValid);
-    return isValid;
+      const isValid = !!res?.user;
+
+      if (isValid) setPhoneVerified(isValid);
+      return isValid;
+    } catch (e) {
+      setIsLoading(false);
+      throw e;
+    }
   }, [setPhoneVerified, confirmationResult, code, phoneVerified]);
 
   const onContinue = useCallback(async () => {
@@ -73,7 +81,9 @@ export default function OnboardingVerifyPage() {
       />
 
       <div className="my-12 flex gap-4">
-        <Button onClick={onContinue}>Continue</Button>
+        <Button onClick={onContinue} isLoading={isLoading}>
+          Continue
+        </Button>
         <Button disabled={seconds !== 0} variant="text" onClick={resentCode}>
           Resend code{seconds !== 0 ? ` in 0:${seconds.toString().padStart(2, "0")}` : ""}
         </Button>

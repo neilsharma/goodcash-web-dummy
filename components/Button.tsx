@@ -1,12 +1,21 @@
 import type { ButtonHTMLAttributes, DetailedHTMLProps, FC } from "react";
 import { twMerge } from "tailwind-merge";
+import Loader from "./Loader";
 
 export interface ButtonProps
   extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   variant?: "contained" | "text";
+  isLoading?: boolean;
 }
 
-export const Button: FC<ButtonProps> = ({ className, variant = "contained", ...props }) => {
+export const Button: FC<ButtonProps> = ({
+  className,
+  isLoading = false,
+  variant = "contained",
+  ...props
+}) => {
+  if (isLoading) return <Loader />;
+
   return (
     <button
       className={twMerge(

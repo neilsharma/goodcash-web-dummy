@@ -21,6 +21,7 @@ export default function OnboardingConnectBankAccountPage() {
   const { push } = useRouter();
   const { plaid, setPlaid } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getPlaidToken().then(setPlaidLinkToken);
@@ -30,6 +31,7 @@ export default function OnboardingConnectBankAccountPage() {
     token: plaidLinkToken,
     onSuccess: async (publicToken, metadata) => {
       try {
+        setIsLoading(true);
         await createBankAccount({ plaidPublicToken: publicToken });
 
         setPlaid({ publicToken, metadata });
@@ -38,6 +40,7 @@ export default function OnboardingConnectBankAccountPage() {
 
         push("/onboarding/how-did-you-hear");
       } catch (e) {
+        setIsLoading(false);
         push("/onboarding/something-went-wrong");
       }
     },
@@ -46,10 +49,20 @@ export default function OnboardingConnectBankAccountPage() {
   const onContinue = useCallback(async () => {
     if (!ready || !plaidLinkToken) return;
 
-    if (plaid) return await submitKyc().catch(() => new Error());
+    if (plaid) {
+      setIsLoading(true);
+
+      const kyc = await submitKyc().catch((e) => {
+        setIsLoading(false);
+        throw e;
+      });
+      setIsLoading(false);
+
+      return kyc;
+    }
 
     open();
-  }, [plaid, open, ready, plaidLinkToken]);
+  }, [plaid, open, ready, plaidLinkToken, setIsLoading]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -78,7 +91,7 @@ export default function OnboardingConnectBankAccountPage() {
         ))}
       </div>
 
-      <Button disabled={!ready || !plaidLinkToken} onClick={onContinue}>
+      <Button disabled={!ready || !plaidLinkToken} isLoading={isLoading} onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>

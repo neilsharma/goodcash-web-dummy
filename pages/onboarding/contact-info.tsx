@@ -55,27 +55,35 @@ export default function OnboardingContactInfoPage() {
   const [dateOfBirthMask, setDateOfBirthMask] = useState("");
   const [ssnMask, setSsnMask] = useState("");
   const [stateMask, setStateMask] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const onContinue = useCallback(async () => {
     if (!contactInfoPageIsValid) return;
 
-    await updateUserAddress({
-      address_line_1: legalAddress,
-      ...(aptNumber ? { address_line_2: aptNumber } : null),
-      city,
-      country: "USA",
-      postal_code: zipCode,
-      state,
-    });
+    try {
+      setIsLoading(true);
 
-    await updateUserIdentityBasic({
-      birth_date: dateOfBirth?.toISOString(),
-      email_address: email,
-      first_name: firstName,
-      last_name: lastName,
-    });
+      await updateUserAddress({
+        address_line_1: legalAddress,
+        ...(aptNumber ? { address_line_2: aptNumber } : null),
+        city,
+        country: "USA",
+        postal_code: zipCode,
+        state,
+      });
 
-    await updateTaxInfo({ social_security_number: ssnMask });
+      await updateUserIdentityBasic({
+        birth_date: dateOfBirth?.toISOString(),
+        email_address: email,
+        first_name: firstName,
+        last_name: lastName,
+      });
+
+      await updateTaxInfo({ social_security_number: ssnMask });
+    } catch (e) {
+      setIsLoading(false);
+      throw e;
+    }
 
     push("/onboarding/connect-bank-account");
   }, [
@@ -91,6 +99,7 @@ export default function OnboardingContactInfoPage() {
     firstName,
     lastName,
     ssnMask,
+    setIsLoading,
   ]);
 
   if (!allowed) return <OnboardingLayout />;
@@ -201,7 +210,12 @@ export default function OnboardingContactInfoPage() {
         I agree to the GoodCash Terms of Service.
       </CheckBox>
 
-      <Button className="my-7" disabled={!contactInfoPageIsValid} onClick={onContinue}>
+      <Button
+        className="my-7"
+        disabled={!contactInfoPageIsValid}
+        isLoading={isLoading}
+        onClick={onContinue}
+      >
         Continue
       </Button>
     </OnboardingLayout>

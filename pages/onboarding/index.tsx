@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
+import { RotatingLines } from "react-loader-spinner";
 import Button from "@/components/Button";
 import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -9,6 +10,7 @@ import Title from "@/components/Title";
 import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useGlobal } from "@/shared/context/global";
+import Loader from "@/components/Loader";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
@@ -28,18 +30,24 @@ export default function OnboardingIndexPage() {
   } = useOnboarding();
 
   const [phoneMask, setPhoneMask] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { push } = useRouter();
 
   const onContinue = useCallback(async () => {
     if (!indexPageIsValid) return;
 
-    const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
-    recaptchaVerifier?.clear();
+    setIsLoading(true);
+    try {
+      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+      recaptchaVerifier?.clear();
 
-    setConfirmationResult(res);
+      setConfirmationResult(res);
 
-    push("/onboarding/verify");
+      push("/onboarding/verify");
+    } catch (e) {
+      setIsLoading(false);
+    }
   }, [auth, recaptchaVerifier, indexPageIsValid, phone, setConfirmationResult, push]);
 
   return (
@@ -49,7 +57,6 @@ export default function OnboardingIndexPage() {
         Grow your credit with your existing bank account and the GoodCash card. No interest, no
         credit checks, no surprises.
       </SubTitle>
-
       <div className="flex gap-6 my-7">
         <FormControlText
           value={firstName}
@@ -66,7 +73,6 @@ export default function OnboardingIndexPage() {
           containerProps={{ className: "m-0" }}
         />
       </div>
-
       <FormControlText
         value={phoneMask}
         onChange={(e) => {
@@ -78,20 +84,18 @@ export default function OnboardingIndexPage() {
         placeholder="+1 999 999 9999"
         inputMask="+1 999 999 9999"
       />
-
       <FormControlText
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         label="Email address"
         placeholder="john@example.com"
       />
-
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By continuing, you agree to GoodCash’s <a href="#">terms of service</a> and{" "}
         <a href="#">privacy policy</a>
       </p>
 
-      <Button disabled={!indexPageIsValid} onClick={onContinue}>
+      <Button isLoading={isLoading} disabled={!indexPageIsValid} onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>
