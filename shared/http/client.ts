@@ -1,9 +1,10 @@
 import axios from "axios";
+import { domain } from "../config";
 import { getComputedAuth } from "../context/global";
 import { urlPaths } from "./util";
 
 export const http = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: domain,
 });
 
 http.interceptors.request.use(async (config) => {

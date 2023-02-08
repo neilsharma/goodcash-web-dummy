@@ -16,16 +16,7 @@ import {
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { Analytics, getAnalytics } from "firebase/analytics";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD7XdUh3HLCCIYXxJFb2cZqtrg1aFX7gK4",
-  authDomain: "goodcash-sandbox.firebaseapp.com",
-  projectId: "goodcash-sandbox",
-  storageBucket: "goodcash-sandbox.appspot.com",
-  messagingSenderId: "82857152247",
-  appId: "1:82857152247:web:49d403225b397730094df2",
-  measurementId: "G-EZYR3524JP",
-};
+import { firebaseConfig } from "../config";
 
 export interface IGlobalContext {
   analytics: Analytics | null;

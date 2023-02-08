@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
-import { RotatingLines } from "react-loader-spinner";
 import Button from "@/components/Button";
 import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -10,7 +9,6 @@ import Title from "@/components/Title";
 import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useGlobal } from "@/shared/context/global";
-import Loader from "@/components/Loader";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
