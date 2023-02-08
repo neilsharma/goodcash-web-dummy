@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -9,6 +9,7 @@ export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
   const allowed = useLastPageGuard();
   const { push } = useRouter();
+  const [selectedOption, setSelectedOption] = useState("");
 
   const finish = useCallback(() => {
     push("/onboarding/application-complete");
@@ -23,14 +24,21 @@ export default function OnboardingHowDidYouHearPage() {
       <div className="my-12">
         {options.map((op) => (
           <label key={op} className="flex gap-3 items-center my-6 cursor-pointer">
-            <input name="how" type="radio" className="w-5 h-5" />
+            <input
+              name="how"
+              type="radio"
+              className="w-5 h-5"
+              onChange={() => setSelectedOption(op)}
+            />
             <p className="font-sharpGroteskBook text-boldText">{op}</p>
           </label>
         ))}
       </div>
 
       <div className="flex gap-4 mb-8">
-        <Button onClick={finish}>Finish</Button>
+        <Button disabled={!selectedOption} onClick={finish}>
+          Finish
+        </Button>
         <Button onClick={finish} variant="text">
           Skip
         </Button>
