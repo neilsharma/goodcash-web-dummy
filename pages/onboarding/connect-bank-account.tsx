@@ -13,12 +13,13 @@ import {
 } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
+import { submitKyc } from "@/shared/http/services/user";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
   const allowed = useConnectBankAccountGuard();
   const { push } = useRouter();
-  const { setPlaid } = useOnboarding();
+  const { plaid, setPlaid } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
 
   useEffect(() => {
@@ -32,15 +33,21 @@ export default function OnboardingConnectBankAccountPage() {
 
       setPlaid({ publicToken, metadata });
 
+      const submitted = await submitKyc().catch(() => new Error());
+
+      if (submitted instanceof Error) return;
+
       push("/onboarding/how-did-you-hear");
     },
   });
 
-  const onContinue = useCallback(() => {
+  const onContinue = useCallback(async () => {
     if (!ready || !plaidLinkToken) return;
 
+    if (plaid) return await submitKyc().catch(() => new Error());
+
     open();
-  }, [open, ready, plaidLinkToken]);
+  }, [plaid, open, ready, plaidLinkToken]);
 
   if (!allowed) return <OnboardingLayout />;
 
