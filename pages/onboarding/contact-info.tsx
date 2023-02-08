@@ -61,6 +61,7 @@ export default function OnboardingContactInfoPage() {
 
     await updateUserAddress({
       address_line_1: legalAddress,
+      ...(aptNumber ? { address_line_2: aptNumber } : null),
       city,
       country: "USA",
       postal_code: zipCode,
@@ -74,13 +75,14 @@ export default function OnboardingContactInfoPage() {
       last_name: lastName,
     });
 
-    await updateTaxInfo({ social_security_number: ssn });
+    await updateTaxInfo({ social_security_number: ssnMask });
 
     push("/onboarding/connect-bank-account");
   }, [
     push,
     contactInfoPageIsValid,
     legalAddress,
+    aptNumber,
     city,
     zipCode,
     state,
@@ -88,7 +90,7 @@ export default function OnboardingContactInfoPage() {
     email,
     firstName,
     lastName,
-    ssn,
+    ssnMask,
   ]);
 
   if (!allowed) return <OnboardingLayout />;
@@ -174,8 +176,8 @@ export default function OnboardingContactInfoPage() {
           setSsn(e.target.value.replace(/\-/g, ""));
         }}
         label="Social security number"
-        placeholder="XXX-XXX-XXXX"
-        inputMask="999-999-9999"
+        placeholder="XXX-XX-XXXX"
+        inputMask="999-99-9999"
         description="Your SSN will not be shared without your permission, except as required by law. Your SSN will only be used to verify your identity. This will not affect your credit score. Your data will be encrypted and transmitted via a secure (TLS) connection."
       />
 
