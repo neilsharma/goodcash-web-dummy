@@ -29,15 +29,17 @@ export default function OnboardingConnectBankAccountPage() {
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,
     onSuccess: async (publicToken, metadata) => {
-      await createBankAccount({ plaidPublicToken: publicToken });
+      try {
+        await createBankAccount({ plaidPublicToken: publicToken });
 
-      setPlaid({ publicToken, metadata });
+        setPlaid({ publicToken, metadata });
 
-      const submitted = await submitKyc().catch(() => new Error());
+        await submitKyc();
 
-      if (submitted instanceof Error) return;
-
-      push("/onboarding/how-did-you-hear");
+        push("/onboarding/how-did-you-hear");
+      } catch (e) {
+        push("/onboarding/something-went-wrong");
+      }
     },
   });
 
