@@ -6,7 +6,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => 
   return (
     <>
       <Head>
-        <title>GoodCash App Onboarding</title>
+        <title>GoodCash Onboarding</title>
       </Head>
       <div className="flex justify-center mt-8 mb-24">
         <Image
