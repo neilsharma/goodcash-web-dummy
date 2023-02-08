@@ -10,9 +10,10 @@ export const Button: FC<ButtonProps> = ({ className, variant = "contained", ...p
   return (
     <button
       className={twMerge(
-        "w-full rounded-lg font-kansasNewMedium p-3 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-200 block",
-        variant === "contained" ? "bg-primary" : "bg-transparent",
-        variant === "contained" ? "text-white" : "text-primary",
+        "w-full rounded-lg font-kansasNewMedium p-3 disabled:cursor-not-allowed  block",
+        variant === "contained"
+          ? "text-white bg-primary disabled:bg-gray-400 disabled:text-gray-200"
+          : "text-primary bg-transparent disabled:text-gray-400",
         className
       )}
       {...props}

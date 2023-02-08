@@ -7,13 +7,13 @@ import {
   FC,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
-import { FirebaseApp, initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { Analytics, getAnalytics } from "firebase/analytics";
 
@@ -33,6 +33,7 @@ export interface IGlobalContext {
   recaptchaVerifier: RecaptchaVerifier | null;
   confirmationResult: ConfirmationResult | null;
   setConfirmationResult: Dispatch<SetStateAction<ConfirmationResult | null>>;
+  resetAuth: () => readonly [Auth, RecaptchaVerifier, Analytics];
 }
 
 export const app = initializeApp(firebaseConfig);
@@ -54,7 +55,7 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<IGlobalContext["recaptchaVerifier"]>(null);
 
-  useEffect(() => {
+  const resetAuth = useCallback(() => {
     const _analytics = getAnalytics(app);
     const _auth = getAuth(app);
     const _recaptchaVerifier = new RecaptchaVerifier("recaptcha-container", {}, _auth);
@@ -65,7 +66,13 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
     setAnalytics(_analytics);
     setAuth(_auth);
     setRecaptchaVerifier(_recaptchaVerifier);
+
+    return [_auth, _recaptchaVerifier, _analytics] as const;
   }, []);
+
+  useEffect(() => {
+    resetAuth();
+  }, [resetAuth]);
 
   const [confirmationResult, setConfirmationResult] = useState<null | ConfirmationResult>(null);
 
@@ -77,6 +84,7 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
         recaptchaVerifier,
         confirmationResult,
         setConfirmationResult,
+        resetAuth,
       }}
     >
       {children}
