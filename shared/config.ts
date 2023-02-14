@@ -43,3 +43,4 @@ export const firebaseConfig = firebaseConfigs[goodcashEnvironment] ?? firebaseCo
 
 export const appStoreId = "";
 export const googlePlayId = "";
+export const testFlightLink = "https://testflight.apple.com/join/dLPPHyYi";

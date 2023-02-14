@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import OnboardingLayout from "@/components/OnboardingLayout";
-import { appStoreId, googlePlayId } from "@/shared/config";
+import { testFlightLink } from "@/shared/config";
 
 export default function OnboardingApplicationCompletePage() {
   useEffect(() => {
@@ -13,10 +13,8 @@ export default function OnboardingApplicationCompletePage() {
     else if (navigator.userAgent.indexOf("Android") != -1) os = "Android";
     else if (navigator.userAgent.indexOf("like Mac") != -1) os = "iOS";
 
-    if (os === "Android" && googlePlayId) {
-      window.location.href = "http://play.google.com/store/apps/details?id=" + googlePlayId;
-    } else if (os === "iOS" && appStoreId) {
-      window.location.href = "https://itunes.apple.com/app/" + appStoreId;
+    if (os === "iOS") {
+      window.location.href = testFlightLink;
     }
   }, []);
 
@@ -39,19 +37,9 @@ export default function OnboardingApplicationCompletePage() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center gap-12 my-12 sm:flex-row">
-        <a href={`https://itunes.apple.com/app/${appStoreId}`}>
+      <div className="flex flex-col justify-center items-center gap-12 my-12 sm:flex-row">
+        <a href="https://testflight.apple.com/join/dLPPHyYi">
           <Image src="/img/app-store.png" alt="app store" width={223} height={70} priority={true} />
-        </a>
-
-        <a href={`http://play.google.com/store/apps/details?id=${googlePlayId}`}>
-          <Image
-            src="/img/google-play.png"
-            alt="google play"
-            width={223}
-            height={70}
-            priority={true}
-          />
         </a>
       </div>
     </OnboardingLayout>
