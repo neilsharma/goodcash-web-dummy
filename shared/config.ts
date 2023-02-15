@@ -41,6 +41,8 @@ const firebaseConfigs: Record<GoodcashEnvironment, FirebaseOptions> = {
 
 export const firebaseConfig = firebaseConfigs[goodcashEnvironment] ?? firebaseConfigs.local;
 
+export const kardTermsVersion = process.env["KARD_TERMS_VERSION"] || "0.0.0";
+
 export const appStoreId = "";
 export const googlePlayId = "";
 export const testFlightLink = "https://testflight.apple.com/join/dLPPHyYi";

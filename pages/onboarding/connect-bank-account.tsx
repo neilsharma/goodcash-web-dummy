@@ -14,6 +14,7 @@ import {
 import { useOnboarding } from "@/shared/context/onboarding";
 import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
 import { submitKyc } from "@/shared/http/services/user";
+import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -36,11 +37,13 @@ export default function OnboardingConnectBankAccountPage() {
 
         setPlaid({ publicToken, metadata });
 
-        await submitKyc();
+        const { locId } = await submitKyc();
+
+        await submitLineOfCredit({ locId });
+        await activateLineOfCredit({ locId });
 
         push("/onboarding/how-did-you-hear");
       } catch (e) {
-        setIsLoading(false);
         push("/onboarding/something-went-wrong");
       }
     },

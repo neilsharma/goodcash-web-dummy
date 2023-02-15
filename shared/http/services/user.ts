@@ -41,7 +41,7 @@ export const updateTaxInfo = async (payload: KycTaxInfo) => {
 };
 
 export const submitKyc = async () => {
-  const res = await http.post(urlPaths.KYC_ATTEMPT_SUBMIT);
+  const res = await http.post<any, AxiosResponse<{ locId: string }>>(urlPaths.KYC_ATTEMPT_SUBMIT);
 
   return res.data;
 };
