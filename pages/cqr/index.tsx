@@ -1,5 +1,5 @@
 import React from "react";
-import { GoodcashEnvironment } from "../../shared/config";
+import { GoodcashEnvironment, goodcashEnvironment } from "../../shared/config";
 
 const CQRPage = () => {
   return (
@@ -8,9 +8,7 @@ const CQRPage = () => {
       <p className=" font-sharpGroteskBook mt-10 text-lg">Redirecting to Goodcash App</p>
       <button
         onClick={() => {
-          if (
-            (process.env["NEXT_PUBLIC_GOODCASH_ENVIRONMENT"] as GoodcashEnvironment) === "sandbox"
-          ) {
+          if (goodcashEnvironment === "sandbox") {
             document.location = "goodcashsandbox://home";
           } else {
             document.location = "goodcash://home";
