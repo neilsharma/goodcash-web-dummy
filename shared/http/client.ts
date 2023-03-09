@@ -5,6 +5,7 @@ import { urlPaths } from "./util";
 
 export const http = axios.create({
   baseURL: domain,
+  timeout: 10_000,
 });
 
 http.interceptors.request.use(async (config) => {
