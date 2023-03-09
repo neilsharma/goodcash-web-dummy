@@ -43,7 +43,14 @@ export default function OnboardingConnectBankAccountPage() {
         await activateLineOfCredit({ locId });
 
         push("/onboarding/how-did-you-hear");
-      } catch (e) {
+      } catch (e: any) {
+        const message = e?.response?.data?.message;
+        const errorObject = message ? attemptParse(message) : null;
+
+        if (errorObject?.errorCode === "UNDERWRITING0001") {
+          return push("/onboarding/not-enough-money");
+        }
+
         push("/onboarding/something-went-wrong");
       }
     },
@@ -110,5 +117,15 @@ const connectionWillAllow = [
     "Give your regular bank account super powers like growing your credit and earning rewards",
   ],
 ];
+
+const attemptParse = (jsonString: string | object) => {
+  if (typeof jsonString === "object") return jsonString;
+
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    return null;
+  }
+};
 
 export const getServerSideProps = redirectIfServerSideRendered;

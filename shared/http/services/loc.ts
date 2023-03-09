@@ -11,7 +11,9 @@ export const submitLineOfCredit = async (payload: { locId: string }) => {
 };
 
 export const activateLineOfCredit = async (payload: { locId: string }) => {
-  const res = await http.post(`${urlPaths.LOC}/${payload.locId}/activate`);
+  const res = await http.post(`${urlPaths.LOC}/${payload.locId}/activate`, null, {
+    timeout: 50_000,
+  });
 
   return res.data;
 };
