@@ -78,6 +78,7 @@ export default function OnboardingConnectBankAccountPage() {
         setIsLoading(false);
         throw e;
       });
+
       setIsLoading(false);
 
       return kyc;
