@@ -1,5 +1,5 @@
 import React from "react";
-import { GoodcashEnvironment, goodcashEnvironment } from "../../shared/config";
+import { goodcashEnvironment } from "../../shared/config";
 
 const CQRPage = () => {
   return (
