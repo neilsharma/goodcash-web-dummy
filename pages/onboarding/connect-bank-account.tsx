@@ -20,7 +20,7 @@ export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
   const allowed = useConnectBankAccountGuard();
   const { push } = useRouter();
-  const { plaid, setPlaid } = useOnboarding();
+  const { plaid, setPlaid, loc, setLoc } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,21 +28,33 @@ export default function OnboardingConnectBankAccountPage() {
     getPlaidToken().then(setPlaidLinkToken);
   }, [setPlaidLinkToken]);
 
+  const completeOnboarding = useCallback(async () => {
+    const locId = loc.locId ? loc.locId : await submitKyc().then((r) => r.locId);
+    setLoc((prev) => ({ ...prev, locId }));
+
+    if (!loc.locSubmitted) {
+      await submitLineOfCredit({ locId });
+      setLoc((prev) => ({ ...prev, locSubmitted: true }));
+    }
+
+    if (!loc.locActivated) {
+      await activateLineOfCredit({ locId });
+      setLoc((prev) => ({ ...prev, locActivated: true }));
+    }
+
+    push("/onboarding/how-did-you-hear");
+  }, [loc, setLoc, push]);
+
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,
     onSuccess: async (publicToken, metadata) => {
       try {
         setIsLoading(true);
-        await createBankAccount({ plaidPublicToken: publicToken });
 
+        await createBankAccount({ plaidPublicToken: publicToken });
         setPlaid({ publicToken, metadata });
 
-        const { locId } = await submitKyc();
-
-        await submitLineOfCredit({ locId });
-        await activateLineOfCredit({ locId });
-
-        push("/onboarding/how-did-you-hear");
+        await completeOnboarding();
       } catch (e: any) {
         const message = e?.response?.data?.message;
         const errorObject = message ? attemptParse(message) : null;
@@ -66,6 +78,7 @@ export default function OnboardingConnectBankAccountPage() {
         setIsLoading(false);
         throw e;
       });
+
       setIsLoading(false);
 
       return kyc;
@@ -101,7 +114,11 @@ export default function OnboardingConnectBankAccountPage() {
         ))}
       </div>
 
-      <Button disabled={!ready || !plaidLinkToken} isLoading={isLoading} onClick={onContinue}>
+      <Button
+        disabled={!ready || !plaidLinkToken}
+        isLoading={isLoading}
+        onClick={plaid ? completeOnboarding : onContinue}
+      >
         Continue
       </Button>
     </OnboardingLayout>
