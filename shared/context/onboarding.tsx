@@ -60,12 +60,15 @@ export interface IOnboardingContext {
 
   plaid: PlaidPayload;
   setPlaid: Dispatch<SetStateAction<PlaidPayload>>;
+  loc: LocPayload;
+  setLoc: Dispatch<SetStateAction<LocPayload>>;
 
   howDidYouHearAboutUs: string;
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 }
 
 type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMetadata };
+type LocPayload = { locId: string | null; locSubmitted: boolean; locActivated: boolean };
 
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
@@ -135,6 +138,12 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [plaid, setPlaid] = useState<PlaidPayload>(null);
   const [user, setUser] = useState<IOnboardingContext["user"]>(null);
 
+  const [loc, setLoc] = useState<IOnboardingContext["loc"]>({
+    locId: null,
+    locSubmitted: false,
+    locActivated: false,
+  });
+
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
   return (
@@ -183,6 +192,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
         plaid,
         setPlaid,
+        loc,
+        setLoc,
 
         howDidYouHearAboutUs,
         setHowDidYouHearAboutUs,
