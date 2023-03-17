@@ -28,7 +28,7 @@ export default function OnboardingConnectBankAccountPage() {
     getPlaidToken().then(setPlaidLinkToken);
   }, [setPlaidLinkToken]);
 
-  const completeOnboarding = useCallback(async () => {
+  const kycAndLoc = useCallback(async () => {
     const locId = loc.locId ? loc.locId : await submitKyc().then((r) => r.locId);
     setLoc((prev) => ({ ...prev, locId }));
 
@@ -42,7 +42,7 @@ export default function OnboardingConnectBankAccountPage() {
       setLoc((prev) => ({ ...prev, locActivated: true }));
     }
 
-    push("/onboarding/how-did-you-hear");
+    push("/onboarding/finalizing-application");
   }, [loc, setLoc, push]);
 
   const { open, ready } = usePlaidLink({
@@ -54,7 +54,7 @@ export default function OnboardingConnectBankAccountPage() {
         await createBankAccount({ plaidPublicToken: publicToken });
         setPlaid({ publicToken, metadata });
 
-        await completeOnboarding();
+        await kycAndLoc();
       } catch (e: any) {
         const message = e?.response?.data?.message;
         const errorObject = message ? attemptParse(message) : null;
@@ -117,7 +117,7 @@ export default function OnboardingConnectBankAccountPage() {
       <Button
         disabled={!ready || !plaidLinkToken}
         isLoading={isLoading}
-        onClick={plaid ? completeOnboarding : onContinue}
+        onClick={plaid ? kycAndLoc : onContinue}
       >
         Continue
       </Button>

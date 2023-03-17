@@ -4,6 +4,7 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, useLastPageGuard } from "@/shared/hooks";
+import { completeUserOnboarding } from "@/shared/http/services/user";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
@@ -11,7 +12,8 @@ export default function OnboardingHowDidYouHearPage() {
   const { push } = useRouter();
   const [selectedOption, setSelectedOption] = useState("");
 
-  const finish = useCallback(() => {
+  const finish = useCallback(async () => {
+    await completeUserOnboarding();
     push("/onboarding/application-complete");
   }, [push]);
 
@@ -38,9 +40,6 @@ export default function OnboardingHowDidYouHearPage() {
       <div className="flex gap-4 mb-8">
         <Button disabled={!selectedOption} onClick={finish}>
           Finish
-        </Button>
-        <Button onClick={finish} variant="text">
-          Skip
         </Button>
       </div>
     </OnboardingLayout>
