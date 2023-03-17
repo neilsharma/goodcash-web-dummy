@@ -63,12 +63,33 @@ export interface IOnboardingContext {
   loc: LocPayload;
   setLoc: Dispatch<SetStateAction<LocPayload>>;
 
+  pierOnboardingStatus: PierOnboardingStatus;
+  setPierOnboardingStatus: Dispatch<SetStateAction<PierOnboardingStatus>>;
+  pierBorrowerId: string | null;
+  setPierBorrowerId: Dispatch<SetStateAction<string | null>>;
+  pierApplicationId: string | null;
+  setPierApplicationId: Dispatch<SetStateAction<string | null>>;
+  pierLoanAgreementId: string | null;
+  setPierLoanAgreementId: Dispatch<SetStateAction<string | null>>;
+  pierLoanAgreementDocumentUrl: string | null;
+  setPierLoanAgreementDocumentUrl: Dispatch<SetStateAction<string | null>>;
+  pierFacilityId: string | null;
+  setPierFacilityId: Dispatch<SetStateAction<string | null>>;
+
   howDidYouHearAboutUs: string;
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 }
 
 type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMetadata };
 type LocPayload = { locId: string | null; locSubmitted: boolean; locActivated: boolean };
+type PierOnboardingStatus =
+  | null
+  | "BORROWER_CREATED"
+  | "APPLICATION_CREATED"
+  | "APPLICATION_APPROVED"
+  | "LOAN_AGREEMENT_CREATED"
+  | "LOAN_AGREEMENT_SIGNED"
+  | "FACILITY_CREATED";
 
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
@@ -144,6 +165,17 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     locActivated: false,
   });
 
+  const [pierOnboardingStatus, setPierOnboardingStatus] =
+    useState<IOnboardingContext["pierOnboardingStatus"]>(null);
+  const [pierBorrowerId, setPierBorrowerId] = useState<IOnboardingContext["pierBorrowerId"]>(null);
+  const [pierApplicationId, setPierApplicationId] =
+    useState<IOnboardingContext["pierApplicationId"]>(null);
+  const [pierLoanAgreementDocumentUrl, setPierLoanAgreementDocumentUrl] =
+    useState<IOnboardingContext["pierLoanAgreementDocumentUrl"]>(null);
+  const [pierLoanAgreementId, setPierLoanAgreementId] =
+    useState<IOnboardingContext["pierLoanAgreementId"]>(null);
+  const [pierFacilityId, setPierFacilityId] = useState<IOnboardingContext["pierFacilityId"]>(null);
+
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
   return (
@@ -194,6 +226,19 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         setPlaid,
         loc,
         setLoc,
+
+        pierOnboardingStatus,
+        setPierOnboardingStatus,
+        pierBorrowerId,
+        setPierBorrowerId,
+        pierApplicationId,
+        setPierApplicationId,
+        pierLoanAgreementId,
+        setPierLoanAgreementId,
+        pierLoanAgreementDocumentUrl,
+        setPierLoanAgreementDocumentUrl,
+        pierFacilityId,
+        setPierFacilityId,
 
         howDidYouHearAboutUs,
         setHowDidYouHearAboutUs,
