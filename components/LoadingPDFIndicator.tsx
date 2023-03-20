@@ -29,7 +29,6 @@ export const LoadingPDFIndicator = () => {
       </div>
     </div>
   );
-  // return <progress className="h-2 b" value={amount} max={100} />;
 };
 
 export default LoadingPDFIndicator;
