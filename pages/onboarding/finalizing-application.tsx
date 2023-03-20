@@ -69,7 +69,7 @@ export default function FinalizingApplication() {
   return (
     <OnboardingLayout>
       <Lottie options={{ loop: true, autoplay: true, animationData }} />
-      <SubTitle>Finalizing application...</SubTitle>
+      <SubTitle className="text-center">Finalizing application...</SubTitle>
     </OnboardingLayout>
   );
 }
