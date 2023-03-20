@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import LoadingPDFIndicator from "@/components/LoadingPDFIndicator";
@@ -56,15 +56,22 @@ export default function OneLastStep() {
     [pierOnboardingStatus, pierLoanAgreementDocumentUrl]
   );
 
+  const [isLoading, setIsLoading] = useState(false);
   const completePierOnboarding = useCallback(async () => {
-    if (pierOnboardingStatus === "FACILITY_CREATED") return push("/onboarding/how-did-you-hear");
-    if (!documentSigned) return;
+    setIsLoading(true);
+    try {
+      if (pierOnboardingStatus === "FACILITY_CREATED") return push("/onboarding/how-did-you-hear");
+      if (!documentSigned) return;
 
-    const { id } = await createPierFacility(pierLoanAgreementId!);
-    setPierFacilityId(id);
-    setPierOnboardingStatus("FACILITY_CREATED");
-    push("/onboarding/how-did-you-hear");
+      const { id } = await createPierFacility(pierLoanAgreementId!);
+      setPierFacilityId(id);
+      setPierOnboardingStatus("FACILITY_CREATED");
+      push("/onboarding/how-did-you-hear");
+    } catch (error) {
+      setIsLoading(false);
+    }
   }, [
+    setIsLoading,
     documentSigned,
     pierOnboardingStatus,
     setPierFacilityId,
@@ -92,7 +99,12 @@ export default function OneLastStep() {
         <LoadingPDFIndicator />
       )}
 
-      <Button className="my-12" disabled={!documentSigned} onClick={completePierOnboarding}>
+      <Button
+        className="my-12"
+        disabled={!documentSigned}
+        onClick={completePierOnboarding}
+        isLoading={isLoading}
+      >
         Agree to terms and conditions
       </Button>
     </OnboardingLayout>

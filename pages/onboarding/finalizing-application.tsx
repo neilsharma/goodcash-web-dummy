@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
+import Lottie from "react-lottie";
+import * as animationData from "../../public/lottie/growing-tree.json";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import { useOnboarding } from "@/shared/context/onboarding";
@@ -66,6 +68,7 @@ export default function FinalizingApplication() {
 
   return (
     <OnboardingLayout>
+      <Lottie options={{ loop: true, autoplay: true, animationData }} />
       <SubTitle>Finalizing application...</SubTitle>
     </OnboardingLayout>
   );
