@@ -10,6 +10,7 @@ module.exports = {
         boldText: "#0F100F",
         thinText: "#565D59",
         error: "#CE0D35",
+        bgLight: "#E4EFC9",
       },
       fontFamily: {
         kansasNew: ["KansasNew-Regular"],

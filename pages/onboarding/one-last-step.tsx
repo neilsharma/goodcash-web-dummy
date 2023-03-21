@@ -17,6 +17,7 @@ export default function OneLastStep() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
+    setOnboardingStep,
     pierOnboardingStatus,
     setPierOnboardingStatus,
     pierApplicationId,
@@ -66,6 +67,7 @@ export default function OneLastStep() {
       const { id } = await createPierFacility(pierLoanAgreementId!);
       setPierFacilityId(id);
       setPierOnboardingStatus("FACILITY_CREATED");
+      setOnboardingStep("LAST_STEP");
       push("/onboarding/how-did-you-hear");
     } catch (error) {
       setIsLoading(false);
@@ -77,6 +79,7 @@ export default function OneLastStep() {
     setPierFacilityId,
     pierLoanAgreementId,
     setPierOnboardingStatus,
+    setOnboardingStep,
     push,
   ]);
 
@@ -100,13 +103,19 @@ export default function OneLastStep() {
       )}
 
       <Button
-        className="my-12"
+        className="mt-12"
         disabled={!documentSigned}
         onClick={completePierOnboarding}
         isLoading={isLoading}
       >
         Agree to terms and conditions
       </Button>
+
+      <p className="font-sharpGroteskBook text-thinText text-sm my-6">
+        By clicking “Agree to terms and conditions”, you agree to our partner Pier’s{" "}
+        <a href="#">Privacy Policy</a>, <a href="#">Terms of Service</a> and{" "}
+        <a href="#">Line of Credit Agreement</a>.
+      </p>
     </OnboardingLayout>
   );
 }
