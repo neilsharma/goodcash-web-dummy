@@ -16,6 +16,9 @@ import { GCUser } from "../http/types";
 import { EUsaStates } from "../types";
 
 export interface IOnboardingContext {
+  onboardingStep: OnboardingStep;
+  setOnboardingStep: Dispatch<SetStateAction<OnboardingStep>>;
+
   firstName: string;
   setFirstName: Dispatch<SetStateAction<string>>;
   lastName: string;
@@ -80,6 +83,17 @@ export interface IOnboardingContext {
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 }
 
+type OnboardingStep =
+  | "WELCOME"
+  | "PHONE_VERIFICATION"
+  | "PLAN_SELECTION_AND_USER_CREATION"
+  | "CONTACT_INFO"
+  | "BANK_ACCOUNT_CONNECTION"
+  | "FINALIZING_APPLICATION"
+  | "DOC_GENERATION"
+  | "LAST_STEP"
+  | "APPLICATION_COMPLETE";
+
 type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMetadata };
 type LocPayload = { locId: string | null; locSubmitted: boolean; locActivated: boolean };
 type PierOnboardingStatus =
@@ -94,6 +108,8 @@ type PierOnboardingStatus =
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
+  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("WELCOME");
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -181,6 +197,9 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   return (
     <onboardingContext.Provider
       value={{
+        onboardingStep,
+        setOnboardingStep,
+
         firstName,
         setFirstName,
         lastName,

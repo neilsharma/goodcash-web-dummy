@@ -14,7 +14,7 @@ import { useGlobal } from "@/shared/context/global";
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
   const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
-  const { phone, phoneVerified, setPhoneVerified } = useOnboarding();
+  const { setOnboardingStep, phone, phoneVerified, setPhoneVerified } = useOnboarding();
   const { push } = useRouter();
   const allowed = useVerifyPageGuard();
 
@@ -58,8 +58,9 @@ export default function OnboardingVerifyPage() {
   const onContinue = useCallback(async () => {
     if (!(await confirmPhone())) return;
 
+    setOnboardingStep("PLAN_SELECTION_AND_USER_CREATION");
     push("/onboarding/plan");
-  }, [push, confirmPhone]);
+  }, [push, confirmPhone, setOnboardingStep]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -80,7 +81,7 @@ export default function OnboardingVerifyPage() {
         inputMask="999999"
       />
 
-      <div className="my-12 flex gap-4">
+      <div className="my-12 flex gap-4 flex-col sm:flex-row">
         <Button onClick={onContinue} isLoading={isLoading}>
           Continue
         </Button>

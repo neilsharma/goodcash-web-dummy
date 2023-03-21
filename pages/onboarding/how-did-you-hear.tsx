@@ -5,10 +5,12 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, useLastPageGuard } from "@/shared/hooks";
 import { completeUserOnboarding } from "@/shared/http/services/user";
+import { useOnboarding } from "@/shared/context/onboarding";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
   const allowed = useLastPageGuard();
+  const { setOnboardingStep } = useOnboarding();
   const { push } = useRouter();
   const [selectedOption, setSelectedOption] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -17,20 +19,23 @@ export default function OnboardingHowDidYouHearPage() {
     try {
       setIsLoading(true);
       await completeUserOnboarding();
+      setOnboardingStep("APPLICATION_COMPLETE");
       push("/onboarding/application-complete");
     } catch (error) {
       setIsLoading(false);
     }
-  }, [setIsLoading, push]);
+  }, [setIsLoading, setOnboardingStep, push]);
 
   if (!allowed) return <OnboardingLayout />;
 
   return (
     <OnboardingLayout>
-      <Title>How did you hear about GoodCash?</Title>
+      <Title className="border-b-gray-200 border-b-[1px] m-0 pb-4">
+        How did you hear about GoodCash?
+      </Title>
 
-      <div className="overflow-visible relative h-[70vh]">
-        <div className="my-12">
+      <div className="overflow-y-scroll h-[50vh]">
+        <div>
           {options.map((op) => (
             <label key={op} className="flex gap-3 items-center my-6 cursor-pointer">
               <input
@@ -43,12 +48,11 @@ export default function OnboardingHowDidYouHearPage() {
             </label>
           ))}
         </div>
-
-        <div className="py-8 bg-bgPrimary sticky bottom-0 border-t-gray-200 border-t-[1px]">
-          <Button onClick={finish} isLoading={isLoading}>
-            Finish
-          </Button>
-        </div>
+      </div>
+      <div className="pt-8 bg-bgPrimary bottom-0 border-t-gray-200 border-t-[1px]">
+        <Button onClick={finish} isLoading={isLoading}>
+          Finish
+        </Button>
       </div>
     </OnboardingLayout>
   );

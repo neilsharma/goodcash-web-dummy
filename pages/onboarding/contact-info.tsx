@@ -24,6 +24,7 @@ export default function OnboardingContactInfoPage() {
   useConfirmUnload();
   const allowed = useContactInfoGuard();
   const {
+    setOnboardingStep,
     firstName,
     lastName,
     email,
@@ -80,13 +81,15 @@ export default function OnboardingContactInfoPage() {
       });
 
       await updateTaxInfo({ social_security_number: ssnMask });
+
+      setOnboardingStep("BANK_ACCOUNT_CONNECTION");
+      push("/onboarding/connect-bank-account");
     } catch (e) {
       setIsLoading(false);
       throw e;
     }
-
-    push("/onboarding/connect-bank-account");
   }, [
+    setOnboardingStep,
     push,
     contactInfoPageIsValid,
     legalAddress,
