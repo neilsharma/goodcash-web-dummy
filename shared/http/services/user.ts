@@ -49,3 +49,59 @@ export const submitKyc = async () => {
 
   return res.data;
 };
+
+export const createPierBorrower = async () => {
+  const res = await http.post<any, AxiosResponse<{ id: string }>>(urlPaths.USER_CREATE_BORROWER);
+
+  return res.data;
+};
+
+export const createPierApplication = async (borrowerId: string) => {
+  const res = await http.post<any, AxiosResponse<{ id: string }>>(
+    urlPaths.USER_CREATE_APPLICATION,
+    { borrowerId }
+  );
+
+  return res.data;
+};
+
+export const approvePierApplication = async (applicationId: string) => {
+  const res = await http.post<any, AxiosResponse<{ id: string }>>(
+    urlPaths.USER_APPROVE_APPLICATION,
+    { applicationId }
+  );
+
+  return res.data;
+};
+
+export const createPierLoanAgreement = async (applicationId: string) => {
+  const res = await http.post<any, AxiosResponse<{ id: string; documentUrl: string }>>(
+    urlPaths.USER_CREATE_LOAN_AGREEMENT,
+    { applicationId }
+  );
+
+  return res.data;
+};
+
+export const signPierLoanAgreement = async (loanAgreementId: string) => {
+  const res = await http.post<any, AxiosResponse<{ id: string; documentUrl: string }>>(
+    urlPaths.USER_SIGN_LOAN_AGREEMENT,
+    { loanAgreementId }
+  );
+
+  return res.data;
+};
+
+export const createPierFacility = async (loanAgreementId: string) => {
+  const res = await http.post<any, AxiosResponse<{ id: string }>>(urlPaths.USER_CREATE_FACILITY, {
+    loanAgreementId,
+  });
+
+  return res.data;
+};
+
+export const completeUserOnboarding = async () => {
+  const res = await http.post(urlPaths.USER_COMPLETE_ONBOARDING);
+
+  return res.data;
+};

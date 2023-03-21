@@ -14,4 +14,11 @@ export const urlPaths = {
   LOC_BALANCE: "/v1/lines_of_credit/:line_of_credit_id/balance",
   CARD_URL: "/v1/cards/",
   TRANSACTIONS_LIST: "/v1/transactions/list-loc-transactions",
+  USER_CREATE_BORROWER: "/v1/me/pier/borrower",
+  USER_CREATE_APPLICATION: "/v1/me/pier/application",
+  USER_APPROVE_APPLICATION: "/v1/me/pier/application-approve",
+  USER_CREATE_LOAN_AGREEMENT: "/v1/me/pier/loan-agreement",
+  USER_SIGN_LOAN_AGREEMENT: "/v1/me/pier/loan-agreement-sign",
+  USER_CREATE_FACILITY: "/v1/me/pier/facility",
+  USER_COMPLETE_ONBOARDING: "/v1/me/complete-onboarding",
 };

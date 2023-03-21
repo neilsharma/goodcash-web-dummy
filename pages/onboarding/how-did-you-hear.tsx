@@ -4,16 +4,24 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload, useLastPageGuard } from "@/shared/hooks";
+import { completeUserOnboarding } from "@/shared/http/services/user";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
   const allowed = useLastPageGuard();
   const { push } = useRouter();
   const [selectedOption, setSelectedOption] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const finish = useCallback(() => {
-    push("/onboarding/application-complete");
-  }, [push]);
+  const finish = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      await completeUserOnboarding();
+      push("/onboarding/application-complete");
+    } catch (error) {
+      setIsLoading(false);
+    }
+  }, [setIsLoading, push]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -21,27 +29,26 @@ export default function OnboardingHowDidYouHearPage() {
     <OnboardingLayout>
       <Title>How did you hear about GoodCash?</Title>
 
-      <div className="my-12">
-        {options.map((op) => (
-          <label key={op} className="flex gap-3 items-center my-6 cursor-pointer">
-            <input
-              name="how"
-              type="radio"
-              className="w-5 h-5"
-              onChange={() => setSelectedOption(op)}
-            />
-            <p className="font-sharpGroteskBook text-boldText">{op}</p>
-          </label>
-        ))}
-      </div>
+      <div className="overflow-visible relative h-[70vh]">
+        <div className="my-12">
+          {options.map((op) => (
+            <label key={op} className="flex gap-3 items-center my-6 cursor-pointer">
+              <input
+                name="how"
+                type="radio"
+                className="w-5 h-5"
+                onChange={() => setSelectedOption(op)}
+              />
+              <p className="font-sharpGroteskBook text-boldText">{op}</p>
+            </label>
+          ))}
+        </div>
 
-      <div className="flex gap-4 mb-8">
-        <Button disabled={!selectedOption} onClick={finish}>
-          Finish
-        </Button>
-        <Button onClick={finish} variant="text">
-          Skip
-        </Button>
+        <div className="py-8 bg-bgPrimary sticky bottom-0 border-t-gray-200 border-t-[1px]">
+          <Button onClick={finish} isLoading={isLoading}>
+            Finish
+          </Button>
+        </div>
       </div>
     </OnboardingLayout>
   );
