@@ -16,6 +16,7 @@ export default function OnboardingIndexPage() {
   const { setConfirmationResult } = useGlobal();
 
   const {
+    setOnboardingStep,
     firstName,
     setFirstName,
     lastName,
@@ -41,12 +42,21 @@ export default function OnboardingIndexPage() {
       recaptchaVerifier?.clear();
 
       setConfirmationResult(res);
+      setOnboardingStep("PHONE_VERIFICATION");
 
       push("/onboarding/verify");
     } catch (e) {
       setIsLoading(false);
     }
-  }, [auth, recaptchaVerifier, indexPageIsValid, phone, setConfirmationResult, push]);
+  }, [
+    auth,
+    recaptchaVerifier,
+    indexPageIsValid,
+    phone,
+    setConfirmationResult,
+    setOnboardingStep,
+    push,
+  ]);
 
   return (
     <OnboardingLayout>
@@ -88,14 +98,20 @@ export default function OnboardingIndexPage() {
         label="Email address"
         placeholder="john@example.com"
       />
+
+      <Button
+        className="mt-12"
+        isLoading={isLoading}
+        disabled={!indexPageIsValid}
+        onClick={onContinue}
+      >
+        Continue
+      </Button>
+
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By continuing, you agree to GoodCash’s <a href="#">terms of service</a> and{" "}
         <a href="#">privacy policy</a>
       </p>
-
-      <Button isLoading={isLoading} disabled={!indexPageIsValid} onClick={onContinue}>
-        Continue
-      </Button>
     </OnboardingLayout>
   );
 }

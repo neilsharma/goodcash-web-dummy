@@ -16,6 +16,7 @@ export default function FinalizingApplication() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
+    setOnboardingStep,
     pierOnboardingStatus,
     setPierOnboardingStatus,
     pierBorrowerId,
@@ -49,6 +50,7 @@ export default function FinalizingApplication() {
     }
 
     if (onboardingStatus === "APPLICATION_APPROVED") {
+      setOnboardingStep("DOC_GENERATION");
       push("/onboarding/one-last-step");
     }
   }, [
@@ -58,6 +60,7 @@ export default function FinalizingApplication() {
     setPierBorrowerId,
     pierApplicationId,
     setPierApplicationId,
+    setOnboardingStep,
     push,
   ]);
 

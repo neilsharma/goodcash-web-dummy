@@ -20,7 +20,7 @@ export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
   const allowed = useConnectBankAccountGuard();
   const { push } = useRouter();
-  const { plaid, setPlaid, loc, setLoc } = useOnboarding();
+  const { setOnboardingStep, plaid, setPlaid, loc, setLoc } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,8 +42,9 @@ export default function OnboardingConnectBankAccountPage() {
       setLoc((prev) => ({ ...prev, locActivated: true }));
     }
 
+    setOnboardingStep("FINALIZING_APPLICATION");
     push("/onboarding/finalizing-application");
-  }, [loc, setLoc, push]);
+  }, [loc, setLoc, setOnboardingStep, push]);
 
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,

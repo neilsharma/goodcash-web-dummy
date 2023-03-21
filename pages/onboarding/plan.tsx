@@ -10,16 +10,23 @@ import Image from "next/image";
 import { useGlobal } from "@/shared/context/global";
 import { createUser } from "@/shared/http/services/user";
 
-const CheckMark = () => (
-  <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />
-);
+type PlanFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "THIRTY_DAYS" | "ANNUAL";
+interface Plan {
+  id: string;
+  name: string;
+  planType: "UNIFORM";
+  frequency: PlanFrequency;
+  currency: "USD";
+  price: number;
+  productId: string;
+}
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();
   const allowed = usePlanPageGuard();
   const { push } = useRouter();
   const { auth } = useGlobal();
-  const { setPlan, setUser } = useOnboarding();
+  const { setOnboardingStep, setPlan, setUser } = useOnboarding();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,11 +36,12 @@ export default function OnboardingPlanPage() {
     try {
       setIsLoading(true);
       setUser(await createUser(auth));
+      setOnboardingStep("CONTACT_INFO");
       push("/onboarding/contact-info");
     } catch (e) {
       setIsLoading(false);
     }
-  }, [setPlan, setUser, push, auth]);
+  }, [setPlan, setUser, setOnboardingStep, push, auth]);
 
   if (!allowed) return <OnboardingLayout />;
 
@@ -42,12 +50,20 @@ export default function OnboardingPlanPage() {
       <Title>The GoodCash Plan</Title>
       <SubTitle>Build credit for the cost of a latte</SubTitle>
 
-      <div className="my-12 h-28 border-primary border-2 rounded-2xl bg-white flex flex-col gap-2 items-center justify-center">
-        <p className="m-0 flex items-start text-boldText">
-          <span className="font-kansasNewSemiBold text-4xl">$5.</span>
-          <span className="font-kansasNewSemiBold text-xl">99</span>
-        </p>
-        <p className="m-0 font-sharpGroteskBook text-sm text-boldText">per month</p>
+      <div className="my-12 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
+        <Image
+          src="/img/goodcash-card-circle.png"
+          alt="card"
+          width={56}
+          height={56}
+          priority={true}
+        />
+        <div>
+          <p className="font-kansasNew text-3xl font-bold">
+            ${hardcodedPlan.price} per {resolveText(hardcodedPlan.frequency)}
+          </p>
+          <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
+        </div>
       </div>
 
       <div className="my-12">
@@ -71,5 +87,34 @@ export default function OnboardingPlanPage() {
     </OnboardingLayout>
   );
 }
+
+const resolveText = (frequency: PlanFrequency) => {
+  switch (frequency) {
+    case "DAILY":
+      return "day";
+    case "WEEKLY":
+      return "week";
+    case "THIRTY_DAYS":
+      return "thirty days";
+    case "MONTHLY":
+      return "month";
+    default:
+      return "month";
+  }
+};
+
+const hardcodedPlan: Plan = {
+  id: "1",
+  name: "5.99 Monthly Subscription",
+  planType: "UNIFORM",
+  frequency: "MONTHLY",
+  price: 5.99,
+  currency: "USD",
+  productId: "1",
+};
+
+const CheckMark = () => (
+  <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />
+);
 
 export const getServerSideProps = redirectIfServerSideRendered;
