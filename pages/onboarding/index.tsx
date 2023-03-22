@@ -64,7 +64,7 @@ export default function OnboardingIndexPage() {
 
   return (
     <OnboardingLayout>
-      {dimBackground && <div className="fixed top-0 left-0 h-[100vh] w-[100vw] bg-black/70" />}
+      {dimBackground && <div className="fixed top-0 left-0 h-[100vh] w-[100vw] bg-black/70 z-10" />}
       <Title>Welcome to GoodCash</Title>
       <SubTitle>
         Grow your credit with your existing bank account and the GoodCash card. No interest, no

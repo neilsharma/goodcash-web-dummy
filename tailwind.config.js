@@ -20,6 +20,9 @@ module.exports = {
         sharpGroteskBook: ["SharpGrotesk-Book"],
         sharpGroteskMedium: ["SharpGrotesk-Medium"],
       },
+      animation: {
+        fastSpin: "spin 0.7s linear infinite",
+      },
     },
   },
   plugins: [],
