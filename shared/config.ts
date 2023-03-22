@@ -3,7 +3,7 @@ import type { FirebaseOptions } from "firebase/app";
 export type GoodcashEnvironment = "local" | "sandbox" | "production";
 
 export const goodcashEnvironment: GoodcashEnvironment =
-  (process.env["GOODCASH_ENVIRONMENT"] as GoodcashEnvironment) ?? "local";
+  (process.env["NEXT_PUBLIC_GOODCASH_ENVIRONMENT"] as GoodcashEnvironment) ?? "local";
 
 const domains: Record<GoodcashEnvironment, string> = {
   local: "http://localhost:3000",
