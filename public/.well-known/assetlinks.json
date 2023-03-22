@@ -1,0 +1,15 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+
+    "target": {
+      "namespace": "android_app",
+
+      "package_name": "com.goodcashmobile",
+
+      "sha256_cert_fingerprints": [
+        "8c:ed:a5:08:c2:78:89:5b:32:28:18:50:a2:89:8d:3a:f4:ae:63:c3:0b:2b:a7:43:68:e7:78:02:94:b7:66:eb"
+      ]
+    }
+  }
+]
