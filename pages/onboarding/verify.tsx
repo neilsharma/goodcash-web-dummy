@@ -78,6 +78,7 @@ export default function OnboardingVerifyPage() {
           setCode(e.target.value.replace(/\_/g, ""));
         }}
         placeholder="------"
+        maskChar={null}
         inputMask="999999"
       />
 

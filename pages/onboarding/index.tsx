@@ -30,6 +30,7 @@ export default function OnboardingIndexPage() {
 
   const [phoneMask, setPhoneMask] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [dimBackground, setDimBackground] = useState(false);
 
   const { push } = useRouter();
 
@@ -38,8 +39,10 @@ export default function OnboardingIndexPage() {
 
     setIsLoading(true);
     try {
+      setDimBackground(true);
       const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
       recaptchaVerifier?.clear();
+      setDimBackground(false);
 
       setConfirmationResult(res);
       setOnboardingStep("PHONE_VERIFICATION");
@@ -47,6 +50,7 @@ export default function OnboardingIndexPage() {
       push("/onboarding/verify");
     } catch (e) {
       setIsLoading(false);
+      setDimBackground(false);
     }
   }, [
     auth,
@@ -60,6 +64,7 @@ export default function OnboardingIndexPage() {
 
   return (
     <OnboardingLayout>
+      {dimBackground && <div className="fixed top-0 left-0 h-[100vh] w-[100vw] bg-black/70 z-10" />}
       <Title>Welcome to GoodCash</Title>
       <SubTitle>
         Grow your credit with your existing bank account and the GoodCash card. No interest, no
@@ -89,6 +94,7 @@ export default function OnboardingIndexPage() {
         }}
         label="Phone number"
         type="tel"
+        maskChar={null}
         placeholder="+1 999 999 9999"
         inputMask="+1 999 999 9999"
       />

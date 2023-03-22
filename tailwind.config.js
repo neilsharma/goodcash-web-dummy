@@ -20,6 +20,9 @@ module.exports = {
         sharpGroteskBook: ["SharpGrotesk-Book"],
         sharpGroteskMedium: ["SharpGrotesk-Medium"],
       },
+      animation: {
+        fastSpin: "spin 0.7s linear infinite",
+      },
       backgroundImage: {
         "cqr-background": "url('/img/cqr-background.svg')",
         "cqr-grass": "url('/img/cqr-grass-field.svg')",
