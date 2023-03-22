@@ -16,7 +16,6 @@
     "react-dom": "18.2.0",
     "react-firebase-hooks": "5.1.1",
     "react-input-mask": "2.0.4",
-    "react-loader-spinner": "5.3.4",
     "react-lottie": "1.2.3",
     "react-plaid-link": "3.3.2",
     "react-select": "5.7.0",

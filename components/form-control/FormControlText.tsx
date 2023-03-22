@@ -1,5 +1,5 @@
 import { DetailedHTMLProps, FC, InputHTMLAttributes, createElement } from "react";
-import InputMask from "react-input-mask";
+import InputMask, { Props } from "react-input-mask";
 import {
   FormControlDescription,
   FormControlError,
@@ -10,10 +10,11 @@ import {
   SharedFormControlProps,
 } from "./shared";
 
-type InputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
+type InputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
+  Omit<Partial<Props>, "mask">;
 
 export interface FormControlTextProps extends SharedFormControlProps, InputProps {
-  inputMask?: string;
+  inputMask?: Props["mask"];
 }
 
 export const FormControlText: FC<FormControlTextProps> = ({
