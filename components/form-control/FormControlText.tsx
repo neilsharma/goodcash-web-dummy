@@ -11,10 +11,10 @@ import {
 } from "./shared";
 
 type InputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
-  Partial<Props>;
+  Omit<Partial<Props>, "mask">;
 
 export interface FormControlTextProps extends SharedFormControlProps, InputProps {
-  inputMask?: string;
+  inputMask?: Props["mask"];
 }
 
 export const FormControlText: FC<FormControlTextProps> = ({

@@ -94,6 +94,7 @@ export default function OnboardingIndexPage() {
         }}
         label="Phone number"
         type="tel"
+        maskChar={null}
         placeholder="+1 999 999 9999"
         inputMask="+1 999 999 9999"
       />
