@@ -10,77 +10,99 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import {
   createPierFacility,
   createPierLoanAgreement,
+  patchUserOnboarding,
   signPierLoanAgreement,
 } from "@/shared/http/services/user";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OneLastStep() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     setOnboardingStep,
-    pierOnboardingStatus,
-    setPierOnboardingStatus,
     pierApplicationId,
     pierLoanAgreementId,
     setPierLoanAgreementId,
     pierLoanAgreementDocumentUrl,
     setPierLoanAgreementDocumentUrl,
     setPierFacilityId,
+    redirectToGenericErrorPage,
   } = useOnboarding();
 
   const createLoanAgreement = useCallback(async () => {
-    let onboardingStatus = pierOnboardingStatus;
-    let loanAgreementId = pierLoanAgreementId;
+    try {
+      let loanAgreementId = pierLoanAgreementId;
 
-    if (onboardingStatus === "APPLICATION_APPROVED" || loanAgreementId === null) {
-      const { id } = await createPierLoanAgreement(pierApplicationId!);
-      setPierLoanAgreementId((loanAgreementId = id));
-      setPierOnboardingStatus((onboardingStatus = "LOAN_AGREEMENT_CREATED"));
-    }
+      if (!onboardingOperationsMap.pierLoanAgreementCreated || loanAgreementId === null) {
+        const { id } = await createPierLoanAgreement(pierApplicationId!);
+        setPierLoanAgreementId((loanAgreementId = id));
+        setOnboardingOperationsMap((p) => ({ ...p, pierLoanAgreementCreated: true }));
+        patchUserOnboarding({
+          pierLoanAgreementId: id,
+          onboardingOperationsMap: { pierLoanAgreementCreated: true },
+        });
+      }
 
-    if (onboardingStatus === "LOAN_AGREEMENT_CREATED") {
-      const { documentUrl } = await signPierLoanAgreement(loanAgreementId);
-      setPierLoanAgreementDocumentUrl(documentUrl);
-      setPierOnboardingStatus((onboardingStatus = "LOAN_AGREEMENT_SIGNED"));
+      if (!onboardingOperationsMap.pierLoanAgreementSigned) {
+        const { documentUrl } = await signPierLoanAgreement(loanAgreementId);
+        setPierLoanAgreementDocumentUrl(documentUrl);
+        setOnboardingOperationsMap((p) => ({ ...p, pierLoanAgreementSigned: true }));
+        patchUserOnboarding({
+          pierLoanAgreementDocumentUrl: documentUrl,
+          onboardingOperationsMap: { pierLoanAgreementSigned: true },
+        });
+      }
+    } catch (e) {
+      redirectToGenericErrorPage();
     }
   }, [
-    pierOnboardingStatus,
-    setPierOnboardingStatus,
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     pierLoanAgreementId,
     setPierLoanAgreementId,
     pierApplicationId,
     setPierLoanAgreementDocumentUrl,
+    redirectToGenericErrorPage,
   ]);
 
   const documentSigned = useMemo(
-    () => pierOnboardingStatus === "LOAN_AGREEMENT_SIGNED" && !!pierLoanAgreementDocumentUrl,
-    [pierOnboardingStatus, pierLoanAgreementDocumentUrl]
+    () => onboardingOperationsMap.pierLoanAgreementSigned && !!pierLoanAgreementDocumentUrl,
+    [onboardingOperationsMap, pierLoanAgreementDocumentUrl]
   );
 
   const [isLoading, setIsLoading] = useState(false);
   const completePierOnboarding = useCallback(async () => {
     setIsLoading(true);
     try {
-      if (pierOnboardingStatus === "FACILITY_CREATED") return push("/onboarding/how-did-you-hear");
+      if (onboardingOperationsMap.pierFacilityCreated)
+        return push(onboardingStepToPageMap.REFERRAL_SOURCE);
       if (!documentSigned) return;
 
       const { id } = await createPierFacility(pierLoanAgreementId!);
       setPierFacilityId(id);
-      setPierOnboardingStatus("FACILITY_CREATED");
-      setOnboardingStep("LAST_STEP");
-      push("/onboarding/how-did-you-hear");
+      setOnboardingOperationsMap((p) => ({ ...p, pierFacilityCreated: true }));
+      setOnboardingStep("REFERRAL_SOURCE");
+      patchUserOnboarding({
+        pierFacilityId: id,
+        onboardingStep: "REFERRAL_SOURCE",
+        onboardingOperationsMap: { pierFacilityCreated: true },
+      });
+      push(onboardingStepToPageMap.REFERRAL_SOURCE);
     } catch (error) {
-      setIsLoading(false);
+      redirectToGenericErrorPage();
     }
   }, [
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     setIsLoading,
     documentSigned,
-    pierOnboardingStatus,
     setPierFacilityId,
     pierLoanAgreementId,
-    setPierOnboardingStatus,
     setOnboardingStep,
     push,
+    redirectToGenericErrorPage,
   ]);
 
   useEffect(() => {

@@ -11,15 +11,16 @@ export const http = axios.create({
 http.interceptors.request.use(async (config) => {
   if (config.url?.endsWith(urlPaths.USER_ME_CREATE)) return config;
 
+  const controller = new AbortController();
   const auth = getComputedAuth();
   const token = await auth?.currentUser?.getIdToken();
 
-  if (!auth?.currentUser || !token) throw new Error("not authenticated");
+  if (!auth?.currentUser || !token) controller.abort();
 
   config.headers = config.headers ?? {};
-  config.headers["goodcash-authorization"] = token;
+  config.headers["goodcash-authorization"] ??= token;
 
-  return config;
+  return { ...config, signal: controller.signal };
 });
 
 export default http;

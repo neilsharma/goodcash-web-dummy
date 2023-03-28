@@ -2,6 +2,8 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
+import { onboardingStepToPageMap } from "@/shared/constants";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
@@ -9,10 +11,11 @@ import { useCallback } from "react";
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
   const { push } = useRouter();
+  const { onboardingStep } = useOnboarding();
 
   const tryAgain = useCallback(() => {
-    push("/onboarding/connect-bank-account");
-  }, [push]);
+    push(onboardingStepToPageMap[onboardingStep]);
+  }, [push, onboardingStep]);
 
   return (
     <OnboardingLayout>

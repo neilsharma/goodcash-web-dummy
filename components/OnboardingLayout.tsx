@@ -2,9 +2,14 @@ import { FC, ReactNode, useMemo } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useOnboarding } from "@/shared/context/onboarding";
+import { useServerSideOnboardingGuard } from "@/shared/hooks";
 
-export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => {
+export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }> = ({
+  children,
+  skipGuard = false,
+}) => {
   const { onboardingStep } = useOnboarding();
+  const allowed = useServerSideOnboardingGuard(skipGuard);
 
   const progress = useMemo(() => {
     switch (onboardingStep) {
@@ -22,7 +27,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => 
         return 70;
       case "DOC_GENERATION":
         return 80;
-      case "LAST_STEP":
+      case "REFERRAL_SOURCE":
         return 90;
       case "APPLICATION_COMPLETE":
         return 100;
@@ -47,7 +52,9 @@ export const OnboardingLayout: FC<{ children?: ReactNode }> = ({ children }) => 
           priority={true}
         />
       </header>
-      <main className="max-w-[500px] px-6 box-content m-auto">{children}</main>
+      <main className="max-w-[500px] px-6 box-content m-auto">
+        {!allowed && !skipGuard ? null : children}
+      </main>
       <footer className="mx-auto mt-auto pt-12 pb-8 px-4 max-w-4xl text-center font-sharpGroteskBook">
         <p className="text-xs mb-6">© Copyright 2021 GoodCash, Inc. All rights reserved.</p>
         <p className="text-xs text-thinText">

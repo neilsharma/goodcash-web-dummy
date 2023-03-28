@@ -10,58 +10,75 @@ import {
   approvePierApplication,
   createPierApplication,
   createPierBorrower,
+  patchUserOnboarding,
 } from "@/shared/http/services/user";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function FinalizingApplication() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     setOnboardingStep,
-    pierOnboardingStatus,
-    setPierOnboardingStatus,
     pierBorrowerId,
     setPierBorrowerId,
     pierApplicationId,
     setPierApplicationId,
+    redirectToGenericErrorPage,
   } = useOnboarding();
 
   const finalizeApplication = useCallback(async () => {
-    let onboardingStatus = pierOnboardingStatus;
-    let borrowerId = pierBorrowerId;
-    let applicationId = pierApplicationId;
+    try {
+      let borrowerId = pierBorrowerId;
+      let applicationId = pierApplicationId;
 
-    if (onboardingStatus === null || borrowerId === null) {
-      const { id } = await createPierBorrower();
-      setPierBorrowerId((borrowerId = id));
-      setPierOnboardingStatus((onboardingStatus = "BORROWER_CREATED"));
-    }
+      if (!onboardingOperationsMap.pierBorrowerCreated || borrowerId === null) {
+        const { id } = await createPierBorrower();
+        setPierBorrowerId((borrowerId = id));
+        setOnboardingOperationsMap((p) => ({ ...p, pierBorrowerCreated: true }));
+        patchUserOnboarding({
+          pierBorrowerId: id,
+          onboardingOperationsMap: { pierBorrowerCreated: true },
+        });
+      }
 
-    if (onboardingStatus === "BORROWER_CREATED" || applicationId === null) {
-      const { id } = await createPierApplication(borrowerId);
+      if (!onboardingOperationsMap.pierApplicationCreated || applicationId === null) {
+        const { id } = await createPierApplication(borrowerId);
 
-      setPierApplicationId((applicationId = id));
-      setPierOnboardingStatus((onboardingStatus = "APPLICATION_CREATED"));
-    }
+        setPierApplicationId((applicationId = id));
+        setOnboardingOperationsMap((p) => ({ ...p, pierApplicationCreated: true }));
+        patchUserOnboarding({
+          pierApplicationId: id,
+          onboardingOperationsMap: { pierApplicationCreated: true },
+        });
+      }
 
-    if (onboardingStatus === "APPLICATION_CREATED") {
-      await approvePierApplication(applicationId);
+      if (!onboardingOperationsMap.pierApplicationApproved) {
+        await approvePierApplication(applicationId);
 
-      setPierOnboardingStatus((onboardingStatus = "APPLICATION_APPROVED"));
-    }
+        setOnboardingOperationsMap((p) => ({ ...p, pierApplicationApproved: true }));
+        patchUserOnboarding({
+          onboardingStep: "DOC_GENERATION",
+          onboardingOperationsMap: { pierApplicationApproved: true },
+        });
+      }
 
-    if (onboardingStatus === "APPLICATION_APPROVED") {
       setOnboardingStep("DOC_GENERATION");
-      push("/onboarding/one-last-step");
+      push(onboardingStepToPageMap.DOC_GENERATION);
+    } catch (error) {
+      redirectToGenericErrorPage();
     }
   }, [
-    pierOnboardingStatus,
-    setPierOnboardingStatus,
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     pierBorrowerId,
     setPierBorrowerId,
     pierApplicationId,
     setPierApplicationId,
     setOnboardingStep,
     push,
+    redirectToGenericErrorPage,
   ]);
 
   useEffect(() => {

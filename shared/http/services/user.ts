@@ -1,9 +1,10 @@
-import type { Auth } from "firebase/auth";
+import type { Auth, User } from "firebase/auth";
 import type { AxiosResponse } from "axios";
 import { getComputedAuth } from "@/shared/context/global";
 import http from "../client";
 import { GCUser, IdentityBasics, KycTaxInfo, UserAddress } from "../types";
 import { urlPaths } from "../util";
+import { RecursivePartial, SharedOnboardingState } from "@/shared/types";
 
 export const createUser = async (auth: Auth | null) => {
   if (!auth) throw new Error("not authenticated");
@@ -96,6 +97,25 @@ export const createPierFacility = async (loanAgreementId: string) => {
   const res = await http.post<any, AxiosResponse<{ id: string }>>(urlPaths.USER_CREATE_FACILITY, {
     loanAgreementId,
   });
+
+  return res.data;
+};
+
+export const getUserOnboarding = async (user: User) => {
+  const token = await user.getIdToken();
+
+  const res = await http.get<any, AxiosResponse<RecursivePartial<SharedOnboardingState> | null>>(
+    urlPaths.USER_ONBOARDING,
+    {
+      headers: { "goodcash-authorization": token },
+    }
+  );
+
+  return res.data;
+};
+
+export const patchUserOnboarding = async (data: RecursivePartial<SharedOnboardingState>) => {
+  const res = await http.patch(urlPaths.USER_ONBOARDING, data);
 
   return res.data;
 };

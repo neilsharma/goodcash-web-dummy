@@ -4,46 +4,76 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { redirectIfServerSideRendered, useConfirmUnload, usePlanPageGuard } from "@/shared/hooks";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import Image from "next/image";
 import { useGlobal } from "@/shared/context/global";
-import { createUser } from "@/shared/http/services/user";
-
-type PlanFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "THIRTY_DAYS" | "ANNUAL";
-interface Plan {
-  id: string;
-  name: string;
-  planType: "UNIFORM";
-  frequency: PlanFrequency;
-  currency: "USD";
-  price: number;
-  productId: string;
-}
+import { createUser, patchUserOnboarding } from "@/shared/http/services/user";
+import { hardcodedPlans, onboardingStepToPageMap } from "@/shared/constants";
+import { Plan, PlanFrequency } from "@/shared/types";
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();
-  const allowed = usePlanPageGuard();
   const { push } = useRouter();
   const { auth } = useGlobal();
-  const { setOnboardingStep, setPlan, setUser } = useOnboarding();
+  const {
+    firstName,
+    lastName,
+    phone,
+    email,
+    user,
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    setOnboardingStep,
+    setPlan,
+    setUser,
+    redirectToGenericErrorPage,
+  } = useOnboarding();
 
   const [isLoading, setIsLoading] = useState(false);
 
   const onContinue = useCallback(async () => {
-    setPlan("1");
+    if (user && onboardingOperationsMap.userCreated) return push("/onboarding/contact-info");
 
     try {
+      setPlan(hardcodedPlan.id);
       setIsLoading(true);
-      setUser(await createUser(auth));
-      setOnboardingStep("CONTACT_INFO");
-      push("/onboarding/contact-info");
-    } catch (e) {
-      setIsLoading(false);
-    }
-  }, [setPlan, setUser, setOnboardingStep, push, auth]);
+      const createdUser = await createUser(auth);
 
-  if (!allowed) return <OnboardingLayout />;
+      setUser(createdUser);
+
+      setOnboardingStep("CONTACT_INFO");
+      patchUserOnboarding({
+        firstName,
+        lastName,
+        phone,
+        email,
+        user: createdUser,
+        onboardingStep: "CONTACT_INFO",
+        onboardingOperationsMap: { userCreated: true },
+        plan: hardcodedPlan.id,
+      });
+      setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
+
+      push(onboardingStepToPageMap.CONTACT_INFO);
+    } catch (e) {
+      redirectToGenericErrorPage();
+    }
+  }, [
+    user,
+    firstName,
+    lastName,
+    phone,
+    email,
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    setPlan,
+    setUser,
+    setOnboardingStep,
+    push,
+    auth,
+    redirectToGenericErrorPage,
+  ]);
 
   return (
     <OnboardingLayout>
@@ -103,15 +133,7 @@ const resolveText = (frequency: PlanFrequency) => {
   }
 };
 
-const hardcodedPlan: Plan = {
-  id: "1",
-  name: "5.99 Monthly Subscription",
-  planType: "UNIFORM",
-  frequency: "MONTHLY",
-  price: 5.99,
-  currency: "USD",
-  productId: "1",
-};
+const hardcodedPlan: Plan = hardcodedPlans.MONTHLY;
 
 const CheckMark = () => (
   <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />

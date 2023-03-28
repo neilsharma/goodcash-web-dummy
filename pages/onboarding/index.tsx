@@ -9,6 +9,7 @@ import Title from "@/components/Title";
 import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useGlobal } from "@/shared/context/global";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
@@ -47,7 +48,7 @@ export default function OnboardingIndexPage() {
       setConfirmationResult(res);
       setOnboardingStep("PHONE_VERIFICATION");
 
-      push("/onboarding/verify");
+      push(onboardingStepToPageMap.PHONE_VERIFICATION);
     } catch (e) {
       setIsLoading(false);
       setDimBackground(false);
@@ -63,7 +64,7 @@ export default function OnboardingIndexPage() {
   ]);
 
   return (
-    <OnboardingLayout>
+    <OnboardingLayout skipGuard>
       {dimBackground && <div className="fixed top-0 left-0 h-[100vh] w-[100vw] bg-black/70 z-10" />}
       <Title>Welcome to GoodCash</Title>
       <SubTitle>
@@ -115,8 +116,14 @@ export default function OnboardingIndexPage() {
       </Button>
 
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
-        By continuing, you agree to GoodCash’s <a href="#">terms of service</a> and{" "}
-        <a href="#">privacy policy</a>
+        By continuing, you agree to GoodCash’s{" "}
+        <a href="https://bit.ly/goodcash-terms" rel="noreferrer" target="_blank">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="https://bit.ly/goodcash-privacy" rel="noreferrer" target="_blank">
+          Privacy Policy
+        </a>
       </p>
     </OnboardingLayout>
   );

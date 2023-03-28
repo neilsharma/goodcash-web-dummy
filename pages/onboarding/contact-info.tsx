@@ -6,24 +6,24 @@ import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import {
-  redirectIfServerSideRendered,
-  useConfirmUnload,
-  useContactInfoGuard,
-} from "@/shared/hooks";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EUsaStates } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
 import {
+  patchUserOnboarding,
   updateTaxInfo,
   updateUserAddress,
   updateUserIdentityBasic,
 } from "@/shared/http/services/user";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
-  const allowed = useContactInfoGuard();
+
   const {
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     setOnboardingStep,
     firstName,
     lastName,
@@ -50,6 +50,7 @@ export default function OnboardingContactInfoPage() {
     setAgreedToTermsOfService,
     is18YearsOld,
     contactInfoPageIsValid,
+    redirectToGenericErrorPage,
   } = useOnboarding();
   const { push } = useRouter();
 
@@ -64,31 +65,56 @@ export default function OnboardingContactInfoPage() {
     try {
       setIsLoading(true);
 
-      await updateUserAddress({
-        address_line_1: legalAddress,
-        ...(aptNumber ? { address_line_2: aptNumber } : null),
-        city,
-        country: "USA",
-        postal_code: zipCode,
-        state,
-      });
+      if (!onboardingOperationsMap.userAddressCreated) {
+        await updateUserAddress({
+          address_line_1: legalAddress,
+          ...(aptNumber ? { address_line_2: aptNumber } : null),
+          city,
+          country: "USA",
+          postal_code: zipCode,
+          state,
+        });
 
-      await updateUserIdentityBasic({
-        birth_date: dateOfBirth?.toISOString(),
-        email_address: email,
-        first_name: firstName,
-        last_name: lastName,
-      });
+        setOnboardingOperationsMap((p) => ({ ...p, userAddressCreated: true }));
+        patchUserOnboarding({ onboardingOperationsMap: { userAddressCreated: true } });
+      }
 
-      await updateTaxInfo({ social_security_number: ssnMask });
+      if (!onboardingOperationsMap.userIdentityBasisCreated) {
+        await updateUserIdentityBasic({
+          birth_date: dateOfBirth?.toISOString(),
+          email_address: email,
+          first_name: firstName,
+          last_name: lastName,
+        });
+
+        setOnboardingOperationsMap((p) => ({ ...p, userIdentityBasisCreated: true }));
+        patchUserOnboarding({ onboardingOperationsMap: { userIdentityBasisCreated: true } });
+      }
+
+      if (!onboardingOperationsMap.userTaxInfoIsSet) {
+        await updateTaxInfo({ social_security_number: ssnMask });
+
+        setOnboardingOperationsMap((p) => ({ ...p, userTaxInfoIsSet: true }));
+        patchUserOnboarding({
+          agreedToCardHolderAgreement,
+          agreedToAutopay,
+          agreedToTermsOfService,
+          onboardingOperationsMap: { userTaxInfoIsSet: true },
+          onboardingStep: "BANK_ACCOUNT_CONNECTION",
+        });
+      }
 
       setOnboardingStep("BANK_ACCOUNT_CONNECTION");
-      push("/onboarding/connect-bank-account");
+      push(onboardingStepToPageMap.BANK_ACCOUNT_CONNECTION);
     } catch (e) {
-      setIsLoading(false);
-      throw e;
+      redirectToGenericErrorPage();
     }
   }, [
+    agreedToCardHolderAgreement,
+    agreedToAutopay,
+    agreedToTermsOfService,
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
     setOnboardingStep,
     push,
     contactInfoPageIsValid,
@@ -103,9 +129,8 @@ export default function OnboardingContactInfoPage() {
     lastName,
     ssnMask,
     setIsLoading,
+    redirectToGenericErrorPage,
   ]);
-
-  if (!allowed) return <OnboardingLayout />;
 
   return (
     <OnboardingLayout>

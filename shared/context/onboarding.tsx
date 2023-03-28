@@ -1,10 +1,11 @@
-import { ConfirmationResult } from "firebase/auth";
+import { useRouter } from "next/router";
 import {
   createContext,
   Dispatch,
   FC,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -13,9 +14,11 @@ import type { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 import { GCUser } from "../http/types";
-import { EUsaStates } from "../types";
+import type { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
 
 export interface IOnboardingContext {
+  onboardingOperationsMap: OnboardingOperationsMap;
+  setOnboardingOperationsMap: Dispatch<SetStateAction<OnboardingOperationsMap>>;
   onboardingStep: OnboardingStep;
   setOnboardingStep: Dispatch<SetStateAction<OnboardingStep>>;
 
@@ -63,11 +66,9 @@ export interface IOnboardingContext {
 
   plaid: PlaidPayload;
   setPlaid: Dispatch<SetStateAction<PlaidPayload>>;
-  loc: LocPayload;
-  setLoc: Dispatch<SetStateAction<LocPayload>>;
+  locId: string;
+  setLocId: Dispatch<SetStateAction<string>>;
 
-  pierOnboardingStatus: PierOnboardingStatus;
-  setPierOnboardingStatus: Dispatch<SetStateAction<PierOnboardingStatus>>;
   pierBorrowerId: string | null;
   setPierBorrowerId: Dispatch<SetStateAction<string | null>>;
   pierApplicationId: string | null;
@@ -81,33 +82,52 @@ export interface IOnboardingContext {
 
   howDidYouHearAboutUs: string;
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
+
+  mergeOnboardingState: (state: RecursivePartial<SharedOnboardingState>) => void;
+  redirectToGenericErrorPage: () => Promise<boolean>;
 }
 
-type OnboardingStep =
-  | "WELCOME"
-  | "PHONE_VERIFICATION"
-  | "PLAN_SELECTION_AND_USER_CREATION"
-  | "CONTACT_INFO"
-  | "BANK_ACCOUNT_CONNECTION"
-  | "FINALIZING_APPLICATION"
-  | "DOC_GENERATION"
-  | "LAST_STEP"
-  | "APPLICATION_COMPLETE";
+interface OnboardingOperationsMap {
+  userCreated: boolean;
+  userAddressCreated: boolean;
+  userIdentityBasisCreated: boolean;
+  userTaxInfoIsSet: boolean;
+  bankAccountCreated: boolean;
+  kycSubmitted: boolean;
+  locSubmitted: boolean;
+  locActivated: boolean;
+  pierBorrowerCreated: boolean;
+  pierApplicationCreated: boolean;
+  pierApplicationApproved: boolean;
+  pierLoanAgreementCreated: boolean;
+  pierLoanAgreementSigned: boolean;
+  pierFacilityCreated: boolean;
+  onboardingCompleted: boolean;
+}
 
 type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMetadata };
-type LocPayload = { locId: string | null; locSubmitted: boolean; locActivated: boolean };
-type PierOnboardingStatus =
-  | null
-  | "BORROWER_CREATED"
-  | "APPLICATION_CREATED"
-  | "APPLICATION_APPROVED"
-  | "LOAN_AGREEMENT_CREATED"
-  | "LOAN_AGREEMENT_SIGNED"
-  | "FACILITY_CREATED";
 
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
+  const { push } = useRouter();
+  const [onboardingOperationsMap, setOnboardingOperationsMap] = useState<OnboardingOperationsMap>({
+    userCreated: false,
+    userAddressCreated: false,
+    userIdentityBasisCreated: false,
+    userTaxInfoIsSet: false,
+    bankAccountCreated: false,
+    kycSubmitted: false,
+    locSubmitted: false,
+    locActivated: false,
+    pierBorrowerCreated: false,
+    pierApplicationCreated: false,
+    pierApplicationApproved: false,
+    pierLoanAgreementCreated: false,
+    pierLoanAgreementSigned: false,
+    pierFacilityCreated: false,
+    onboardingCompleted: false,
+  });
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("WELCOME");
 
   const [firstName, setFirstName] = useState("");
@@ -175,14 +195,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [plaid, setPlaid] = useState<PlaidPayload>(null);
   const [user, setUser] = useState<IOnboardingContext["user"]>(null);
 
-  const [loc, setLoc] = useState<IOnboardingContext["loc"]>({
-    locId: null,
-    locSubmitted: false,
-    locActivated: false,
-  });
+  const [locId, setLocId] = useState("");
 
-  const [pierOnboardingStatus, setPierOnboardingStatus] =
-    useState<IOnboardingContext["pierOnboardingStatus"]>(null);
   const [pierBorrowerId, setPierBorrowerId] = useState<IOnboardingContext["pierBorrowerId"]>(null);
   const [pierApplicationId, setPierApplicationId] =
     useState<IOnboardingContext["pierApplicationId"]>(null);
@@ -194,9 +208,83 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
+  const mergeOnboardingState = useCallback(
+    (state: RecursivePartial<SharedOnboardingState>) => {
+      if (state.onboardingOperationsMap)
+        setOnboardingOperationsMap((p) => ({ ...p, ...state.onboardingOperationsMap }));
+      if (state.onboardingStep) setOnboardingStep(state.onboardingStep);
+
+      if (state.firstName) setFirstName(state.firstName);
+      if (state.lastName) setLastName(state.lastName);
+      if (state.phone) setPhone(state.phone);
+      if (state.email) setEmail(state.email);
+
+      if (state.plan) setPlan(state.plan);
+      if (state.user) setUser((p) => ({ ...p, ...(state.user as GCUser) }));
+
+      if (state.dateOfBirth) setDateOfBirth(new Date(state.dateOfBirth as Date | string));
+      if (state.legalAddress) setLegalAddress(state.legalAddress);
+      if (state.aptNumber) setAptNumber(state.aptNumber);
+      if (state.city) setCity(state.city);
+      if (state.state) setState(state.state);
+      if (state.zipCode) setZipCode(state.zipCode);
+      if (state.ssn) setSsn(state.ssn);
+      if (state.agreedToCardHolderAgreement)
+        setAgreedToCardHolderAgreement(state.agreedToCardHolderAgreement);
+      if (state.agreedToAutopay) setAgreedToAutopay(state.agreedToAutopay);
+      if (state.agreedToTermsOfService) setAgreedToTermsOfService(state.agreedToTermsOfService);
+
+      if (state.plaid) setPlaid((p) => ({ ...p, ...(state.plaid as any) }));
+      if (state.locId) setLocId(state.locId);
+
+      if (state.pierBorrowerId) setPierBorrowerId(state.pierBorrowerId);
+      if (state.pierApplicationId) setPierApplicationId(state.pierApplicationId);
+      if (state.pierLoanAgreementId) setPierLoanAgreementId(state.pierLoanAgreementId);
+      if (state.pierLoanAgreementDocumentUrl)
+        setPierLoanAgreementDocumentUrl(state.pierLoanAgreementDocumentUrl);
+      if (state.pierFacilityId) setPierFacilityId(state.pierFacilityId);
+      if (state.howDidYouHearAboutUs) setHowDidYouHearAboutUs(state.howDidYouHearAboutUs);
+    },
+    [
+      setOnboardingOperationsMap,
+      setOnboardingStep,
+      setFirstName,
+      setLastName,
+      setPhone,
+      setEmail,
+      setPlan,
+      setUser,
+      setDateOfBirth,
+      setLegalAddress,
+      setAptNumber,
+      setCity,
+      setState,
+      setZipCode,
+      setSsn,
+      setAgreedToCardHolderAgreement,
+      setAgreedToAutopay,
+      setAgreedToTermsOfService,
+      setPlaid,
+      setLocId,
+      setPierBorrowerId,
+      setPierApplicationId,
+      setPierLoanAgreementId,
+      setPierLoanAgreementDocumentUrl,
+      setPierFacilityId,
+      setHowDidYouHearAboutUs,
+    ]
+  );
+
+  const redirectToGenericErrorPage = useCallback(
+    () => push("/onboarding/something-went-wrong"),
+    [push]
+  );
+
   return (
     <onboardingContext.Provider
       value={{
+        onboardingOperationsMap,
+        setOnboardingOperationsMap,
         onboardingStep,
         setOnboardingStep,
 
@@ -243,11 +331,9 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
         plaid,
         setPlaid,
-        loc,
-        setLoc,
+        locId,
+        setLocId,
 
-        pierOnboardingStatus,
-        setPierOnboardingStatus,
         pierBorrowerId,
         setPierBorrowerId,
         pierApplicationId,
@@ -261,6 +347,9 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
         howDidYouHearAboutUs,
         setHowDidYouHearAboutUs,
+
+        mergeOnboardingState,
+        redirectToGenericErrorPage,
       }}
     >
       {children}

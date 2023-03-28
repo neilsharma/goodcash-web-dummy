@@ -3,30 +3,52 @@ import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
-import { redirectIfServerSideRendered, useConfirmUnload, useLastPageGuard } from "@/shared/hooks";
-import { completeUserOnboarding } from "@/shared/http/services/user";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
 import { useOnboarding } from "@/shared/context/onboarding";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
-  const allowed = useLastPageGuard();
-  const { setOnboardingStep } = useOnboarding();
+  const {
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    setOnboardingStep,
+    howDidYouHearAboutUs,
+    setHowDidYouHearAboutUs,
+    redirectToGenericErrorPage,
+  } = useOnboarding();
   const { push } = useRouter();
-  const [selectedOption, setSelectedOption] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const finish = useCallback(async () => {
     try {
       setIsLoading(true);
-      await completeUserOnboarding();
-      setOnboardingStep("APPLICATION_COMPLETE");
-      push("/onboarding/application-complete");
-    } catch (error) {
-      setIsLoading(false);
-    }
-  }, [setIsLoading, setOnboardingStep, push]);
 
-  if (!allowed) return <OnboardingLayout />;
+      if (!onboardingOperationsMap.onboardingCompleted) {
+        await completeUserOnboarding();
+        setOnboardingStep("APPLICATION_COMPLETE");
+        setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
+        patchUserOnboarding({
+          onboardingStep: "APPLICATION_COMPLETE",
+          onboardingOperationsMap: { onboardingCompleted: true },
+          howDidYouHearAboutUs,
+        });
+      }
+
+      push(onboardingStepToPageMap.APPLICATION_COMPLETE);
+    } catch (error) {
+      redirectToGenericErrorPage();
+    }
+  }, [
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    setIsLoading,
+    setOnboardingStep,
+    howDidYouHearAboutUs,
+    push,
+    redirectToGenericErrorPage,
+  ]);
 
   return (
     <OnboardingLayout>
@@ -42,7 +64,7 @@ export default function OnboardingHowDidYouHearPage() {
                 name="how"
                 type="radio"
                 className="w-5 h-5"
-                onChange={() => setSelectedOption(op)}
+                onChange={() => setHowDidYouHearAboutUs(op)}
               />
               <p className="font-sharpGroteskBook text-boldText">{op}</p>
             </label>

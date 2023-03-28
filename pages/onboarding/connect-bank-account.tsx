@@ -6,21 +6,26 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import {
-  redirectIfServerSideRendered,
-  useConfirmUnload,
-  useConnectBankAccountGuard,
-} from "@/shared/hooks";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
-import { submitKyc } from "@/shared/http/services/user";
+import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
 import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
-  const allowed = useConnectBankAccountGuard();
   const { push } = useRouter();
-  const { setOnboardingStep, plaid, setPlaid, loc, setLoc } = useOnboarding();
+  const {
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    setOnboardingStep,
+    plaid,
+    setPlaid,
+    locId,
+    setLocId,
+    redirectToGenericErrorPage,
+  } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,22 +34,41 @@ export default function OnboardingConnectBankAccountPage() {
   }, [setPlaidLinkToken]);
 
   const kycAndLoc = useCallback(async () => {
-    const locId = loc.locId ? loc.locId : await submitKyc().then((r) => r.locId);
-    setLoc((prev) => ({ ...prev, locId }));
+    let _locId = locId;
 
-    if (!loc.locSubmitted) {
-      await submitLineOfCredit({ locId });
-      setLoc((prev) => ({ ...prev, locSubmitted: true }));
+    if (!_locId || !onboardingOperationsMap.kycSubmitted) {
+      const kyc = await submitKyc();
+      _locId = kyc.locId;
+      setLocId(kyc.locId);
+      setOnboardingOperationsMap((p) => ({ ...p, kycSubmitted: true }));
+      patchUserOnboarding({ onboardingOperationsMap: { kycSubmitted: true } });
     }
 
-    if (!loc.locActivated) {
-      await activateLineOfCredit({ locId });
-      setLoc((prev) => ({ ...prev, locActivated: true }));
+    if (!onboardingOperationsMap.locSubmitted) {
+      await submitLineOfCredit({ locId: _locId });
+      setOnboardingOperationsMap((p) => ({ ...p, locSubmitted: true }));
+      patchUserOnboarding({ onboardingOperationsMap: { locSubmitted: true } });
+    }
+
+    if (!onboardingOperationsMap.locActivated) {
+      await activateLineOfCredit({ locId: _locId });
+      setOnboardingOperationsMap((p) => ({ ...p, locActivated: true }));
+      patchUserOnboarding({
+        onboardingStep: "FINALIZING_APPLICATION",
+        onboardingOperationsMap: { locActivated: true },
+      });
     }
 
     setOnboardingStep("FINALIZING_APPLICATION");
-    push("/onboarding/finalizing-application");
-  }, [loc, setLoc, setOnboardingStep, push]);
+    push(onboardingStepToPageMap.FINALIZING_APPLICATION);
+  }, [
+    onboardingOperationsMap,
+    setOnboardingOperationsMap,
+    locId,
+    setLocId,
+    setOnboardingStep,
+    push,
+  ]);
 
   const { open, ready } = usePlaidLink({
     token: plaidLinkToken,
@@ -52,8 +76,15 @@ export default function OnboardingConnectBankAccountPage() {
       try {
         setIsLoading(true);
 
-        await createBankAccount({ plaidPublicToken: publicToken });
-        setPlaid({ publicToken, metadata });
+        if (!onboardingOperationsMap.bankAccountCreated) {
+          await createBankAccount({ plaidPublicToken: publicToken });
+          setOnboardingOperationsMap((p) => ({ ...p, bankAccountCreated: true }));
+          setPlaid({ publicToken, metadata });
+          patchUserOnboarding({
+            plaid: { publicToken, metadata },
+            onboardingOperationsMap: { bankAccountCreated: true },
+          });
+        }
 
         await kycAndLoc();
       } catch (e: any) {
@@ -64,7 +95,7 @@ export default function OnboardingConnectBankAccountPage() {
           return push("/onboarding/not-enough-money");
         }
 
-        push("/onboarding/something-went-wrong");
+        redirectToGenericErrorPage();
       }
     },
   });
@@ -72,23 +103,8 @@ export default function OnboardingConnectBankAccountPage() {
   const onContinue = useCallback(async () => {
     if (!ready || !plaidLinkToken) return;
 
-    if (plaid) {
-      setIsLoading(true);
-
-      const kyc = await submitKyc().catch((e) => {
-        setIsLoading(false);
-        throw e;
-      });
-
-      setIsLoading(false);
-
-      return kyc;
-    }
-
     open();
-  }, [plaid, open, ready, plaidLinkToken, setIsLoading]);
-
-  if (!allowed) return <OnboardingLayout />;
+  }, [open, ready, plaidLinkToken]);
 
   return (
     <OnboardingLayout>
@@ -118,7 +134,11 @@ export default function OnboardingConnectBankAccountPage() {
       <Button
         disabled={!ready || !plaidLinkToken}
         isLoading={isLoading}
-        onClick={plaid ? kycAndLoc : onContinue}
+        onClick={
+          plaid && onboardingOperationsMap.bankAccountCreated
+            ? () => kycAndLoc().catch(redirectToGenericErrorPage)
+            : onContinue
+        }
       >
         Continue
       </Button>
