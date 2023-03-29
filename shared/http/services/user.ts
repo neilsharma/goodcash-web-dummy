@@ -20,6 +20,14 @@ export const createUser = async (auth: Auth | null) => {
   return res.data;
 };
 
+export const getUser = async (token: string) => {
+  const res = await http.get<any, AxiosResponse<GCUser | null>>(urlPaths.USER_ME, {
+    headers: { "goodcash-authorization": token },
+  });
+
+  return res.data;
+};
+
 export const updateUserAddress = async (payload: UserAddress) => {
   const res = await http.post<any, AxiosResponse<UserAddress>>(urlPaths.KYC_ADDRESS, payload);
 
@@ -101,9 +109,7 @@ export const createPierFacility = async (loanAgreementId: string) => {
   return res.data;
 };
 
-export const getUserOnboarding = async (user: User) => {
-  const token = await user.getIdToken();
-
+export const getUserOnboarding = async (token: string) => {
   const res = await http.get<any, AxiosResponse<RecursivePartial<SharedOnboardingState> | null>>(
     urlPaths.USER_ONBOARDING,
     {

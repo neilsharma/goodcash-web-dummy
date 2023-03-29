@@ -10,7 +10,7 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useRouter } from "next/router";
 import { useGlobal } from "@/shared/context/global";
-import { getUserOnboarding } from "@/shared/http/services/user";
+import { getUser, getUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
 
 export default function OnboardingVerifyPage() {
@@ -61,9 +61,22 @@ export default function OnboardingVerifyPage() {
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
-    if (!user) return;
+    if (!user) return redirectToGenericErrorPage();
 
-    const onboardingState = await getUserOnboarding(user).catch(() => null);
+    const token = await user.getIdToken();
+    const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
+    const gcUser = await getUser(token).catch(() => null);
+
+    switch (gcUser?.state) {
+      case "BLOCKED":
+      case "DELETED":
+        return redirectToGenericErrorPage();
+
+      case "LIVE":
+        return push(onboardingStepToPageMap.APPLICATION_COMPLETE);
+    }
+
+    const onboardingState = await onboardingStatePromise;
 
     if (onboardingState) {
       mergeOnboardingState(onboardingState);
@@ -78,7 +91,7 @@ export default function OnboardingVerifyPage() {
 
     setOnboardingStep("PLAN_SELECTION_AND_USER_CREATION");
     return push(onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION);
-  }, [push, confirmPhone, setOnboardingStep, mergeOnboardingState]);
+  }, [push, confirmPhone, setOnboardingStep, mergeOnboardingState, redirectToGenericErrorPage]);
 
   return (
     <OnboardingLayout>

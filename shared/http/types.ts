@@ -1,4 +1,4 @@
-export type GCUserState = "LIVE" | "DELETED" | "ONBOARDING";
+export type GCUserState = "LIVE" | "DELETED" | "ONBOARDING" | "BLOCKED";
 
 export interface GCUser {
   id: string;
