@@ -23,4 +23,13 @@ export const hardcodedPlans = {
     currency: "USD",
     productId: "1",
   } as Plan,
+  ANNUAL: {
+    id: "2",
+    name: "72 Annual Subscription",
+    planType: "UNIFORM",
+    frequency: "ANNUAL",
+    price: 72,
+    currency: "USD",
+    productId: "1",
+  } as Plan,
 };

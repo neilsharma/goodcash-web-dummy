@@ -128,12 +128,14 @@ const resolveText = (frequency: PlanFrequency) => {
       return "thirty days";
     case "MONTHLY":
       return "month";
+    case "ANNUAL":
+      return "year";
     default:
       return "month";
   }
 };
 
-const hardcodedPlan: Plan = hardcodedPlans.MONTHLY;
+const hardcodedPlan: Plan = hardcodedPlans.ANNUAL;
 
 const CheckMark = () => (
   <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />
