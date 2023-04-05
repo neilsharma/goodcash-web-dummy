@@ -22,4 +22,7 @@ export const urlPaths = {
   USER_CREATE_FACILITY: "/v1/me/pier/facility",
   USER_ONBOARDING: "/v1/me/onboarding",
   USER_COMPLETE_ONBOARDING: "/v1/me/complete-onboarding",
+  USER_ASSET_STATUS: "/v1/me/asset-status",
+  UNDERWRITING: "/v1/underwriting",
+  UNDERWRITING_FAIL: "/v1/underwriting/fail",
 };

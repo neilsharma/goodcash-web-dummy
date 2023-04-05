@@ -1,6 +1,7 @@
-import { FC, ReactNode, useMemo } from "react";
+import { FC, ReactNode, useEffect, useMemo } from "react";
 import Head from "next/head";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useServerSideOnboardingGuard } from "@/shared/hooks";
 
@@ -8,8 +9,16 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
   children,
   skipGuard = false,
 }) => {
-  const { onboardingStep } = useOnboarding();
+  const { replace, pathname } = useRouter();
+  const { onboardingStep, isUserBlocked } = useOnboarding();
   const allowed = useServerSideOnboardingGuard(skipGuard);
+
+  const isUserBlockedPage = useMemo(() => pathname === "/onboarding/user-is-blocked", [pathname]);
+
+  useEffect(() => {
+    if (isUserBlockedPage) return;
+    if (isUserBlocked) replace("/onboarding/user-is-blocked");
+  }, [isUserBlockedPage, isUserBlocked, replace]);
 
   const progress = useMemo(() => {
     switch (onboardingStep) {
@@ -34,6 +43,13 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
     }
   }, [onboardingStep]);
 
+  const shouldBeHidden = useMemo(() => {
+    const isNotAllowed = !allowed && !skipGuard;
+    const userIsBlockedGuard = !isUserBlockedPage && isUserBlocked;
+
+    return isNotAllowed || userIsBlockedGuard;
+  }, [isUserBlockedPage, isUserBlocked, allowed, skipGuard]);
+
   return (
     <>
       <Head>
@@ -53,7 +69,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
         />
       </header>
       <main className="max-w-[500px] px-6 box-content m-auto">
-        {!allowed && !skipGuard ? null : children}
+        {shouldBeHidden ? null : children}
       </main>
       <footer className="mx-auto mt-auto pt-12 pb-8 px-4 max-w-4xl text-center font-sharpGroteskBook">
         <p className="text-xs mb-6">

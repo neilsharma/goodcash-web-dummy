@@ -2,7 +2,7 @@ import type { Auth, User } from "firebase/auth";
 import type { AxiosResponse } from "axios";
 import { getComputedAuth } from "@/shared/context/global";
 import http from "../client";
-import { GCUser, IdentityBasics, KycTaxInfo, UserAddress } from "../types";
+import { AssetStatus, GCUser, IdentityBasics, KycTaxInfo, UserAddress } from "../types";
 import { urlPaths } from "../util";
 import { RecursivePartial, SharedOnboardingState } from "@/shared/types";
 
@@ -128,6 +128,12 @@ export const patchUserOnboarding = async (data: RecursivePartial<SharedOnboardin
 
 export const completeUserOnboarding = async () => {
   const res = await http.post(urlPaths.USER_COMPLETE_ONBOARDING);
+
+  return res.data;
+};
+
+export const getAssetStatus = async () => {
+  const res = await http.get<any, AxiosResponse<AssetStatus>>(urlPaths.USER_ASSET_STATUS);
 
   return res.data;
 };

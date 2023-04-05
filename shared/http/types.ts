@@ -34,3 +34,12 @@ export interface CreateBankAccount {
 export interface KycTaxInfo {
   social_security_number: string;
 }
+
+export interface UnderwritingResponse {
+  id: string;
+  status: UnderwritingStatus;
+  bankAccountAssetId: string;
+}
+
+export type AssetStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";
+export type UnderwritingStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";

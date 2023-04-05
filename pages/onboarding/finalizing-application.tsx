@@ -10,14 +10,19 @@ import {
   approvePierApplication,
   createPierApplication,
   createPierBorrower,
+  getAssetStatus,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
+import { isLocalhost } from "@/shared/config";
+import { parseApiError } from "@/shared/error";
 
 export default function FinalizingApplication() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
+    setIsUserBlocked,
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
@@ -54,6 +59,60 @@ export default function FinalizingApplication() {
         });
       }
 
+      if (!isLocalhost && !onboardingOperationsMap.underwritingSucceeded) {
+        const maxAttempts = 100;
+        let shouldForceFail = false;
+
+        await new Promise((resolve, reject) => {
+          let attempts = 0;
+
+          const interval = setInterval(async () => {
+            const status = await getAssetStatus();
+            attempts++;
+
+            if (status === "APPROVED") {
+              clearInterval(interval);
+              return resolve(true);
+            }
+
+            if (status === "DENIED") {
+              clearInterval(interval);
+              return reject(false);
+            }
+
+            if (attempts > maxAttempts) {
+              clearInterval(interval);
+              shouldForceFail = true;
+              return resolve(true);
+            }
+          }, 500);
+        });
+
+        if (shouldForceFail) {
+          await failUnderwriting();
+          return setIsUserBlocked(true);
+        }
+
+        const { status } = await underwrite();
+
+        switch (status) {
+          case "APPROVED":
+            setOnboardingOperationsMap((p) => ({ ...p, underwritingSucceeded: true }));
+            patchUserOnboarding({
+              onboardingOperationsMap: { underwritingSucceeded: true },
+            });
+            break;
+          case "DENIED":
+            setOnboardingOperationsMap((p) => ({ ...p, pierApplicationCreated: false }));
+            setPierApplicationId(null);
+            patchUserOnboarding({
+              pierApplicationId: null,
+              onboardingOperationsMap: { pierApplicationCreated: false },
+            });
+            return;
+        }
+      }
+
       if (!onboardingOperationsMap.pierApplicationApproved) {
         await approvePierApplication(applicationId);
 
@@ -66,10 +125,15 @@ export default function FinalizingApplication() {
 
       setOnboardingStep("DOC_GENERATION");
       push(onboardingStepToPageMap.DOC_GENERATION);
-    } catch (error) {
+    } catch (error: any) {
+      const errorObject = parseApiError(error);
+
+      if (errorObject?.errorCode === "UNDERWRITING0002") return setIsUserBlocked(true);
+
       redirectToGenericErrorPage();
     }
   }, [
+    setIsUserBlocked,
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     pierBorrowerId,

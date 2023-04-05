@@ -18,6 +18,7 @@ export default function OnboardingVerifyPage() {
 
   const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
   const {
+    setIsUserBlocked,
     setOnboardingStep,
     phone,
     setPhoneVerified,
@@ -69,6 +70,7 @@ export default function OnboardingVerifyPage() {
 
     switch (gcUser?.state) {
       case "BLOCKED":
+        return setIsUserBlocked(true);
       case "DELETED":
         return redirectToGenericErrorPage();
 
@@ -91,7 +93,14 @@ export default function OnboardingVerifyPage() {
 
     setOnboardingStep("PLAN_SELECTION_AND_USER_CREATION");
     return push(onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION);
-  }, [push, confirmPhone, setOnboardingStep, mergeOnboardingState, redirectToGenericErrorPage]);
+  }, [
+    setIsUserBlocked,
+    push,
+    confirmPhone,
+    setOnboardingStep,
+    mergeOnboardingState,
+    redirectToGenericErrorPage,
+  ]);
 
   return (
     <OnboardingLayout>

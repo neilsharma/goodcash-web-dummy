@@ -12,6 +12,7 @@ import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
 import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
 import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { parseApiError } from "@/shared/error";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -88,8 +89,7 @@ export default function OnboardingConnectBankAccountPage() {
 
         await kycAndLoc();
       } catch (e: any) {
-        const message = e?.response?.data?.message;
-        const errorObject = message ? attemptParse(message) : null;
+        const errorObject = parseApiError(e);
 
         if (errorObject?.errorCode === "UNDERWRITING0001") {
           return push("/onboarding/not-enough-money");
@@ -155,15 +155,5 @@ const connectionWillAllow = [
     "Give your regular bank account super powers like growing your credit and earning rewards",
   ],
 ];
-
-const attemptParse = (jsonString: string | object) => {
-  if (typeof jsonString === "object") return jsonString;
-
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    return null;
-  }
-};
 
 export const getServerSideProps = redirectIfServerSideRendered;

@@ -12,6 +12,7 @@ const domains: Record<GoodcashEnvironment, string> = {
 };
 
 export const domain = domains[goodcashEnvironment] ?? domains.local;
+export const isLocalhost = domain.startsWith("http://localhost");
 
 const productionFirebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyC9Ic8CPNxYF7nFwy1FODVn7Ru-6YfVIJw",

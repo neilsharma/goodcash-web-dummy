@@ -22,6 +22,9 @@ export interface IOnboardingContext {
   onboardingStep: OnboardingStep;
   setOnboardingStep: Dispatch<SetStateAction<OnboardingStep>>;
 
+  isUserBlocked: boolean;
+  setIsUserBlocked: Dispatch<SetStateAction<boolean>>;
+
   firstName: string;
   setFirstName: Dispatch<SetStateAction<string>>;
   lastName: string;
@@ -98,6 +101,7 @@ interface OnboardingOperationsMap {
   locActivated: boolean;
   pierBorrowerCreated: boolean;
   pierApplicationCreated: boolean;
+  underwritingSucceeded: boolean;
   pierApplicationApproved: boolean;
   pierLoanAgreementCreated: boolean;
   pierLoanAgreementSigned: boolean;
@@ -122,6 +126,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     locActivated: false,
     pierBorrowerCreated: false,
     pierApplicationCreated: false,
+    underwritingSucceeded: false,
     pierApplicationApproved: false,
     pierLoanAgreementCreated: false,
     pierLoanAgreementSigned: false,
@@ -129,6 +134,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     onboardingCompleted: false,
   });
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("WELCOME");
+
+  const [isUserBlocked, setIsUserBlocked] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -287,6 +294,9 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         setOnboardingOperationsMap,
         onboardingStep,
         setOnboardingStep,
+
+        isUserBlocked,
+        setIsUserBlocked,
 
         firstName,
         setFirstName,
