@@ -146,7 +146,7 @@ export default function OnboardingContactInfoPage() {
 
           const date = new Date();
           const [month, day, year] = e.target.value.replace(/\s/g, "").split("/");
-          date.setMonth(Number(month) + 1);
+          date.setMonth(Number(month) - 1);
           date.setDate(Number(day));
           date.setFullYear(Number(year));
 
