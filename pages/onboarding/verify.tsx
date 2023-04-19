@@ -1,4 +1,4 @@
-import { use, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useTimer } from "react-timer-hook";
 import Button from "@/components/Button";
@@ -12,9 +12,14 @@ import { useRouter } from "next/router";
 import { useGlobal } from "@/shared/context/global";
 import { getUser, getUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
+import { setUserId, trackEvent } from "../../utils/analytics/analytics";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.VERIFY_SCREEN);
 
   const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
   const {
@@ -62,11 +67,21 @@ export default function OnboardingVerifyPage() {
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
-    if (!user) return redirectToGenericErrorPage();
+    if (!user) {
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
+      return redirectToGenericErrorPage();
+    }
 
     const token = await user.getIdToken();
     const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
-    const gcUser = await getUser(token).catch(() => null);
+    const gcUser = await getUser(token).catch(() =>
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED })
+    );
+
+    if (gcUser && gcUser.id) {
+      setUserId(gcUser?.id);
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
+    }
 
     switch (gcUser?.state) {
       case "BLOCKED":

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { goodcashEnvironment } from "../../shared/config";
 import Image from "next/image";
 import { isAndroid, isIOS } from "react-device-detect";
+import { trackPage } from "../../utils/analytics/analytics";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 const CQRPage = () => {
   const storeUrlHandler = () => {
@@ -13,6 +16,8 @@ const CQRPage = () => {
       }
     }, 1500);
   };
+
+  useTrackPage(EScreenEventTitle.CQR_SCREEN);
 
   const downloadButtonHandler = () => {
     if (goodcashEnvironment === "sandbox") {

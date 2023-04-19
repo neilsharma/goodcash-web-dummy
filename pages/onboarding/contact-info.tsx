@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
@@ -17,9 +17,14 @@ import {
   updateUserIdentityBasic,
 } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { trackPage } from "../../utils/analytics/analytics";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.CONTACT_INFO_SCREEN);
 
   const {
     onboardingOperationsMap,

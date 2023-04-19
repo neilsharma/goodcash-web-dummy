@@ -5,9 +5,14 @@ import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.NOT_ENOUGH_MONEY_SCREEN);
+
   const { push } = useRouter();
 
   const tryAgain = useCallback(() => {

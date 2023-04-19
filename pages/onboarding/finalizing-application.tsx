@@ -17,9 +17,12 @@ import { onboardingStepToPageMap } from "@/shared/constants";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
 import { parseApiError } from "@/shared/error";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function FinalizingApplication() {
   useConfirmUnload();
+
   const { push } = useRouter();
   const {
     setIsUserBlocked,
@@ -144,6 +147,8 @@ export default function FinalizingApplication() {
     push,
     redirectToGenericErrorPage,
   ]);
+
+  useTrackPage(EScreenEventTitle.FINALIZING_APPLICATION_SCREEN);
 
   useEffect(() => {
     finalizeApplication();

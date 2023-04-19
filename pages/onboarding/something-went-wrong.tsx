@@ -7,9 +7,14 @@ import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG_SCREEN);
+
   const { push } = useRouter();
   const { onboardingStep } = useOnboarding();
 

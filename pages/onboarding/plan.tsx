@@ -11,9 +11,14 @@ import { useGlobal } from "@/shared/context/global";
 import { createUser, patchUserOnboarding } from "@/shared/http/services/user";
 import { hardcodedPlans, onboardingStepToPageMap } from "@/shared/constants";
 import { Plan, PlanFrequency } from "@/shared/types";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.PLAN_SCREEN);
+
   const { push } = useRouter();
   const { auth } = useGlobal();
   const {

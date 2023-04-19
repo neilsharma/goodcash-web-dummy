@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import FormControlText from "@/components/form-control/FormControlText";
@@ -10,11 +10,21 @@ import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useGlobal } from "@/shared/context/global";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { trackPage, trackerInitializer } from "../../utils/analytics/analytics";
+import { EScreenEventTitle } from "../../utils/types";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { auth, recaptchaVerifier } = useGlobal();
-  const { setConfirmationResult } = useGlobal();
+  const { auth, recaptchaVerifier, setConfirmationResult, analytics } = useGlobal();
+
+  useEffect(() => {
+    (async function () {
+      if (analytics) {
+        await trackerInitializer(analytics);
+      }
+      trackPage(EScreenEventTitle.ONBOARDING_SCREEN);
+    })();
+  }, [analytics]);
 
   const {
     setOnboardingStep,
@@ -36,7 +46,9 @@ export default function OnboardingIndexPage() {
   const { push } = useRouter();
 
   const onContinue = useCallback(async () => {
-    if (!indexPageIsValid) return;
+    if (!indexPageIsValid) {
+      return;
+    }
 
     setIsLoading(true);
     try {

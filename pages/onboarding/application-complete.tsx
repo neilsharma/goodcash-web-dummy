@@ -2,8 +2,11 @@ import { useEffect } from "react";
 import Image from "next/image";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { testFlightLink } from "@/shared/config";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingApplicationCompletePage() {
+  useTrackPage(EScreenEventTitle.APPLICATION_COMPLETE_SCREEN);
   useEffect(() => {
     let os = "Unknown OS";
 

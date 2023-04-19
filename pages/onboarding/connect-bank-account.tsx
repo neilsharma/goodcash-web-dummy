@@ -13,9 +13,14 @@ import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
 import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { parseApiError } from "@/shared/error";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
+
+  useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT_SCREEN);
+
   const { push } = useRouter();
   const {
     onboardingOperationsMap,

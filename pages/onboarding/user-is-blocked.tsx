@@ -3,8 +3,12 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered } from "@/shared/hooks";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function UserIsBlockedPage() {
+  useTrackPage(EScreenEventTitle.USER_ID_BLOCKED_SCREEN);
+
   return (
     <OnboardingLayout skipGuard>
       <Title>Sorry, something went wrong</Title>

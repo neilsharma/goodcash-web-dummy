@@ -14,9 +14,13 @@ import {
   signPierLoanAgreement,
 } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { trackPage } from "../../utils/analytics/analytics";
+import { EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OneLastStep() {
   useConfirmUnload();
+
   const { push } = useRouter();
   const {
     onboardingOperationsMap,
@@ -104,6 +108,8 @@ export default function OneLastStep() {
     push,
     redirectToGenericErrorPage,
   ]);
+
+  useTrackPage(EScreenEventTitle.DOC_GENERATION_SCREEN);
 
   useEffect(() => {
     createLoanAgreement();
