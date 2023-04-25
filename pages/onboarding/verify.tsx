@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { KeyboardEvent, useCallback, useRef, useState } from "react";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useTimer } from "react-timer-hook";
 import Button from "@/components/Button";
@@ -18,6 +18,7 @@ import { setUserId, trackEvent } from "../../utils/analytics/analytics";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
+  let inputRef = useRef<HTMLInputElement | null>(null);
 
   useTrackPage(EScreenEventTitle.VERIFY_SCREEN);
 
@@ -117,12 +118,20 @@ export default function OnboardingVerifyPage() {
     redirectToGenericErrorPage,
   ]);
 
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    // alert(inputRef.current?.focus);
+    if (event.key === "Enter" || event.key === "Done") {
+      inputRef.current?.blur();
+    }
+  };
+
   return (
     <OnboardingLayout>
       <Title>Verify your phone number</Title>
       <SubTitle>A text message with a verification code has been sent to {phone}.</SubTitle>
 
       <FormControlText
+        inputRef={(ref) => (inputRef.current = ref)}
         className="tracking-[0.3em]"
         label="Verification code"
         value={codeMask}
@@ -133,6 +142,8 @@ export default function OnboardingVerifyPage() {
         placeholder="------"
         maskChar={null}
         inputMask="999999"
+        inputMode="numeric"
+        onKeyDown={handleKeyPress}
       />
 
       <div className="my-12 flex gap-4 flex-col sm:flex-row">

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { KeyboardEvent, useCallback, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
@@ -17,14 +17,20 @@ import {
   updateUserIdentityBasic,
 } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
+  let inputRef = useRef<HTMLInputElement | null>(null);
 
   useTrackPage(EScreenEventTitle.CONTACT_INFO_SCREEN);
+
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" || event.key === "Done") {
+      inputRef.current?.blur();
+    }
+  };
 
   const {
     onboardingOperationsMap,
@@ -159,6 +165,7 @@ export default function OnboardingContactInfoPage() {
         }}
         label="Date of birth"
         inputMask="99 / 99 / 9999"
+        inputMode="numeric"
         placeholder="MM / DD / YYYY"
         error={!is18YearsOld && dateOfBirth ? "You must be 18 years old to use GoodCash." : false}
       />
@@ -188,7 +195,10 @@ export default function OnboardingContactInfoPage() {
 
       <div className="flex gap-6 my-7">
         <FormControlSelect
-          options={Object.keys(EUsaStates).map((e) => ({ value: e, label: e }))}
+          options={Object.keys(EUsaStates).map((e) => ({
+            value: EUsaStates[e as keyof typeof EUsaStates],
+            label: e,
+          }))}
           value={stateMask}
           onChange={(v) => {
             setStateMask(v as any);
@@ -196,6 +206,7 @@ export default function OnboardingContactInfoPage() {
           }}
           label="State"
           placeholder="State"
+          noOptionsMessage={() => null}
           containerProps={{ className: "m-0" }}
         />
 
@@ -204,11 +215,14 @@ export default function OnboardingContactInfoPage() {
           onChange={(e) => setZipCode(e.target.value)}
           label="Zipcode"
           placeholder="12345"
+          type="number"
           containerProps={{ className: "m-0" }}
         />
       </div>
 
       <FormControlText
+        inputRef={(ref) => (inputRef.current = ref)}
+        onKeyDown={handleKeyPress}
         value={ssnMask}
         onChange={(e) => {
           setSsnMask(e.target.value);
@@ -220,6 +234,7 @@ export default function OnboardingContactInfoPage() {
         label="Social security number"
         placeholder="XXX-XX-XXXX"
         inputMask="999-99-9999"
+        inputMode="numeric"
         description="Your SSN will not be shared without your permission, except as required by law. Your SSN will only be used to verify your identity. This will not affect your credit score. Your data will be encrypted and transmitted via a secure (TLS) connection."
       />
 
