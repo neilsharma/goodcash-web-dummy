@@ -15,6 +15,7 @@ import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 import { GCUser } from "../http/types";
 import type { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
+import { init } from "../feature";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -95,6 +96,7 @@ interface OnboardingOperationsMap {
   userAddressCreated: boolean;
   userIdentityBasisCreated: boolean;
   userTaxInfoIsSet: boolean;
+  userKycFilled: boolean;
   bankAccountCreated: boolean;
   kycSubmitted: boolean;
   locSubmitted: boolean;
@@ -120,6 +122,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     userAddressCreated: false,
     userIdentityBasisCreated: false,
     userTaxInfoIsSet: false,
+    userKycFilled: false,
     bankAccountCreated: false,
     kycSubmitted: false,
     locSubmitted: false,
@@ -143,13 +146,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [email, setEmail] = useState("");
 
   const indexPageIsValid = useMemo(() => {
-    return !!(
-      firstName &&
-      lastName &&
-      isMobilePhone(phone, "en-US", { strictMode: true }) &&
-      isEmail(email)
-    );
-  }, [firstName, lastName, phone, email]);
+    return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email));
+  }, [phone, email]);
 
   const [phoneVerified, setPhoneVerified] = useState(false);
 
@@ -227,7 +225,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       if (state.email) setEmail(state.email);
 
       if (state.plan) setPlan(state.plan);
-      if (state.user) setUser((p) => ({ ...p, ...(state.user as GCUser) }));
+      if (state.user) {
+        setUser((p) => ({ ...p, ...(state.user as GCUser) }));
+        init(state.user.id!);
+      }
 
       if (state.dateOfBirth) setDateOfBirth(new Date(state.dateOfBirth as Date | string));
       if (state.legalAddress) setLegalAddress(state.legalAddress);

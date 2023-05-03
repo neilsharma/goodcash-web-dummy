@@ -5,26 +5,10 @@ export type GoodcashEnvironment = "local" | "sandbox" | "production";
 export const goodcashEnvironment: GoodcashEnvironment =
   (process.env["NEXT_PUBLIC_GOODCASH_ENVIRONMENT"] as GoodcashEnvironment) ?? "local";
 
-const domains: Record<GoodcashEnvironment, string> = {
-  local: "http://localhost:3000",
-  sandbox: "https://goodcash-sandbox.goodcashapis.com",
-  production: "https://goodcash-production.goodcashapis.com",
-};
-
-export const domain = domains[goodcashEnvironment] ?? domains.local;
+export const domain = process.env["NEXT_PUBLIC_DOMAIN"] || "http://localhost:3000";
 export const isLocalhost = domain.startsWith("http://localhost");
 
-const productionFirebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyC9Ic8CPNxYF7nFwy1FODVn7Ru-6YfVIJw",
-  authDomain: "goodcash-production.firebaseapp.com",
-  projectId: "goodcash-production",
-  storageBucket: "goodcash-production.appspot.com",
-  messagingSenderId: "867219604672",
-  appId: "1:867219604672:web:da3057e1f413cb51481925",
-  measurementId: "G-NK87LZ4D7D",
-};
-
-const sandboxFirebaseConfig: FirebaseOptions = {
+const defaultFirebaseConfig = JSON.stringify({
   apiKey: "AIzaSyD7XdUh3HLCCIYXxJFb2cZqtrg1aFX7gK4",
   authDomain: "goodcash-sandbox.firebaseapp.com",
   projectId: "goodcash-sandbox",
@@ -32,18 +16,18 @@ const sandboxFirebaseConfig: FirebaseOptions = {
   messagingSenderId: "82857152247",
   appId: "1:82857152247:web:49d403225b397730094df2",
   measurementId: "G-EZYR3524JP",
-};
+} as FirebaseOptions);
 
-const firebaseConfigs: Record<GoodcashEnvironment, FirebaseOptions> = {
-  production: productionFirebaseConfig,
-  sandbox: sandboxFirebaseConfig,
-  local: sandboxFirebaseConfig,
-};
+export const firebaseConfig = JSON.parse(
+  process.env["NEXT_PUBLIC_FIREBASE_CONFIG"] || defaultFirebaseConfig
+) as FirebaseOptions;
 
-export const firebaseConfig = firebaseConfigs[goodcashEnvironment] ?? firebaseConfigs.local;
-
-export const kardTermsVersion = process.env["KARD_TERMS_VERSION"] || "0.0.0";
+export const kardTermsVersion = process.env["NEXT_PUBLIC_KARD_TERMS_VERSION"] || "0.0.0";
 
 export const appStoreId = "";
 export const googlePlayId = "";
-export const testFlightLink = "https://testflight.apple.com/join/dLPPHyYi";
+export const testFlightLink =
+  process.env["NEXT_PUBLIC_TEST_FLIGHT_LINK"] || "https://testflight.apple.com/join/dLPPHyYi";
+
+export const ldClientSideId =
+  process.env["NEXT_PUBLIC_LD_CLIENT_SIDE_ID"] || "63d107d49c970a13671687f3";

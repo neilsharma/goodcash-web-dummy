@@ -28,6 +28,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
         return 10;
       case "PLAN_SELECTION_AND_USER_CREATION":
         return 25;
+      case "KYC":
       case "CONTACT_INFO":
         return 40;
       case "BANK_ACCOUNT_CONNECTION":

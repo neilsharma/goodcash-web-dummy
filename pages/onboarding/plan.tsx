@@ -13,6 +13,7 @@ import { hardcodedPlans, onboardingStepToPageMap } from "@/shared/constants";
 import { Plan, PlanFrequency } from "@/shared/types";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();
@@ -46,21 +47,25 @@ export default function OnboardingPlanPage() {
       const createdUser = await createUser(auth);
 
       setUser(createdUser);
+      await init(createdUser.id);
 
-      setOnboardingStep("CONTACT_INFO");
+      const plaidIdvEnabled = await isFeatureEnabled(createdUser.id, EFeature.PLAID_UI_IDV, true);
+      const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
+
+      setOnboardingStep(targetSept);
       patchUserOnboarding({
         firstName,
         lastName,
         phone,
         email,
         user: createdUser,
-        onboardingStep: "CONTACT_INFO",
+        onboardingStep: targetSept,
         onboardingOperationsMap: { userCreated: true },
         plan: hardcodedPlan.id,
       });
       setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
 
-      push(onboardingStepToPageMap.CONTACT_INFO);
+      push(onboardingStepToPageMap[targetSept]);
     } catch (e) {
       redirectToGenericErrorPage();
     }

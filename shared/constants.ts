@@ -5,6 +5,7 @@ export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
   PHONE_VERIFICATION: "/onboarding/verify",
   PLAN_SELECTION_AND_USER_CREATION: "/onboarding/plan",
   CONTACT_INFO: "/onboarding/contact-info",
+  KYC: "/onboarding/kyc",
   BANK_ACCOUNT_CONNECTION: "/onboarding/connect-bank-account",
   FINALIZING_APPLICATION: "/onboarding/finalizing-application",
   DOC_GENERATION: "/onboarding/doc-generation",

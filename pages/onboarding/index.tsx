@@ -26,18 +26,7 @@ export default function OnboardingIndexPage() {
     })();
   }, [analytics]);
 
-  const {
-    setOnboardingStep,
-    firstName,
-    setFirstName,
-    lastName,
-    setLastName,
-    phone,
-    setPhone,
-    email,
-    setEmail,
-    indexPageIsValid,
-  } = useOnboarding();
+  const { setOnboardingStep, phone, setPhone, email, setEmail, indexPageIsValid } = useOnboarding();
 
   const [phoneMask, setPhoneMask] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -83,22 +72,6 @@ export default function OnboardingIndexPage() {
         Grow your credit with your existing bank account and the GoodCash card. No interest, no
         credit checks, no surprises.
       </SubTitle>
-      <div className="flex gap-6 my-7">
-        <FormControlText
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          label="First Name"
-          placeholder="John"
-          containerProps={{ className: "m-0" }}
-        />
-        <FormControlText
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          label="Last Name"
-          placeholder="Smith"
-          containerProps={{ className: "m-0" }}
-        />
-      </div>
       <FormControlText
         value={phoneMask}
         onChange={(e) => {
