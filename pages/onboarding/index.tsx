@@ -87,6 +87,7 @@ export default function OnboardingIndexPage() {
       <FormControlText
         value={email}
         onChange={(e) => setEmail(e.target.value.trim())}
+        type="email"
         label="Email address"
         placeholder="john@example.com"
       />
