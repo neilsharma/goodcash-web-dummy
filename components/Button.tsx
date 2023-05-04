@@ -20,10 +20,10 @@ export const Button: FC<ButtonProps> = ({
   variant = "contained",
   analytics,
   onClick,
+  disabled,
+  children,
   ...props
 }) => {
-  if (isLoading) return <Loader />;
-
   return (
     <button
       className={twMerge(
@@ -34,11 +34,18 @@ export const Button: FC<ButtonProps> = ({
         className
       )}
       {...props}
+      disabled={isLoading || disabled}
       onClick={(...agrs) => {
         analytics ? trackEvent(analytics) : null;
         onClick ? onClick(...agrs) : null;
       }}
-    />
+    >
+      {isLoading ? (
+        <Loader className="z-10 p-0" svgProps={{ className: "w-6 h-6 fill-white" }} />
+      ) : (
+        children
+      )}
+    </button>
   );
 };
 
