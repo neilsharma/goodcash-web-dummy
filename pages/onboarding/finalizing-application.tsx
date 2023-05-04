@@ -63,7 +63,7 @@ export default function FinalizingApplication() {
       }
 
       if (!isLocalhost && !onboardingOperationsMap.underwritingSucceeded) {
-        const maxAttempts = 1000;
+        const maxAttempts = 100;
         let shouldForceFail = false;
 
         await new Promise((resolve, reject) => {
