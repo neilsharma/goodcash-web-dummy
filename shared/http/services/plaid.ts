@@ -21,7 +21,9 @@ interface GetKycPlaidTokenPayload {
 }
 
 export const createBankAccount = async (payload: CreateBankAccount) => {
-  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT, payload);
+  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT, payload, {
+    timeout: 0,
+  });
 
   return res.data;
 };
