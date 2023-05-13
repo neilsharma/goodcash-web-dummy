@@ -14,6 +14,7 @@ import { Plan, PlanFrequency } from "@/shared/types";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
+import { parseApiError } from "@/shared/error";
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();
@@ -66,7 +67,18 @@ export default function OnboardingPlanPage() {
       setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
 
       push(onboardingStepToPageMap[targetSept]);
-    } catch (e) {
+    } catch (error: any) {
+      const errorObject = parseApiError(error);
+
+      if ((["USER0001", "USER0002"] as any[]).includes(errorObject?.errorCode)) {
+        setIsLoading(false);
+        return alert(
+          "We've currently reached our maximum number of beta users " +
+            "and are closing registration temporarily. " +
+            "Join our waitlist on goodcash.com to get notified when we open up to new users!"
+        );
+      }
+
       redirectToGenericErrorPage();
     }
   }, [
