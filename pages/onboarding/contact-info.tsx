@@ -24,7 +24,7 @@ export default function OnboardingContactInfoPage() {
   useConfirmUnload();
   let inputRef = useRef<HTMLInputElement | null>(null);
 
-  useTrackPage(EScreenEventTitle.CONTACT_INFO_SCREEN);
+  useTrackPage(EScreenEventTitle.CONTACT_INFO);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" || event.key === "Done") {

@@ -11,7 +11,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.NOT_ENOUGH_MONEY_SCREEN);
+  useTrackPage(EScreenEventTitle.NOT_ENOUGH_MONEY);
 
   const { push } = useRouter();
 

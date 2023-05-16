@@ -14,7 +14,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.HOW_DID_YOU_HEAR_SCREEN);
+  useTrackPage(EScreenEventTitle.HOW_DID_YOU_HEAR);
 
   const {
     onboardingOperationsMap,

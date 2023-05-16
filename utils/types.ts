@@ -1,23 +1,24 @@
 export enum ETrackEvent {
   // Analytics events listed here
-  SCREEN_TRACK = "SCREEN_TRACK",
-  USER_LOGGED_IN_SUCCESSFULLY = "USER_LOGGED_IN_SUCCESSFULLY",
-  USER_LOGGED_IN_FAILED = "USER_LOGGED_IN_FAILED",
+  SCREEN_TRACK = "Viewed",
+  USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
+  USER_LOGGED_IN_FAILED = "User Log In Failed",
 }
 export enum EScreenEventTitle {
-  ONBOARDING_SCREEN = "onboarding_screen",
-  PLAN_SCREEN = "plan_screen",
-  VERIFY_SCREEN = "verify_screen",
-  USER_ID_BLOCKED_SCREEN = "user_id_blocked_screen",
-  SOMETHING_WENT_WRONG_SCREEN = "something_went_wrong_screen",
-  NOT_ENOUGH_MONEY_SCREEN = "not_enough_money_screen",
-  HOW_DID_YOU_HEAR_SCREEN = "how_did_you_hear_screen",
-  FINALIZING_APPLICATION_SCREEN = "finalizing_application_screen",
-  DOC_GENERATION_SCREEN = "doc_generation_screen",
-  CONTACT_INFO_SCREEN = "contact_info_screen",
-  CONNECT_BANK_ACCOUNT_SCREEN = "connect_bank_account_screen",
-  APPLICATION_COMPLETE_SCREEN = "application_complete_screen",
-  CQR_SCREEN = "cqr_screen",
+  ONBOARDING = "Onboarding Index",
+  PLAN = "Plan",
+  VERIFY = "Verify Phone Number",
+  USER_ID_BLOCKED = "User Id Blocked",
+  SOMETHING_WENT_WRONG = "Something Went Wrong",
+  NOT_ENOUGH_MONEY = "Insufficient Bank Account Balance",
+  HOW_DID_YOU_HEAR = "How Did You Hear",
+  FINALIZING_APPLICATION = "Finalizing Application",
+  DOC_GENERATION = "Loan Agreement Doc Generation",
+  CONTACT_INFO = "Identity Data Collection Form",
+  CONNECT_BANK_ACCOUNT = "Connect Bank Account",
+  APPLICATION_COMPLETE = "Application Complete",
+  CQR = "CQR",
+  KYC = "KYC Identity Verification",
 }
 
 export interface IGCAnalyticsData {

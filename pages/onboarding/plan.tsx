@@ -19,7 +19,7 @@ import { parseApiError } from "@/shared/error";
 export default function OnboardingPlanPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.PLAN_SCREEN);
+  useTrackPage(EScreenEventTitle.PLAN);
 
   const { push } = useRouter();
   const { auth } = useGlobal();

@@ -13,7 +13,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG_SCREEN);
+  useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG);
 
   const { push } = useRouter();
   const { onboardingStep } = useOnboarding();

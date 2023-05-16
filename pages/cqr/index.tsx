@@ -17,7 +17,7 @@ const CQRPage = () => {
     }, 1500);
   };
 
-  useTrackPage(EScreenEventTitle.CQR_SCREEN);
+  useTrackPage(EScreenEventTitle.CQR);
 
   const downloadButtonHandler = () => {
     if (goodcashEnvironment === "sandbox") {
