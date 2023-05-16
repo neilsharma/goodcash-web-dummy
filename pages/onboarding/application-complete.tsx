@@ -6,7 +6,7 @@ import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingApplicationCompletePage() {
-  useTrackPage(EScreenEventTitle.APPLICATION_COMPLETE_SCREEN);
+  useTrackPage(EScreenEventTitle.APPLICATION_COMPLETE);
   useEffect(() => {
     let os = "Unknown OS";
 

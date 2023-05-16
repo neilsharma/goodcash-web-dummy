@@ -11,6 +11,8 @@ import { getKycPlaidToken } from "@/shared/http/services/plaid";
 import { fillKYCIdentity, patchUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { goodcashEnvironment } from "@/shared/config";
+import useTrackPage from "@/shared/hooks/useTrackPage";
+import { EScreenEventTitle } from "@/utils/types";
 
 export default function OnboardingPlaidKycPage() {
   useConfirmUnload();
@@ -23,6 +25,9 @@ export default function OnboardingPlaidKycPage() {
     setOnboardingStep,
     redirectToGenericErrorPage,
   } = useOnboarding();
+
+  useTrackPage(EScreenEventTitle.KYC);
+
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [shouldBeClosed, setShouldBeClosed] = useState(false);

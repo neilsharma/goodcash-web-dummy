@@ -18,8 +18,8 @@ export const trackerInitializer = async (firebaseAnalyticsInstance: Analytics) =
 };
 
 export const trackEvent = (log: { event: ETrackEvent; options?: IGCAnalyticsData }) => {
-  amplitude?.logEvent(log.event, log.options);
-  firebase?.logEvent(log.event, log.options);
+  amplitude?.logEvent(log.event, { platform: "web", ...log.options });
+  firebase?.logEvent(log.event, { platform: "web", ...log.options });
 };
 
 export const setUserId = (id: string) => {
@@ -32,7 +32,5 @@ export const setUserProperties = (properties: UserProperties | FirebaseUserPrope
   amplitude?.setUserProperties(properties as UserProperties);
 };
 
-export const trackPage = (info: EScreenEventTitle) => {
-  amplitude?.logEvent(ETrackEvent.SCREEN_TRACK, { screen: info });
-  firebase?.logEvent(ETrackEvent.SCREEN_TRACK, { screen: info });
-};
+export const trackPage = (info: EScreenEventTitle) =>
+  trackEvent({ event: ETrackEvent.SCREEN_TRACK, options: { screen: info } });

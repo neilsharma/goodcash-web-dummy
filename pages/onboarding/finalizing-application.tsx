@@ -148,7 +148,7 @@ export default function FinalizingApplication() {
     redirectToGenericErrorPage,
   ]);
 
-  useTrackPage(EScreenEventTitle.FINALIZING_APPLICATION_SCREEN);
+  useTrackPage(EScreenEventTitle.FINALIZING_APPLICATION);
 
   useEffect(() => {
     finalizeApplication();

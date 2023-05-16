@@ -20,7 +20,7 @@ export default function OnboardingVerifyPage() {
   useConfirmUnload();
   let inputRef = useRef<HTMLInputElement | null>(null);
 
-  useTrackPage(EScreenEventTitle.VERIFY_SCREEN);
+  useTrackPage(EScreenEventTitle.VERIFY);
 
   const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
   const {

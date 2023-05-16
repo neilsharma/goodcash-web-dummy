@@ -109,7 +109,7 @@ export default function OneLastStep() {
     redirectToGenericErrorPage,
   ]);
 
-  useTrackPage(EScreenEventTitle.DOC_GENERATION_SCREEN);
+  useTrackPage(EScreenEventTitle.DOC_GENERATION);
 
   useEffect(() => {
     createLoanAgreement();

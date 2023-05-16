@@ -7,7 +7,7 @@ import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function UserIsBlockedPage() {
-  useTrackPage(EScreenEventTitle.USER_ID_BLOCKED_SCREEN);
+  useTrackPage(EScreenEventTitle.USER_ID_BLOCKED);
 
   return (
     <OnboardingLayout skipGuard>

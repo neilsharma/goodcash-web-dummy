@@ -22,7 +22,7 @@ export default function OnboardingIndexPage() {
       if (analytics) {
         await trackerInitializer(analytics);
       }
-      trackPage(EScreenEventTitle.ONBOARDING_SCREEN);
+      trackPage(EScreenEventTitle.ONBOARDING);
     })();
   }, [analytics]);
 

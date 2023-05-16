@@ -19,7 +19,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT_SCREEN);
+  useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT);
 
   const { push } = useRouter();
   const {
