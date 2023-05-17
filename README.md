@@ -11,6 +11,15 @@ yarn dev
 # or
 pnpm dev
 ```
+## Environment Variables
+
+This project utilizes the Vercel CLI to conveniently pull environment variables from the Vercel hosting environment.
+
+To access environment variables using the Vercel CLI, follow these steps:
+
+1. Make sure you have the Vercel CLI installed. If not, you can install it globally using npm: ```npm install -g vercel``` or yarn: ```yarn global add vercel```
+2. Make sure you are logged in with vercel account and linked your local directory with it. (It will prompt you to login into vercel account when you run `yarn dev` script).
+3. You may have to change the selected project in vercel cli to `goodcash-web` using `vercel switch` command. For more information please refer to [https://vercel.com/docs/cli](https://vercel.com/docs/cli) 
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
