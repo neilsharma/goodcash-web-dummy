@@ -18,8 +18,14 @@ export const trackerInitializer = async (firebaseAnalyticsInstance: Analytics) =
 };
 
 export const trackEvent = (log: { event: ETrackEvent; options?: IGCAnalyticsData }) => {
-  amplitude?.logEvent(log.event, { platform: "web", ...log.options });
-  firebase?.logEvent(log.event, { platform: "web", ...log.options });
+  try {
+    const trimmedLogEvent = log.event.substring(0, 40) as ETrackEvent;
+
+    amplitude?.logEvent(log.event, { platform: "web", ...log.options });
+    firebase?.logEvent(trimmedLogEvent, { platform: "web", ...log.options });
+  } catch (error) {
+    console.error("Log error", error);
+  }
 };
 
 export const setUserId = (id: string) => {
