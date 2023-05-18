@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -7,8 +7,8 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackPage } from "../../utils/analytics/analytics";
-import { EScreenEventTitle } from "../../utils/types";
+import { trackEvent } from "../../utils/analytics/analytics";
+import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
 export default function OnboardingHowDidYouHearPage() {
@@ -33,6 +33,13 @@ export default function OnboardingHowDidYouHearPage() {
 
       if (!onboardingOperationsMap.onboardingCompleted) {
         await completeUserOnboarding();
+
+        if (howDidYouHearAboutUs)
+          trackEvent({
+            event: ETrackEvent.USER_HERD_ABOUT_US,
+            options: { from: howDidYouHearAboutUs },
+          });
+
         setOnboardingStep("APPLICATION_COMPLETE");
         setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
         patchUserOnboarding({

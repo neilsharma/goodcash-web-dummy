@@ -1,4 +1,4 @@
-import { ETrackEvent, IGCAnalyticsData, UserProperties } from "../../types";
+import { ETrackEvent, IGCAnalyticsData, ScreenTrackEvent, UserProperties } from "../../types";
 import { track, identify, Identify, setUserId, init } from "@amplitude/analytics-browser";
 import { AbstractEventTracker } from "../abstract-event-tracker";
 import { IGCUser } from "../../types";
@@ -21,7 +21,7 @@ export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
     return AmplitudeAnalyticsTracker.instance;
   }
 
-  logEvent(event: ETrackEvent, options?: IGCAnalyticsData | undefined): void {
+  logEvent(event: ETrackEvent | ScreenTrackEvent, options?: IGCAnalyticsData | undefined): void {
     track(event, options);
   }
 

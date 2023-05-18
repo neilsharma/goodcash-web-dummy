@@ -1,8 +1,8 @@
 export enum ETrackEvent {
   // Analytics events listed here
-  SCREEN_TRACK = "Viewed",
   USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
   USER_LOGGED_IN_FAILED = "User Log In Failed",
+  USER_HERD_ABOUT_US = "User Heard About Us Clicked",
 }
 export enum EScreenEventTitle {
   ONBOARDING = "Onboarding Index",
@@ -20,6 +20,8 @@ export enum EScreenEventTitle {
   CQR = "CQR",
   KYC = "KYC Identity Verification",
 }
+
+export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;
 
 export interface IGCAnalyticsData {
   [key: string]: string | number | boolean | undefined | Record<string, unknown>;
