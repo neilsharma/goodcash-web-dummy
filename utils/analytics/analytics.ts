@@ -4,6 +4,7 @@ import {
   ETrackEvent,
   FirebaseUserProperties,
   IGCAnalyticsData,
+  ScreenTrackEvent,
   UserProperties,
 } from "../types";
 import { AmplitudeAnalyticsTracker } from "./tracker/amplitude.tracker";
@@ -17,7 +18,10 @@ export const trackerInitializer = async (firebaseAnalyticsInstance: Analytics) =
   amplitude = AmplitudeAnalyticsTracker.getInstance();
 };
 
-export const trackEvent = (log: { event: ETrackEvent; options?: IGCAnalyticsData }) => {
+export const trackEvent = (log: {
+  event: ETrackEvent | ScreenTrackEvent;
+  options?: IGCAnalyticsData;
+}) => {
   try {
     const trimmedLogEvent = log.event.substring(0, 40) as ETrackEvent;
 
@@ -38,5 +42,7 @@ export const setUserProperties = (properties: UserProperties | FirebaseUserPrope
   amplitude?.setUserProperties(properties as UserProperties);
 };
 
-export const trackPage = (info: EScreenEventTitle) =>
-  trackEvent({ event: ETrackEvent.SCREEN_TRACK, options: { screen: info } });
+export const trackPage = (info: `${EScreenEventTitle}`) =>
+  trackEvent({
+    event: `${info} Viewed`,
+  });

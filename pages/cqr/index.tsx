@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { goodcashEnvironment } from "../../shared/config";
 import Image from "next/image";
 import { isAndroid, isIOS } from "react-device-detect";
-import { trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
