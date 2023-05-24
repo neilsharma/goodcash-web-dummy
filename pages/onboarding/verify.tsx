@@ -110,12 +110,12 @@ export default function OnboardingVerifyPage() {
     setOnboardingStep("PLAN_SELECTION_AND_USER_CREATION");
     return push(onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION);
   }, [
-    setIsUserBlocked,
-    push,
     confirmPhone,
     setOnboardingStep,
-    mergeOnboardingState,
+    push,
     redirectToGenericErrorPage,
+    setIsUserBlocked,
+    mergeOnboardingState,
   ]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {

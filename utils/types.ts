@@ -3,6 +3,7 @@ export enum ETrackEvent {
   USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
   USER_LOGGED_IN_FAILED = "User Log In Failed",
   USER_HERD_ABOUT_US = "User Heard About Us Clicked",
+  USER_STATE_NOT_SUPPORTED = "User State Not Supported",
 }
 export enum EScreenEventTitle {
   ONBOARDING = "Onboarding Index",
@@ -19,6 +20,7 @@ export enum EScreenEventTitle {
   APPLICATION_COMPLETE = "Application Complete",
   CQR = "CQR",
   KYC = "KYC Identity Verification",
+  STATE_NOT_SUPPORTED = "State Not Supported",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;

@@ -22,6 +22,7 @@ export const urlPaths = {
   USER_CREATE_LOAN_AGREEMENT: "/v1/me/pier/loan-agreement",
   USER_SIGN_LOAN_AGREEMENT: "/v1/me/pier/loan-agreement-sign",
   USER_CREATE_FACILITY: "/v1/me/pier/facility",
+  USER_STATE_COVERAGE: "/v1/me/pier/coverage",
   USER_ONBOARDING: "/v1/me/onboarding",
   USER_COMPLETE_ONBOARDING: "/v1/me/complete-onboarding",
   USER_ASSET_STATUS: "/v1/me/asset-status",
