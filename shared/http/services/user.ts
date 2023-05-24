@@ -2,9 +2,16 @@ import type { Auth, User } from "firebase/auth";
 import type { AxiosResponse } from "axios";
 import { getComputedAuth } from "@/shared/context/global";
 import http from "../client";
-import { AssetStatus, GCUser, IdentityBasics, KycTaxInfo, UserAddress } from "../types";
+import {
+  AssetStatus,
+  GCUser,
+  IdentityBasics,
+  KycTaxInfo,
+  UserStateCoverageMap,
+  UserAddress,
+} from "../types";
 import { urlPaths } from "../util";
-import { RecursivePartial, SharedOnboardingState } from "@/shared/types";
+import { EUsaStates, RecursivePartial, SharedOnboardingState } from "@/shared/types";
 
 export const createUser = async (auth: Auth | null) => {
   if (!auth) throw new Error("not authenticated");
@@ -137,6 +144,14 @@ export const patchUserOnboarding = async (data: RecursivePartial<SharedOnboardin
 
 export const completeUserOnboarding = async () => {
   const res = await http.post(urlPaths.USER_COMPLETE_ONBOARDING);
+
+  return res.data;
+};
+
+export const getUserStateCoverageMap = async () => {
+  const res = await http.get<any, AxiosResponse<UserStateCoverageMap>>(
+    urlPaths.USER_STATE_COVERAGE
+  );
 
   return res.data;
 };

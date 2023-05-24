@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useRef, useState } from "react";
+import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
@@ -8,7 +8,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { EUsaStates } from "@/shared/types";
+import { EUsaStates, EUsaStatesLookup } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
 import {
   patchUserOnboarding,
@@ -67,7 +67,7 @@ export default function OnboardingContactInfoPage() {
 
   const [dateOfBirthMask, setDateOfBirthMask] = useState("");
   const [ssnMask, setSsnMask] = useState("");
-  const [stateMask, setStateMask] = useState("");
+  const [stateMask, setStateMask] = useState<{ value: string; label: string }>();
   const [isLoading, setIsLoading] = useState(false);
 
   const onContinue = useCallback(async () => {
@@ -143,6 +143,15 @@ export default function OnboardingContactInfoPage() {
     redirectToGenericErrorPage,
   ]);
 
+  useEffect(() => {
+    if (state) {
+      const label = EUsaStatesLookup[state];
+      if (label) {
+        setStateMask({ value: state, label });
+      }
+    }
+  }, [state]);
+
   return (
     <OnboardingLayout>
       <Title>A few more things...</Title>
@@ -201,7 +210,6 @@ export default function OnboardingContactInfoPage() {
           }))}
           value={stateMask}
           onChange={(v) => {
-            setStateMask(v as any);
             setState(((v as any)?.value || "") as EUsaStates | "");
           }}
           label="State"

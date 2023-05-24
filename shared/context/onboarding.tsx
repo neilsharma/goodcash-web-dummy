@@ -7,15 +7,17 @@ import {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
 import type { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
-import { GCUser } from "../http/types";
-import type { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
+import { GCUser, UserStateCoverageMap } from "../http/types";
+import { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
 import { init } from "../feature";
+import { getUserStateCoverageMap } from "../http/services/user";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -89,6 +91,8 @@ export interface IOnboardingContext {
 
   mergeOnboardingState: (state: RecursivePartial<SharedOnboardingState>) => void;
   redirectToGenericErrorPage: () => Promise<boolean>;
+  redirectToStateNotSupportedPage: () => Promise<boolean>;
+  userStateCoverageMap: UserStateCoverageMap | null;
 }
 
 interface OnboardingOperationsMap {
@@ -144,10 +148,14 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [state, setState] = useState<EUsaStates | "">("");
+  const [userStateCoverageMap, setUserStateCoverageMap] = useState<UserStateCoverageMap | null>(
+    null
+  );
 
   const indexPageIsValid = useMemo(() => {
-    return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email));
-  }, [phone, email]);
+    return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email) && state);
+  }, [phone, email, state]);
 
   const [phoneVerified, setPhoneVerified] = useState(false);
 
@@ -157,7 +165,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [legalAddress, setLegalAddress] = useState("");
   const [aptNumber, setAptNumber] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState<EUsaStates | "">("");
   const [zipCode, setZipCode] = useState("");
   const [ssn, setSsn] = useState("");
 
@@ -288,6 +295,24 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     [push]
   );
 
+  const redirectToStateNotSupportedPage = useCallback(
+    () => push("/onboarding/state-not-supported"),
+    [push]
+  );
+
+  useEffect(() => {
+    (async function () {
+      try {
+        const userStateCoverage = await getUserStateCoverageMap();
+        if (userStateCoverage) {
+          setUserStateCoverageMap(userStateCoverage);
+        }
+      } catch (error) {
+        setUserStateCoverageMap(null);
+      }
+    })();
+  }, []);
+
   return (
     <onboardingContext.Provider
       value={{
@@ -361,6 +386,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
         mergeOnboardingState,
         redirectToGenericErrorPage,
+        redirectToStateNotSupportedPage,
+        userStateCoverageMap,
       }}
     >
       {children}

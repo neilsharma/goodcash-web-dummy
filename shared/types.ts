@@ -54,6 +54,11 @@ export enum EUsaStates {
   Wyoming = "WY",
 }
 
+export const EUsaStatesLookup: { [value: string]: string } = Object.entries(EUsaStates).reduce(
+  (accumulator, [key, value]) => ({ ...accumulator, [value]: key }),
+  {}
+);
+
 export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };

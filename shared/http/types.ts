@@ -43,3 +43,6 @@ export interface UnderwritingResponse {
 
 export type AssetStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";
 export type UnderwritingStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";
+export type UserStateCoverageMap = {
+  [key: string]: boolean;
+};

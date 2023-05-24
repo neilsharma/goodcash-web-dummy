@@ -10,12 +10,30 @@ import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useGlobal } from "@/shared/context/global";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackPage, trackerInitializer } from "../../utils/analytics/analytics";
-import { EScreenEventTitle } from "../../utils/types";
+import { trackEvent, trackPage, trackerInitializer } from "../../utils/analytics/analytics";
+import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import FormControlSelect from "../../components/form-control/FormControlSelect";
+import { EUsaStates } from "../../shared/types";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
   const { auth, recaptchaVerifier, setConfirmationResult, analytics } = useGlobal();
+  const {
+    setState,
+    redirectToStateNotSupportedPage,
+    userStateCoverageMap,
+    setOnboardingStep,
+    phone,
+    setPhone,
+    email,
+    setEmail,
+    indexPageIsValid,
+  } = useOnboarding();
+  const [phoneMask, setPhoneMask] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [stateMask, setStateMask] = useState<{ value: string; label: string } | null>(null);
+  const [dimBackground, setDimBackground] = useState(false);
+  const { push } = useRouter();
 
   useEffect(() => {
     (async function () {
@@ -26,16 +44,19 @@ export default function OnboardingIndexPage() {
     })();
   }, [analytics]);
 
-  const { setOnboardingStep, phone, setPhone, email, setEmail, indexPageIsValid } = useOnboarding();
-
-  const [phoneMask, setPhoneMask] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [dimBackground, setDimBackground] = useState(false);
-
-  const { push } = useRouter();
-
   const onContinue = useCallback(async () => {
+    const stateValue = stateMask?.value;
+
     if (!indexPageIsValid) {
+      return;
+    }
+
+    if (stateValue && userStateCoverageMap && !userStateCoverageMap[stateValue]) {
+      trackEvent({
+        event: ETrackEvent.USER_STATE_NOT_SUPPORTED,
+        options: { phone, email, state: stateMask },
+      });
+      redirectToStateNotSupportedPage();
       return;
     }
 
@@ -62,6 +83,9 @@ export default function OnboardingIndexPage() {
     setConfirmationResult,
     setOnboardingStep,
     push,
+    stateMask?.value,
+    userStateCoverageMap,
+    redirectToStateNotSupportedPage,
   ]);
 
   return (
@@ -92,6 +116,21 @@ export default function OnboardingIndexPage() {
         placeholder="john@example.com"
       />
 
+      <FormControlSelect
+        options={Object.keys(EUsaStates).map((e) => ({
+          value: EUsaStates[e as keyof typeof EUsaStates],
+          label: e,
+        }))}
+        value={stateMask}
+        onChange={(v) => {
+          setStateMask(v as any);
+          setState(((v as any)?.value || "") as EUsaStates | "");
+        }}
+        label="State"
+        placeholder="State"
+        noOptionsMessage={() => null}
+        containerProps={{ className: "m-0" }}
+      />
       <Button
         className="mt-12"
         isLoading={isLoading}
