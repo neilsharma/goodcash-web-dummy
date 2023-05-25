@@ -53,7 +53,7 @@ export default function OnboardingIndexPage() {
 
     if (stateValue && userStateCoverageMap && !userStateCoverageMap[stateValue]) {
       trackEvent({
-        event: ETrackEvent.USER_STATE_NOT_SUPPORTED,
+        event: ETrackEvent.USER_STATE_VALIDATION_FAILED,
         options: { phone, email, state: stateMask },
       });
       redirectToStateNotSupportedPage();
@@ -76,16 +76,17 @@ export default function OnboardingIndexPage() {
       setDimBackground(false);
     }
   }, [
+    stateMask,
+    indexPageIsValid,
+    userStateCoverageMap,
+    phone,
+    email,
+    redirectToStateNotSupportedPage,
     auth,
     recaptchaVerifier,
-    indexPageIsValid,
-    phone,
     setConfirmationResult,
     setOnboardingStep,
     push,
-    stateMask?.value,
-    userStateCoverageMap,
-    redirectToStateNotSupportedPage,
   ]);
 
   return (

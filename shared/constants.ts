@@ -34,3 +34,5 @@ export const hardcodedPlans = {
     productId: "1",
   } as Plan,
 };
+
+export const waitListUrl = "https://goodcash.com";

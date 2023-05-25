@@ -2,25 +2,24 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { waitListUrl } from "../../shared/constants";
 
 export default function OnboardingStateNotSupportedPage() {
   useConfirmUnload();
 
-  useTrackPage(EScreenEventTitle.STATE_NOT_SUPPORTED);
+  useTrackPage(EScreenEventTitle.UNSUPPORTED_STATE);
 
   const { push } = useRouter();
-  const { onboardingStep } = useOnboarding();
 
   const tryAgain = useCallback(() => {
-    push(onboardingStepToPageMap[onboardingStep]);
-  }, [push, onboardingStep]);
+    window.onbeforeunload = null;
+    push(waitListUrl);
+  }, [push]);
 
   return (
     <OnboardingLayout>
