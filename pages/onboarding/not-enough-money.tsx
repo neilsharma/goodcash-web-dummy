@@ -21,13 +21,12 @@ export default function OnboardingSomethingWrongPage() {
 
   return (
     <OnboardingLayout>
-      <Title>You need at least $100 in your bank account to access GoodCash</Title>
+      <Title>Insufficient Funds</Title>
       <SubTitle className="my-4">
-        The current balance in the bank account you connected is $5. Please connect a different bank
-        account or replenish your bank balance before re-applying.
+        Your bank account balance is not sufficient to connect to GoodCash.
       </SubTitle>
       <SubTitle className="my-4">
-        We require that you have at least $100 in your connected bank account to access GoodCash.
+        Please connect a different bank account or replenish your bank balance before re-applying.
       </SubTitle>
 
       <Button className="my-12" onClick={tryAgain}>

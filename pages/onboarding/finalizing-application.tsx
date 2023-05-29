@@ -112,7 +112,7 @@ export default function FinalizingApplication() {
               pierApplicationId: null,
               onboardingOperationsMap: { pierApplicationCreated: false },
             });
-            return;
+            return push("/onboarding/not-enough-money");
         }
       }
 
