@@ -1,10 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  async rewrites() {
+    return [
+      {
+        source: "/events",
+        destination: "https://api2.amplitude.com/2/httpapi",
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
-
 
 // Injected content via Sentry wizard below
 

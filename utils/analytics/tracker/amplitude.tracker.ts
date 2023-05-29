@@ -1,16 +1,29 @@
-import { ETrackEvent, IGCAnalyticsData, ScreenTrackEvent, UserProperties } from "../../types";
-import { track, identify, Identify, setUserId, init } from "@amplitude/analytics-browser";
+import { getBaseUrl } from "@/shared/config";
+import { Identify, identify, init, setUserId, track } from "@amplitude/analytics-browser";
+import {
+  ETrackEvent,
+  IGCAnalyticsData,
+  IGCUser,
+  ScreenTrackEvent,
+  UserProperties,
+} from "../../types";
 import { AbstractEventTracker } from "../abstract-event-tracker";
-import { IGCUser } from "../../types";
 
 export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
   private static instance: AmplitudeAnalyticsTracker;
 
   private constructor() {
     super();
-    if (process.env.NEXT_PUBLIC_APMLITUDE_API_KEY) {
-      init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY);
+    this.initAmplitude();
+  }
+
+  private initAmplitude(): void {
+    if (!process.env.NEXT_PUBLIC_APMLITUDE_API_KEY) {
+      return;
     }
+    init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY, undefined, {
+      serverUrl: `${getBaseUrl()}/events`,
+    });
   }
 
   static getInstance(): AmplitudeAnalyticsTracker {
