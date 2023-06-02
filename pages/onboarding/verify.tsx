@@ -10,11 +10,13 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useRouter } from "next/router";
 import { useGlobal } from "@/shared/context/global";
-import { getUser, getUserOnboarding } from "@/shared/http/services/user";
+import { createUser, getUser, getUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, trackEvent } from "../../utils/analytics/analytics";
+import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
+import { parseApiError } from "../../shared/error";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -22,7 +24,7 @@ export default function OnboardingVerifyPage() {
 
   useTrackPage(EScreenEventTitle.VERIFY);
 
-  const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
+  const { confirmationResult, setConfirmationResult, resetAuth, auth } = useGlobal();
   const {
     setIsUserBlocked,
     setOnboardingStep,
@@ -30,6 +32,7 @@ export default function OnboardingVerifyPage() {
     setPhoneVerified,
     mergeOnboardingState,
     redirectToGenericErrorPage,
+    setUser,
   } = useOnboarding();
   const { push } = useRouter();
 
@@ -66,6 +69,26 @@ export default function OnboardingVerifyPage() {
     }
   }, [setPhoneVerified, confirmationResult, code, redirectToGenericErrorPage]);
 
+  const userCreationHandler = useCallback(async () => {
+    try {
+      return await createUser(auth);
+    } catch (error: any) {
+      const errorObject = parseApiError(error);
+
+      if ((["USER0001", "USER0002"] as any[]).includes(errorObject?.errorCode)) {
+        setIsLoading(false);
+        return alert(
+          "We've currently reached our maximum number of beta users " +
+            "and are closing registration temporarily. " +
+            "Join our waitlist on goodcash.com to get notified when we open up to new users!"
+        );
+      }
+
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
+      redirectToGenericErrorPage();
+    }
+  }, [auth, redirectToGenericErrorPage]);
+
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
     if (!user) {
@@ -75,11 +98,11 @@ export default function OnboardingVerifyPage() {
 
     const token = await user.getIdToken();
     const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
-    const gcUser = await getUser(token).catch(() =>
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED })
-    );
+    const gcUser = await getUser(token).catch(userCreationHandler);
 
     if (gcUser && gcUser.id) {
+      setUser(gcUser);
+      await init(gcUser.id);
       setUserId(gcUser?.id);
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
     }
@@ -111,9 +134,11 @@ export default function OnboardingVerifyPage() {
     return push(onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION);
   }, [
     confirmPhone,
+    userCreationHandler,
     setOnboardingStep,
     push,
     redirectToGenericErrorPage,
+    setUser,
     setIsUserBlocked,
     mergeOnboardingState,
   ]);

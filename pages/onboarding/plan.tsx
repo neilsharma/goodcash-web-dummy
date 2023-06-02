@@ -45,12 +45,9 @@ export default function OnboardingPlanPage() {
     try {
       setPlan(hardcodedPlan.id);
       setIsLoading(true);
-      const createdUser = await createUser(auth);
-
-      setUser(createdUser);
-      await init(createdUser.id);
-
-      const plaidIdvEnabled = await isFeatureEnabled(createdUser.id, EFeature.PLAID_UI_IDV, true);
+      const plaidIdvEnabled = user
+        ? await isFeatureEnabled(user.id, EFeature.PLAID_UI_IDV, true)
+        : false;
       const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
 
       setOnboardingStep(targetSept);
@@ -59,7 +56,7 @@ export default function OnboardingPlanPage() {
         lastName,
         phone,
         email,
-        user: createdUser,
+        user,
         onboardingStep: targetSept,
         onboardingOperationsMap: { userCreated: true },
         plan: hardcodedPlan.id,
@@ -68,17 +65,6 @@ export default function OnboardingPlanPage() {
 
       push(onboardingStepToPageMap[targetSept]);
     } catch (error: any) {
-      const errorObject = parseApiError(error);
-
-      if ((["USER0001", "USER0002"] as any[]).includes(errorObject?.errorCode)) {
-        setIsLoading(false);
-        return alert(
-          "We've currently reached our maximum number of beta users " +
-            "and are closing registration temporarily. " +
-            "Join our waitlist on goodcash.com to get notified when we open up to new users!"
-        );
-      }
-
       redirectToGenericErrorPage();
     }
   }, [
@@ -90,10 +76,8 @@ export default function OnboardingPlanPage() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setPlan,
-    setUser,
     setOnboardingStep,
     push,
-    auth,
     redirectToGenericErrorPage,
   ]);
 
