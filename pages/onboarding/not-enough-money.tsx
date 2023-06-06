@@ -21,12 +21,12 @@ export default function OnboardingSomethingWrongPage() {
 
   return (
     <OnboardingLayout>
-      <Title>Insufficient Funds</Title>
+      <Title>Your bank account is not eligible because average balance was too low.</Title>
       <SubTitle className="my-4">
-        Your bank account balance is not sufficient to connect to GoodCash.
+        Unfortunately, you do not meet our eligibility requirement at the moment.
       </SubTitle>
       <SubTitle className="my-4">
-        Please connect a different bank account or replenish your bank balance before re-applying.
+        We require you maintain a higher average bank account balance.
       </SubTitle>
 
       <Button className="my-12" onClick={tryAgain}>
