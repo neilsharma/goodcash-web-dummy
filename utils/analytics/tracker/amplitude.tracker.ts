@@ -1,4 +1,4 @@
-import { getBaseUrl } from "@/shared/config";
+import { getBaseUrl, goodcashEnvironment } from "@/shared/config";
 import { Identify, identify, init, setUserId, track } from "@amplitude/analytics-browser";
 import {
   ETrackEvent,
@@ -21,6 +21,11 @@ export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
     if (!process.env.NEXT_PUBLIC_APMLITUDE_API_KEY) {
       return;
     }
+    if (goodcashEnvironment !== "production") {
+      init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY);
+      return;
+    }
+
     init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY, undefined, {
       serverUrl: `${getBaseUrl()}/events`,
     });

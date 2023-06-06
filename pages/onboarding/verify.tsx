@@ -1,22 +1,22 @@
-import { KeyboardEvent, useCallback, useRef, useState } from "react";
-import { signInWithPhoneNumber } from "firebase/auth";
-import { useTimer } from "react-timer-hook";
 import Button from "@/components/Button";
-import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { useRouter } from "next/router";
-import { useGlobal } from "@/shared/context/global";
-import { createUser, getUser, getUserOnboarding } from "@/shared/http/services/user";
+import FormControlText from "@/components/form-control/FormControlText";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { setUserId, trackEvent } from "../../utils/analytics/analytics";
-import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
+import { useGlobal } from "@/shared/context/global";
+import { useOnboarding } from "@/shared/context/onboarding";
+import { init } from "@/shared/feature";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import { createUser, getUser, getUserOnboarding } from "@/shared/http/services/user";
+import { EScreenEventTitle, ETrackEvent } from "@/utils/types";
+import { signInWithPhoneNumber } from "firebase/auth";
+import { useRouter } from "next/router";
+import { KeyboardEvent, useCallback, useRef, useState } from "react";
+import { useTimer } from "react-timer-hook";
 import { parseApiError } from "../../shared/error";
+import useTrackPage from "../../shared/hooks/useTrackPage";
+import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -24,7 +24,7 @@ export default function OnboardingVerifyPage() {
 
   useTrackPage(EScreenEventTitle.VERIFY);
 
-  const { confirmationResult, setConfirmationResult, resetAuth, auth } = useGlobal();
+  const { confirmationResult, setConfirmationResult, resetAuth, auth, userSession } = useGlobal();
   const {
     setIsUserBlocked,
     setOnboardingStep,
@@ -104,6 +104,10 @@ export default function OnboardingVerifyPage() {
       setUser(gcUser);
       await init(gcUser.id);
       setUserId(gcUser?.id);
+      setUserProperties({
+        ...(userSession?.fbc && { fbc: userSession?.fbc }),
+        ...(userSession?.fbp && { fbp: userSession?.fbp }),
+      });
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
     }
 

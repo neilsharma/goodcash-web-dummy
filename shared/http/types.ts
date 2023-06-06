@@ -41,6 +41,11 @@ export interface UnderwritingResponse {
   bankAccountAssetId: string;
 }
 
+export interface UserSession {
+  fbc?: string;
+  fbp?: string;
+}
+
 export type AssetStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";
 export type UnderwritingStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";
 export type UserStateCoverageMap = {

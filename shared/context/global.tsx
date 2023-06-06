@@ -2,26 +2,29 @@
 
 import { Auth, ConfirmationResult } from "firebase/auth";
 import {
-  createContext,
   Dispatch,
   FC,
   ReactNode,
   SetStateAction,
+  createContext,
   useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
 
-import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier } from "firebase/auth";
+import { getUserSession } from "@/utils/utils";
 import { Analytics, getAnalytics } from "firebase/analytics";
+import { initializeApp } from "firebase/app";
+import { RecaptchaVerifier, getAuth } from "firebase/auth";
 import { firebaseConfig } from "../config";
+import { UserSession } from "../http/types";
 
 export interface IGlobalContext {
   analytics: Analytics | null;
   auth: Auth | null;
   recaptchaVerifier: RecaptchaVerifier | null;
+  userSession: UserSession | null;
   confirmationResult: ConfirmationResult | null;
   setConfirmationResult: Dispatch<SetStateAction<ConfirmationResult | null>>;
   resetAuth: () => readonly [Auth, RecaptchaVerifier, Analytics];
@@ -38,10 +41,14 @@ export const getComputedAnalytics = () => computedAnalytics;
 let computedRecaptchaVerifier: IGlobalContext["recaptchaVerifier"] = null;
 export const getComputedRecaptchaVerifier = () => computedRecaptchaVerifier;
 
+let computedUserSession: IGlobalContext["userSession"] = null;
+export const getComputedUserSession = () => computedUserSession;
+
 const globalContext = createContext<IGlobalContext>(null as any);
 
 export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const [analytics, setAnalytics] = useState<IGlobalContext["analytics"]>(null);
+  const [userSession, setUserSession] = useState<IGlobalContext["userSession"]>(null);
   const [auth, setAuth] = useState<IGlobalContext["auth"]>(null);
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<IGlobalContext["recaptchaVerifier"]>(null);
@@ -65,6 +72,12 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
     resetAuth();
   }, [resetAuth]);
 
+  useEffect(() => {
+    const newUserSession = getUserSession();
+    computedUserSession = newUserSession;
+    setUserSession(newUserSession);
+  }, []);
+
   const [confirmationResult, setConfirmationResult] = useState<null | ConfirmationResult>(null);
 
   return (
@@ -74,6 +87,7 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
         auth,
         recaptchaVerifier,
         confirmationResult,
+        userSession,
         setConfirmationResult,
         resetAuth,
       }}
