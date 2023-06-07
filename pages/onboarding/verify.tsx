@@ -143,6 +143,8 @@ export default function OnboardingVerifyPage() {
     push,
     redirectToGenericErrorPage,
     setUser,
+    userSession?.fbc,
+    userSession?.fbp,
     setIsUserBlocked,
     mergeOnboardingState,
   ]);
