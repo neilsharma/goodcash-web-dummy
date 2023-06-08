@@ -6,9 +6,15 @@ import FormControlText from "@/components/form-control/FormControlText";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { init } from "@/shared/feature";
+import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { createUser, getUser, getUserOnboarding } from "@/shared/http/services/user";
+import {
+  createUser,
+  getUser,
+  getUserOnboarding,
+  patchUserOnboarding,
+} from "@/shared/http/services/user";
+import { hardcodedPlan } from "@/shared/types";
 import { EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
@@ -29,10 +35,14 @@ export default function OnboardingVerifyPage() {
     setIsUserBlocked,
     setOnboardingStep,
     phone,
+    firstName,
+    lastName,
+    email,
     setPhoneVerified,
     mergeOnboardingState,
     redirectToGenericErrorPage,
     setUser,
+    setOnboardingOperationsMap,
   } = useOnboarding();
   const { push } = useRouter();
 
@@ -109,48 +119,63 @@ export default function OnboardingVerifyPage() {
         ...(userSession?.fbp && { fbp: userSession?.fbp }),
       });
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
-    }
 
-    switch (gcUser?.state) {
-      case "BLOCKED":
-        return setIsUserBlocked(true);
-      case "DELETED":
-        return redirectToGenericErrorPage();
+      switch (gcUser?.state) {
+        case "BLOCKED":
+          return setIsUserBlocked(true);
+        case "DELETED":
+          return redirectToGenericErrorPage();
 
-      case "LIVE":
-        return push(onboardingStepToPageMap.APPLICATION_COMPLETE);
-    }
-
-    const onboardingState = await onboardingStatePromise;
-
-    if (onboardingState) {
-      mergeOnboardingState(onboardingState);
-
-      if (onboardingState.onboardingStep) {
-        return push(
-          onboardingStepToPageMap[onboardingState.onboardingStep] ??
-            onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION
-        );
+        case "LIVE":
+          return push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
       }
-    }
 
-    setOnboardingStep("PLAN_SELECTION_AND_USER_CREATION");
-    return push(onboardingStepToPageMap.PLAN_SELECTION_AND_USER_CREATION);
+      const onboardingState = await onboardingStatePromise;
+
+      if (onboardingState) {
+        mergeOnboardingState(onboardingState);
+
+        if (onboardingState.onboardingStep) {
+          return push(onboardingStepToPageMap[onboardingState.onboardingStep]);
+        }
+      }
+
+      const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);
+      const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
+
+      setOnboardingStep(targetSept);
+      patchUserOnboarding({
+        firstName,
+        lastName,
+        phone,
+        email,
+        user: gcUser,
+        onboardingStep: targetSept,
+        onboardingOperationsMap: { userCreated: true },
+        plan: hardcodedPlan.id,
+      });
+      setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
+      push(onboardingStepToPageMap[targetSept]);
+    }
   }, [
     confirmPhone,
     userCreationHandler,
-    setOnboardingStep,
-    push,
     redirectToGenericErrorPage,
     setUser,
     userSession?.fbc,
     userSession?.fbp,
     setIsUserBlocked,
+    push,
     mergeOnboardingState,
+    setOnboardingStep,
+    firstName,
+    lastName,
+    phone,
+    email,
+    setOnboardingOperationsMap,
   ]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    // alert(inputRef.current?.focus);
     if (event.key === "Enter" || event.key === "Done") {
       inputRef.current?.blur();
     }

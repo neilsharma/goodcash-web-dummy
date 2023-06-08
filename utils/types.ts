@@ -13,7 +13,7 @@ export enum EScreenEventTitle {
   SOMETHING_WENT_WRONG = "Something Went Wrong",
   NOT_ENOUGH_MONEY = "Insufficient Bank Account Balance",
   HOW_DID_YOU_HEAR = "How Did You Hear",
-  FINALIZING_APPLICATION = "Finalizing Application",
+  PROCESSING_APPLICATION = "Processing Application",
   DOC_GENERATION = "Loan Agreement Doc Generation",
   CONTACT_INFO = "Identity Data Collection Form",
   CONNECT_BANK_ACCOUNT = "Connect Bank Account",
@@ -21,6 +21,9 @@ export enum EScreenEventTitle {
   CQR = "CQR",
   KYC = "KYC Identity Verification",
   UNSUPPORTED_STATE = "Unsupported State",
+  READY_TO_JOIN = "Ready To Join",
+  THANKS_FOR_JOINING = "Thanks For Joining",
+  NEW_CARD_ON_THE_WAY = "New Card On The Way",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;

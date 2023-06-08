@@ -1,3 +1,4 @@
+import { hardcodedPlans } from "./constants";
 import type { IOnboardingContext } from "./context/onboarding";
 
 export enum EUsaStates {
@@ -66,13 +67,15 @@ export type RecursivePartial<T> = {
 export type OnboardingStep =
   | "WELCOME"
   | "PHONE_VERIFICATION"
-  | "PLAN_SELECTION_AND_USER_CREATION"
   | "CONTACT_INFO"
   | "KYC"
   | "BANK_ACCOUNT_CONNECTION"
-  | "FINALIZING_APPLICATION"
+  | "PROCESSING_APPLICATION"
   | "DOC_GENERATION"
   | "REFERRAL_SOURCE"
+  | "READY_TO_JOIN"
+  | "NEW_CARD_ON_THE_WAY"
+  | "THANKS_FOR_JOINING"
   | "APPLICATION_COMPLETE";
 
 export type SharedOnboardingState = Pick<
@@ -115,3 +118,4 @@ export interface Plan {
   price: number;
   productId: string;
 }
+export const hardcodedPlan: Plan = hardcodedPlans.ANNUAL;

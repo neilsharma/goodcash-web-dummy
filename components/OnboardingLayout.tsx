@@ -26,20 +26,22 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
         return 5;
       case "PHONE_VERIFICATION":
         return 10;
-      case "PLAN_SELECTION_AND_USER_CREATION":
-        return 25;
       case "KYC":
       case "CONTACT_INFO":
-        return 40;
+        return 30;
       case "BANK_ACCOUNT_CONNECTION":
+        return 50;
+      case "PROCESSING_APPLICATION":
         return 60;
-      case "FINALIZING_APPLICATION":
+      case "READY_TO_JOIN":
         return 70;
       case "DOC_GENERATION":
         return 80;
       case "REFERRAL_SOURCE":
         return 90;
-      case "APPLICATION_COMPLETE":
+      case "THANKS_FOR_JOINING":
+        return 95;
+      case "NEW_CARD_ON_THE_WAY":
         return 100;
     }
   }, [onboardingStep]);

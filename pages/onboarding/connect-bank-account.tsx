@@ -60,13 +60,13 @@ export default function OnboardingConnectBankAccountPage() {
       await activateLineOfCredit({ locId: _locId });
       setOnboardingOperationsMap((p) => ({ ...p, locActivated: true }));
       patchUserOnboarding({
-        onboardingStep: "FINALIZING_APPLICATION",
+        onboardingStep: "PROCESSING_APPLICATION",
         onboardingOperationsMap: { locActivated: true },
       });
     }
 
-    setOnboardingStep("FINALIZING_APPLICATION");
-    push(onboardingStepToPageMap.FINALIZING_APPLICATION);
+    setOnboardingStep("PROCESSING_APPLICATION");
+    push(onboardingStepToPageMap.PROCESSING_APPLICATION);
   }, [
     onboardingOperationsMap,
     setOnboardingOperationsMap,

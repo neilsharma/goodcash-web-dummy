@@ -3,14 +3,16 @@ import type { OnboardingStep, Plan } from "./types";
 export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
   WELCOME: "/onboarding",
   PHONE_VERIFICATION: "/onboarding/verify",
-  PLAN_SELECTION_AND_USER_CREATION: "/onboarding/plan",
   CONTACT_INFO: "/onboarding/contact-info",
   KYC: "/onboarding/kyc",
   BANK_ACCOUNT_CONNECTION: "/onboarding/connect-bank-account",
-  FINALIZING_APPLICATION: "/onboarding/finalizing-application",
+  PROCESSING_APPLICATION: "/onboarding/processing-application",
   DOC_GENERATION: "/onboarding/doc-generation",
   REFERRAL_SOURCE: "/onboarding/how-did-you-hear",
   APPLICATION_COMPLETE: "/onboarding/application-complete",
+  READY_TO_JOIN: "/onboarding/ready-to-join",
+  THANKS_FOR_JOINING: "/onboarding/thanks-for-joining",
+  NEW_CARD_ON_THE_WAY: "/onboarding/new-card-on-the-way",
 };
 
 /** This should be replaced with plans from Db in the future */
@@ -35,4 +37,13 @@ export const hardcodedPlans = {
   } as Plan,
 };
 
+export const appStoreAppUrl = "https://apps.apple.com/us/app/goodcash-card/id1636346143";
 export const waitListUrl = "https://goodcash.com";
+export const termsOfServiceUrl = "https://bit.ly/goodcash-terms";
+export const privacyPolicyUrl = "https://bit.ly/goodcash-privacy";
+export const bankPrivacyPolicyUrl =
+  "https://bankpatriot.com/PatriotBank/media/Documents/Privacy_Policy.pdf";
+export const cardHolderAgreementUrl =
+  "https://uploads-ssl.webflow.com/6332899ac4c8cd82e1f261b5/638faf4b402ff073f7295300_Updated%20GoodCash%20Consumer%20Cardholder%20Agreement%20(1).pdf";
+export const eSignConsentUrl =
+  "https://uploads-ssl.webflow.com/6332899ac4c8cd82e1f261b5/6480dd5556b22a3e2993dc0d_E-SIGN%20Consent.pdf";

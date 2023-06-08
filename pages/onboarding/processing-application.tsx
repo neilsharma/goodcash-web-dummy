@@ -20,7 +20,7 @@ import { parseApiError } from "@/shared/error";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
-export default function FinalizingApplication() {
+export default function ProcessingApplication() {
   useConfirmUnload();
 
   const { push } = useRouter();
@@ -36,7 +36,7 @@ export default function FinalizingApplication() {
     redirectToGenericErrorPage,
   } = useOnboarding();
 
-  const finalizeApplication = useCallback(async () => {
+  const processApplication = useCallback(async () => {
     try {
       let borrowerId = pierBorrowerId;
       let applicationId = pierApplicationId;
@@ -127,7 +127,7 @@ export default function FinalizingApplication() {
       }
 
       setOnboardingStep("DOC_GENERATION");
-      push(onboardingStepToPageMap.DOC_GENERATION);
+      push(onboardingStepToPageMap.READY_TO_JOIN);
     } catch (error: any) {
       const errorObject = parseApiError(error);
 
@@ -148,17 +148,17 @@ export default function FinalizingApplication() {
     redirectToGenericErrorPage,
   ]);
 
-  useTrackPage(EScreenEventTitle.FINALIZING_APPLICATION);
+  useTrackPage(EScreenEventTitle.PROCESSING_APPLICATION);
 
   useEffect(() => {
-    finalizeApplication();
+    processApplication();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <OnboardingLayout>
       <Lottie options={{ loop: true, autoplay: true, animationData }} />
-      <SubTitle className="text-center">Finalizing application...</SubTitle>
+      <SubTitle className="text-center">Processing application...</SubTitle>
     </OnboardingLayout>
   );
 }

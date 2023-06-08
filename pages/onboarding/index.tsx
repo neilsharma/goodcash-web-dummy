@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/Button";
-import FormControlText from "@/components/form-control/FormControlText";
 import OnboardingLayout from "@/components/OnboardingLayout";
+import SubTitle from "@/components/SubTitle";
+import Title from "@/components/Title";
+import FormControlText from "@/components/form-control/FormControlText";
+import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
+import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
-import Title from "@/components/Title";
-import SubTitle from "@/components/SubTitle";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { useGlobal } from "@/shared/context/global";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackEvent, trackPage, trackerInitializer } from "../../utils/analytics/analytics";
-import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
 import { EUsaStates } from "../../shared/types";
+import { trackEvent, trackPage, trackerInitializer } from "../../utils/analytics/analytics";
+import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
@@ -143,11 +143,11 @@ export default function OnboardingIndexPage() {
 
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By continuing, you agree to GoodCash’s{" "}
-        <a href="https://bit.ly/goodcash-terms" rel="noreferrer" target="_blank">
+        <a href={termsOfServiceUrl} rel="noreferrer" target="_blank">
           Terms of Service
         </a>{" "}
         and{" "}
-        <a href="https://bit.ly/goodcash-privacy" rel="noreferrer" target="_blank">
+        <a href={privacyPolicyUrl} rel="noreferrer" target="_blank">
           Privacy Policy
         </a>
       </p>
