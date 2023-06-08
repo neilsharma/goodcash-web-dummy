@@ -5,7 +5,7 @@ import { urlPaths } from "./util";
 
 export const http = axios.create({
   baseURL: domain,
-  timeout: 10_000,
+  timeout: 30_000,
 });
 
 // List of URL paths that do not require authentication for making requests
