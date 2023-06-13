@@ -1,17 +1,10 @@
-import type { Auth, User } from "firebase/auth";
+import type { Auth } from "firebase/auth";
 import type { AxiosResponse } from "axios";
 import { getComputedAuth } from "@/shared/context/global";
 import http from "../client";
-import {
-  AssetStatus,
-  GCUser,
-  IdentityBasics,
-  KycTaxInfo,
-  UserStateCoverageMap,
-  UserAddress,
-} from "../types";
-import { urlPaths } from "../util";
-import { EUsaStates, RecursivePartial, SharedOnboardingState } from "@/shared/types";
+import { AssetStatus, GCUser, IdentityBasics, KycTaxInfo, UserAddress } from "../types";
+import { longPoll, urlPaths } from "../util";
+import { RecursivePartial, SharedOnboardingState } from "@/shared/types";
 
 export const createUser = async (auth: Auth | null) => {
   if (!auth) throw new Error("not authenticated");
@@ -75,56 +68,6 @@ export const submitKyc = async () => {
   return res.data;
 };
 
-export const createPierBorrower = async () => {
-  const res = await http.post<any, AxiosResponse<{ id: string }>>(urlPaths.USER_CREATE_BORROWER);
-
-  return res.data;
-};
-
-export const createPierApplication = async (borrowerId: string) => {
-  const res = await http.post<any, AxiosResponse<{ id: string }>>(
-    urlPaths.USER_CREATE_APPLICATION,
-    { borrowerId }
-  );
-
-  return res.data;
-};
-
-export const approvePierApplication = async (applicationId: string) => {
-  const res = await http.post<any, AxiosResponse<{ id: string }>>(
-    urlPaths.USER_APPROVE_APPLICATION,
-    { applicationId }
-  );
-
-  return res.data;
-};
-
-export const createPierLoanAgreement = async (applicationId: string) => {
-  const res = await http.post<any, AxiosResponse<{ id: string; documentUrl: string }>>(
-    urlPaths.USER_CREATE_LOAN_AGREEMENT,
-    { applicationId }
-  );
-
-  return res.data;
-};
-
-export const signPierLoanAgreement = async (loanAgreementId: string) => {
-  const res = await http.post<any, AxiosResponse<{ id: string; documentUrl: string }>>(
-    urlPaths.USER_SIGN_LOAN_AGREEMENT,
-    { loanAgreementId }
-  );
-
-  return res.data;
-};
-
-export const createPierFacility = async (loanAgreementId: string) => {
-  const res = await http.post<any, AxiosResponse<{ id: string }>>(urlPaths.USER_CREATE_FACILITY, {
-    loanAgreementId,
-  });
-
-  return res.data;
-};
-
 export const getUserOnboarding = async (token: string) => {
   const res = await http.get<any, AxiosResponse<RecursivePartial<SharedOnboardingState> | null>>(
     urlPaths.USER_ONBOARDING,
@@ -148,16 +91,13 @@ export const completeUserOnboarding = async () => {
   return res.data;
 };
 
-export const getUserStateCoverageMap = async () => {
-  const res = await http.get<any, AxiosResponse<UserStateCoverageMap>>(
-    urlPaths.USER_STATE_COVERAGE
-  );
-
-  return res.data;
-};
-
 export const getAssetStatus = async () => {
   const res = await http.get<any, AxiosResponse<AssetStatus>>(urlPaths.USER_ASSET_STATUS);
 
   return res.data;
 };
+
+const completedAssetStatuses = ["APPROVED", "DENIED"] as AssetStatus[];
+
+export const longPollAssetStatus = async (timeout = 500, attempts = 240) =>
+  longPoll(getAssetStatus, (s) => completedAssetStatuses.includes(s), timeout, attempts, "DENIED");

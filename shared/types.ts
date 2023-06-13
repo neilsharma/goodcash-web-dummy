@@ -100,11 +100,7 @@ export type SharedOnboardingState = Pick<
   | "agreedToTermsOfService"
   | "plaid"
   | "locId"
-  | "pierBorrowerId"
-  | "pierApplicationId"
-  | "pierLoanAgreementId"
-  | "pierLoanAgreementDocumentUrl"
-  | "pierFacilityId"
+  | "loanAgreementDocumentUrl"
   | "howDidYouHearAboutUs"
 >;
 

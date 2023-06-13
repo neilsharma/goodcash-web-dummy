@@ -8,13 +8,12 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import Image from "next/image";
 import { useGlobal } from "@/shared/context/global";
-import { createUser, patchUserOnboarding } from "@/shared/http/services/user";
+import { patchUserOnboarding } from "@/shared/http/services/user";
 import { hardcodedPlans, onboardingStepToPageMap } from "@/shared/constants";
 import { Plan, PlanFrequency } from "@/shared/types";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
-import { parseApiError } from "@/shared/error";
+import { EFeature, isFeatureEnabled } from "@/shared/feature";
 
 export default function OnboardingPlanPage() {
   useConfirmUnload();

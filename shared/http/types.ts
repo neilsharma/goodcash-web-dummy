@@ -51,3 +51,22 @@ export type UnderwritingStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DEN
 export type UserStateCoverageMap = {
   [key: string]: boolean;
 };
+export interface LoanAgreement {
+  applicationId: string | null;
+  loanAgreementId: string | null;
+  status: ELoanAgreementStatus;
+  documentUrl: string | null;
+}
+
+export enum ELoanAgreementStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  COMPLETION_FAILED = "COMPLETION_FAILED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  CREATED = "CREATED",
+  CREATION_FAILED = "CREATION_FAILED",
+  SIGNED = "SIGNED",
+  SIGN_FAILED = "SIGN_FAILED",
+  NOT_CREATED = "NOT_CREATED",
+}

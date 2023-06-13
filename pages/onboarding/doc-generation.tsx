@@ -7,16 +7,17 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import {
-  createPierFacility,
-  createPierLoanAgreement,
-  patchUserOnboarding,
-  signPierLoanAgreement,
-} from "@/shared/http/services/user";
+import { patchUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import {
+  longPollLongAgreementStatus,
+  completeLoanAgreement,
+  createLoanAgreement,
+  getLoanAgreementUrl,
+} from "@/shared/http/services/loanAgreements";
+import { ELoanAgreementStatus } from "@/shared/http/types";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -26,37 +27,30 @@ export default function OneLastStep() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    pierApplicationId,
-    pierLoanAgreementId,
-    setPierLoanAgreementId,
-    pierLoanAgreementDocumentUrl,
-    setPierLoanAgreementDocumentUrl,
-    setPierFacilityId,
+    loanAgreementDocumentUrl,
+    setLoanAgreementDocumentUrl,
     redirectToGenericErrorPage,
   } = useOnboarding();
 
-  const createLoanAgreement = useCallback(async () => {
+  const createLoanAgreementHandler = useCallback(async () => {
     try {
-      let loanAgreementId = pierLoanAgreementId;
+      if (!onboardingOperationsMap.loanAgreementCreated) {
+        await createLoanAgreement();
+        const status = await longPollLongAgreementStatus([
+          ELoanAgreementStatus.SIGNED,
+          ELoanAgreementStatus.SIGN_FAILED,
+        ]);
 
-      if (!onboardingOperationsMap.pierLoanAgreementCreated || loanAgreementId === null) {
-        const { id } = await createPierLoanAgreement(pierApplicationId!);
-        setPierLoanAgreementId((loanAgreementId = id));
-        setOnboardingOperationsMap((p) => ({ ...p, pierLoanAgreementCreated: true }));
-        patchUserOnboarding({
-          pierLoanAgreementId: id,
-          onboardingOperationsMap: { pierLoanAgreementCreated: true },
-        });
-      }
+        if (status === ELoanAgreementStatus.SIGNED) {
+          setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCreated: true }));
+          patchUserOnboarding({
+            onboardingOperationsMap: { loanAgreementCreated: true },
+          });
 
-      if (!onboardingOperationsMap.pierLoanAgreementSigned) {
-        const { documentUrl } = await signPierLoanAgreement(loanAgreementId);
-        setPierLoanAgreementDocumentUrl(documentUrl);
-        setOnboardingOperationsMap((p) => ({ ...p, pierLoanAgreementSigned: true }));
-        patchUserOnboarding({
-          pierLoanAgreementDocumentUrl: documentUrl,
-          onboardingOperationsMap: { pierLoanAgreementSigned: true },
-        });
+          setLoanAgreementDocumentUrl(await getLoanAgreementUrl());
+        } else if (status === ELoanAgreementStatus.SIGN_FAILED) {
+          throw new Error("Loan Agreement Creation Failed");
+        }
       }
     } catch (e) {
       redirectToGenericErrorPage();
@@ -64,36 +58,40 @@ export default function OneLastStep() {
   }, [
     onboardingOperationsMap,
     setOnboardingOperationsMap,
-    pierLoanAgreementId,
-    setPierLoanAgreementId,
-    pierApplicationId,
-    setPierLoanAgreementDocumentUrl,
+    setLoanAgreementDocumentUrl,
     redirectToGenericErrorPage,
   ]);
 
   const documentSigned = useMemo(
-    () => onboardingOperationsMap.pierLoanAgreementSigned && !!pierLoanAgreementDocumentUrl,
-    [onboardingOperationsMap, pierLoanAgreementDocumentUrl]
+    () => onboardingOperationsMap.loanAgreementCreated && !!loanAgreementDocumentUrl,
+    [onboardingOperationsMap, loanAgreementDocumentUrl]
   );
 
   const [isLoading, setIsLoading] = useState(false);
-  const completePierOnboarding = useCallback(async () => {
+  const completeLoanAgreementHandler = useCallback(async () => {
     setIsLoading(true);
     try {
-      if (onboardingOperationsMap.pierFacilityCreated)
+      if (onboardingOperationsMap.loanAgreementCompleted)
         return push(onboardingStepToPageMap.REFERRAL_SOURCE);
       if (!documentSigned) return;
 
-      const { id } = await createPierFacility(pierLoanAgreementId!);
-      setPierFacilityId(id);
-      setOnboardingOperationsMap((p) => ({ ...p, pierFacilityCreated: true }));
-      setOnboardingStep("REFERRAL_SOURCE");
-      patchUserOnboarding({
-        pierFacilityId: id,
-        onboardingStep: "REFERRAL_SOURCE",
-        onboardingOperationsMap: { pierFacilityCreated: true },
-      });
-      push(onboardingStepToPageMap.REFERRAL_SOURCE);
+      await completeLoanAgreement();
+      const status = await longPollLongAgreementStatus([
+        ELoanAgreementStatus.COMPLETED,
+        ELoanAgreementStatus.COMPLETION_FAILED,
+      ]);
+
+      if (status === ELoanAgreementStatus.COMPLETED) {
+        setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCompleted: true }));
+        setOnboardingStep("REFERRAL_SOURCE");
+        patchUserOnboarding({
+          onboardingStep: "REFERRAL_SOURCE",
+          onboardingOperationsMap: { loanAgreementCompleted: true },
+        });
+        push(onboardingStepToPageMap.REFERRAL_SOURCE);
+      } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
+        throw new Error("Loan Agreement Completion Failed");
+      }
     } catch (error) {
       redirectToGenericErrorPage();
     }
@@ -102,8 +100,6 @@ export default function OneLastStep() {
     setOnboardingOperationsMap,
     setIsLoading,
     documentSigned,
-    setPierFacilityId,
-    pierLoanAgreementId,
     setOnboardingStep,
     push,
     redirectToGenericErrorPage,
@@ -112,7 +108,7 @@ export default function OneLastStep() {
   useTrackPage(EScreenEventTitle.DOC_GENERATION);
 
   useEffect(() => {
-    createLoanAgreement();
+    createLoanAgreementHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -124,8 +120,8 @@ export default function OneLastStep() {
         impact your credit score or require a credit check.
       </SubTitle>
 
-      {pierLoanAgreementDocumentUrl ? (
-        <iframe src={pierLoanAgreementDocumentUrl} className="w-full h-96 my-10" allowFullScreen />
+      {loanAgreementDocumentUrl ? (
+        <iframe src={loanAgreementDocumentUrl} className="w-full h-96 my-10" allowFullScreen />
       ) : (
         <LoadingPDFIndicator />
       )}
@@ -133,7 +129,7 @@ export default function OneLastStep() {
       <Button
         className="mt-12"
         disabled={!documentSigned}
-        onClick={completePierOnboarding}
+        onClick={completeLoanAgreementHandler}
         isLoading={isLoading}
       >
         Agree to terms and conditions

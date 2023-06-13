@@ -9,7 +9,7 @@ export const http = axios.create({
 });
 
 // List of URL paths that do not require authentication for making requests
-const unauthorizedRequests = [urlPaths.USER_ME_CREATE, urlPaths.USER_STATE_COVERAGE];
+const unauthorizedRequests = [urlPaths.USER_ME_CREATE, urlPaths.LOAN_AGREEMENTS_COVERAGE];
 
 // Intercept requests and add authentication headers if necessary
 http.interceptors.request.use(async (config) => {

@@ -1,28 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/Button";
-import LoadingPDFIndicator from "@/components/LoadingPDFIndicator";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import {
-  createPierFacility,
-  createPierLoanAgreement,
-  patchUserOnboarding,
-  signPierLoanAgreement,
-} from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { useOnboarding } from "@/shared/context/onboarding";
 
 export default function ThanksForJoining() {
   useConfirmUnload();
+  const { setOnboardingStep } = useOnboarding();
   useTrackPage(EScreenEventTitle.THANKS_FOR_JOINING);
 
   const { push } = useRouter();
+
+  const navigate = useCallback(() => {
+    setOnboardingStep("NEW_CARD_ON_THE_WAY");
+    push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
+  }, [push, setOnboardingStep]);
 
   return (
     <OnboardingLayout>
@@ -34,7 +32,7 @@ export default function ThanksForJoining() {
         Therefore, we will not charge you a fee for using GoodCash.
       </SubTitle>
 
-      <Button className="mt-12" onClick={() => push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY)}>
+      <Button className="mt-12" onClick={navigate}>
         Continue
       </Button>
 

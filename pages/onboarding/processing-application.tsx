@@ -6,19 +6,19 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import {
-  approvePierApplication,
-  createPierApplication,
-  createPierBorrower,
-  getAssetStatus,
-  patchUserOnboarding,
-} from "@/shared/http/services/user";
+import { longPollAssetStatus, patchUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
 import { parseApiError } from "@/shared/error";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import {
+  approveApplication,
+  longPollLongAgreementStatus,
+  createLoanApplication,
+} from "@/shared/http/services/loanAgreements";
+import { ELoanAgreementStatus } from "@/shared/http/types";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
@@ -29,69 +29,32 @@ export default function ProcessingApplication() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    pierBorrowerId,
-    setPierBorrowerId,
-    pierApplicationId,
-    setPierApplicationId,
     redirectToGenericErrorPage,
   } = useOnboarding();
 
   const processApplication = useCallback(async () => {
     try {
-      let borrowerId = pierBorrowerId;
-      let applicationId = pierApplicationId;
+      if (!onboardingOperationsMap.loanApplicationCreated) {
+        await createLoanApplication();
+        const status = await longPollLongAgreementStatus([
+          ELoanAgreementStatus.CREATED,
+          ELoanAgreementStatus.CREATION_FAILED,
+        ]);
 
-      if (!onboardingOperationsMap.pierBorrowerCreated || borrowerId === null) {
-        const { id } = await createPierBorrower();
-        setPierBorrowerId((borrowerId = id));
-        setOnboardingOperationsMap((p) => ({ ...p, pierBorrowerCreated: true }));
-        patchUserOnboarding({
-          pierBorrowerId: id,
-          onboardingOperationsMap: { pierBorrowerCreated: true },
-        });
-      }
-
-      if (!onboardingOperationsMap.pierApplicationCreated || applicationId === null) {
-        const { id } = await createPierApplication(borrowerId);
-
-        setPierApplicationId((applicationId = id));
-        setOnboardingOperationsMap((p) => ({ ...p, pierApplicationCreated: true }));
-        patchUserOnboarding({
-          pierApplicationId: id,
-          onboardingOperationsMap: { pierApplicationCreated: true },
-        });
+        if (status === ELoanAgreementStatus.CREATED) {
+          setOnboardingOperationsMap((p) => ({ ...p, loanApplicationCreated: true }));
+          patchUserOnboarding({
+            onboardingOperationsMap: { loanApplicationCreated: true },
+          });
+        } else if (status === ELoanAgreementStatus.CREATION_FAILED) {
+          throw new Error("Loan Application Creation Failed");
+        }
       }
 
       if (!isLocalhost && !onboardingOperationsMap.underwritingSucceeded) {
-        const maxAttempts = 100;
-        let shouldForceFail = false;
+        const assetStatus = await longPollAssetStatus();
 
-        await new Promise((resolve, reject) => {
-          let attempts = 0;
-
-          const interval = setInterval(async () => {
-            const status = await getAssetStatus();
-            attempts++;
-
-            if (status === "APPROVED") {
-              clearInterval(interval);
-              return resolve(true);
-            }
-
-            if (status === "DENIED") {
-              clearInterval(interval);
-              return reject(false);
-            }
-
-            if (attempts > maxAttempts) {
-              clearInterval(interval);
-              shouldForceFail = true;
-              return resolve(true);
-            }
-          }, 500);
-        });
-
-        if (shouldForceFail) {
+        if (assetStatus === "DENIED") {
           await failUnderwriting();
           return setIsUserBlocked(true);
         }
@@ -106,23 +69,28 @@ export default function ProcessingApplication() {
             });
             break;
           case "DENIED":
-            setOnboardingOperationsMap((p) => ({ ...p, pierApplicationCreated: false }));
-            setPierApplicationId(null);
+            setOnboardingOperationsMap((p) => ({
+              ...p,
+              loanApplicationCreated: false,
+              loanApplicationApproved: false,
+            }));
             patchUserOnboarding({
-              pierApplicationId: null,
-              onboardingOperationsMap: { pierApplicationCreated: false },
+              onboardingOperationsMap: {
+                loanApplicationCreated: false,
+                loanApplicationApproved: false,
+              },
             });
             return push("/onboarding/not-enough-money");
         }
       }
 
-      if (!onboardingOperationsMap.pierApplicationApproved) {
-        await approvePierApplication(applicationId);
+      if (!onboardingOperationsMap.loanApplicationApproved) {
+        await approveApplication();
 
-        setOnboardingOperationsMap((p) => ({ ...p, pierApplicationApproved: true }));
+        setOnboardingOperationsMap((p) => ({ ...p, loanApplicationApproved: true }));
         patchUserOnboarding({
           onboardingStep: "DOC_GENERATION",
-          onboardingOperationsMap: { pierApplicationApproved: true },
+          onboardingOperationsMap: { loanApplicationApproved: true },
         });
       }
 
@@ -139,10 +107,6 @@ export default function ProcessingApplication() {
     setIsUserBlocked,
     onboardingOperationsMap,
     setOnboardingOperationsMap,
-    pierBorrowerId,
-    setPierBorrowerId,
-    pierApplicationId,
-    setPierApplicationId,
     setOnboardingStep,
     push,
     redirectToGenericErrorPage,

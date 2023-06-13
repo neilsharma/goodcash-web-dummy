@@ -2,14 +2,13 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { appStoreAppUrl } from "@/shared/constants";
-import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import { redirectIfServerSideRendered } from "@/shared/hooks";
 import Image from "next/image";
 import { Check } from "react-feather";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EScreenEventTitle } from "../../utils/types";
 
 export default function NewCardOnTheWay() {
-  useConfirmUnload();
   useTrackPage(EScreenEventTitle.NEW_CARD_ON_THE_WAY);
 
   return (

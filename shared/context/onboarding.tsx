@@ -17,7 +17,7 @@ import isMobilePhone from "validator/lib/isMobilePhone";
 import { GCUser, UserStateCoverageMap } from "../http/types";
 import { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
 import { init } from "../feature";
-import { getUserStateCoverageMap } from "../http/services/user";
+import { getUserStateCoverageMap } from "../http/services/loanAgreements";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -75,17 +75,8 @@ export interface IOnboardingContext {
   locId: string;
   setLocId: Dispatch<SetStateAction<string>>;
 
-  pierBorrowerId: string | null;
-  setPierBorrowerId: Dispatch<SetStateAction<string | null>>;
-  pierApplicationId: string | null;
-  setPierApplicationId: Dispatch<SetStateAction<string | null>>;
-  pierLoanAgreementId: string | null;
-  setPierLoanAgreementId: Dispatch<SetStateAction<string | null>>;
-  pierLoanAgreementDocumentUrl: string | null;
-  setPierLoanAgreementDocumentUrl: Dispatch<SetStateAction<string | null>>;
-  pierFacilityId: string | null;
-  setPierFacilityId: Dispatch<SetStateAction<string | null>>;
-
+  loanAgreementDocumentUrl: string | null;
+  setLoanAgreementDocumentUrl: Dispatch<SetStateAction<string | null>>;
   howDidYouHearAboutUs: string;
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 
@@ -105,13 +96,13 @@ interface OnboardingOperationsMap {
   kycSubmitted: boolean;
   locSubmitted: boolean;
   locActivated: boolean;
-  pierBorrowerCreated: boolean;
-  pierApplicationCreated: boolean;
+
+  loanApplicationCreated: boolean;
+  loanApplicationApproved: boolean;
+  loanAgreementCreated: boolean;
+  loanAgreementCompleted: boolean;
+
   underwritingSucceeded: boolean;
-  pierApplicationApproved: boolean;
-  pierLoanAgreementCreated: boolean;
-  pierLoanAgreementSigned: boolean;
-  pierFacilityCreated: boolean;
   onboardingCompleted: boolean;
 }
 
@@ -131,13 +122,13 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     kycSubmitted: false,
     locSubmitted: false,
     locActivated: false,
-    pierBorrowerCreated: false,
-    pierApplicationCreated: false,
+
+    loanApplicationCreated: false,
+    loanApplicationApproved: false,
+    loanAgreementCreated: false,
+    loanAgreementCompleted: false,
+
     underwritingSucceeded: false,
-    pierApplicationApproved: false,
-    pierLoanAgreementCreated: false,
-    pierLoanAgreementSigned: false,
-    pierFacilityCreated: false,
     onboardingCompleted: false,
   });
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("WELCOME");
@@ -209,15 +200,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const [locId, setLocId] = useState("");
 
-  const [pierBorrowerId, setPierBorrowerId] = useState<IOnboardingContext["pierBorrowerId"]>(null);
-  const [pierApplicationId, setPierApplicationId] =
-    useState<IOnboardingContext["pierApplicationId"]>(null);
-  const [pierLoanAgreementDocumentUrl, setPierLoanAgreementDocumentUrl] =
-    useState<IOnboardingContext["pierLoanAgreementDocumentUrl"]>(null);
-  const [pierLoanAgreementId, setPierLoanAgreementId] =
-    useState<IOnboardingContext["pierLoanAgreementId"]>(null);
-  const [pierFacilityId, setPierFacilityId] = useState<IOnboardingContext["pierFacilityId"]>(null);
-
+  const [loanAgreementDocumentUrl, setLoanAgreementDocumentUrl] =
+    useState<IOnboardingContext["loanAgreementDocumentUrl"]>(null);
   const [howDidYouHearAboutUs, setHowDidYouHearAboutUs] = useState("");
 
   const mergeOnboardingState = useCallback(
@@ -252,12 +236,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       if (state.plaid) setPlaid((p) => ({ ...p, ...(state.plaid as any) }));
       if (state.locId) setLocId(state.locId);
 
-      if (state.pierBorrowerId) setPierBorrowerId(state.pierBorrowerId);
-      if (state.pierApplicationId) setPierApplicationId(state.pierApplicationId);
-      if (state.pierLoanAgreementId) setPierLoanAgreementId(state.pierLoanAgreementId);
-      if (state.pierLoanAgreementDocumentUrl)
-        setPierLoanAgreementDocumentUrl(state.pierLoanAgreementDocumentUrl);
-      if (state.pierFacilityId) setPierFacilityId(state.pierFacilityId);
+      if (state.loanAgreementDocumentUrl)
+        setLoanAgreementDocumentUrl(state.loanAgreementDocumentUrl);
       if (state.howDidYouHearAboutUs) setHowDidYouHearAboutUs(state.howDidYouHearAboutUs);
     },
     [
@@ -281,11 +261,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       setAgreedToTermsOfService,
       setPlaid,
       setLocId,
-      setPierBorrowerId,
-      setPierApplicationId,
-      setPierLoanAgreementId,
-      setPierLoanAgreementDocumentUrl,
-      setPierFacilityId,
+      setLoanAgreementDocumentUrl,
       setHowDidYouHearAboutUs,
     ]
   );
@@ -370,16 +346,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         locId,
         setLocId,
 
-        pierBorrowerId,
-        setPierBorrowerId,
-        pierApplicationId,
-        setPierApplicationId,
-        pierLoanAgreementId,
-        setPierLoanAgreementId,
-        pierLoanAgreementDocumentUrl,
-        setPierLoanAgreementDocumentUrl,
-        pierFacilityId,
-        setPierFacilityId,
+        loanAgreementDocumentUrl,
+        setLoanAgreementDocumentUrl,
 
         howDidYouHearAboutUs,
         setHowDidYouHearAboutUs,
