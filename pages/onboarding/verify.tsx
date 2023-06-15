@@ -117,6 +117,7 @@ export default function OnboardingVerifyPage() {
       setUserProperties({
         ...(userSession?.fbc && { fbc: userSession?.fbc }),
         ...(userSession?.fbp && { fbp: userSession?.fbp }),
+        ...(navigator.userAgent && { user_agent: navigator.userAgent }),
       });
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
 
