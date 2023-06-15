@@ -16,7 +16,7 @@ import {
   updateUserAddress,
   updateUserIdentityBasic,
 } from "@/shared/http/services/user";
-import { onboardingStepToPageMap } from "@/shared/constants";
+import { cardHolderAgreementUrl, onboardingStepToPageMap } from "@/shared/constants";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
@@ -251,8 +251,11 @@ export default function OnboardingContactInfoPage() {
         onChange={setAgreedToCardHolderAgreement.bind(null, (v) => !v)}
         containerProps={{ className: "mt-14" }}
       >
-        I agree to the <a href="#">GoodCash Cardholder Agreement, Standing ACH Authorization</a>,
-        and GoodCash’s <a href="a">FCRA Notice</a>.
+        I agree to the{" "}
+        <a href={cardHolderAgreementUrl} target="_blank">
+          GoodCash Cardholder Agreement, Standing ACH Authorization
+        </a>
+        , and GoodCash’s <a href="a">FCRA Notice</a>.
       </CheckBox>
 
       <CheckBox checked={agreedToAutopay} onChange={setAgreedToAutopay.bind(null, (v) => !v)}>
