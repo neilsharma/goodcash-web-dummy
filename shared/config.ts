@@ -22,3 +22,5 @@ export const ldClientSideId = process.env["NEXT_PUBLIC_LD_CLIENT_SIDE_ID"] || ""
 export const getBaseUrl = () => {
   return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
 };
+
+export const gtagId = <string>process.env["NEXT_PUBLIC_GTAG_ID"];

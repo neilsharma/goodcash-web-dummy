@@ -10,6 +10,7 @@ import { onboardingStepToPageMap } from "@/shared/constants";
 import { trackEvent } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { gtagId } from "@/shared/config";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
@@ -33,6 +34,11 @@ export default function OnboardingHowDidYouHearPage() {
 
       if (!onboardingOperationsMap.onboardingCompleted) {
         await completeUserOnboarding();
+
+        window.gtag?.("event", "conversion", {
+          send_to: `${gtagId}/pP3rCLvwn6sYEKm7srMp`,
+          transaction_id: "",
+        });
 
         if (howDidYouHearAboutUs)
           trackEvent({

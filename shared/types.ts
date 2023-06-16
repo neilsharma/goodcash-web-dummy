@@ -1,6 +1,12 @@
 import { hardcodedPlans } from "./constants";
 import type { IOnboardingContext } from "./context/onboarding";
 
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 export enum EUsaStates {
   Alabama = "AL",
   Alaska = "AK",
