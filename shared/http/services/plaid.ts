@@ -1,6 +1,6 @@
 import type { AxiosResponse } from "axios";
 import http from "../client";
-import { CreateBankAccount } from "../types";
+import { CreateBankAccount, FailBankAccountCreation } from "../types";
 import { urlPaths } from "../util";
 
 export const getPlaidToken = async () => {
@@ -24,6 +24,12 @@ export const createBankAccount = async (payload: CreateBankAccount) => {
   const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT, payload, {
     timeout: 0,
   });
+
+  return res.data;
+};
+
+export const failBankAccountCreation = async (payload: FailBankAccountCreation) => {
+  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT_FAIL, payload);
 
   return res.data;
 };

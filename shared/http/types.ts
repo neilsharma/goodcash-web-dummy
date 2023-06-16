@@ -27,6 +27,25 @@ export interface IdentityBasics {
   email_address?: string;
 }
 
+export interface FailBankAccountCreation {
+  error: {
+    error_type: string;
+    error_code: string;
+    error_message: string; // developer friendly error message
+    display_message: string;
+  } | null;
+  metadata: {
+    institution: null | {
+      name: string;
+      institution_id: string;
+    };
+    // see possible values for status at https://plaid.com/docs/link/web/#link-web-onexit-status
+    status: null | string;
+    link_session_id: string;
+    request_id: string;
+  };
+}
+
 export interface CreateBankAccount {
   plaidPublicToken: string;
 }

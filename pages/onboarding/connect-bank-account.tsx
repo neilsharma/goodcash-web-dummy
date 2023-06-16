@@ -1,20 +1,24 @@
-import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
-import { useRouter } from "next/router";
-import Image from "next/image";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { createBankAccount, getPlaidToken } from "@/shared/http/services/plaid";
-import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
-import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 import { onboardingStepToPageMap } from "@/shared/constants";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { parseApiError } from "@/shared/error";
-import { EScreenEventTitle } from "../../utils/types";
+import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
+import {
+  createBankAccount,
+  failBankAccountCreation,
+  getPlaidToken,
+} from "@/shared/http/services/plaid";
+import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
+import { usePlaidLink } from "react-plaid-link";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EScreenEventTitle } from "../../utils/types";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -102,6 +106,9 @@ export default function OnboardingConnectBankAccountPage() {
 
         redirectToGenericErrorPage();
       }
+    },
+    onExit: async (error, metadata) => {
+      await failBankAccountCreation({ error, metadata });
     },
   });
 

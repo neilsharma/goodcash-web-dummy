@@ -8,6 +8,7 @@ export const urlPaths = {
   KYC_TAX_INFO: "/v1/me/kyc_attempt/tax_info",
   KYC_IDENTITY: "/v1/me/kyc_attempt/identity",
   KYC_BANK_ACCOUNT: "/v1/me/kyc_attempt/bank-account",
+  KYC_BANK_ACCOUNT_FAIL: "/v1/me/kyc_attempt/bank-account/fail",
   PLAID_LINK_TOKEN: "/v1/me/kyc_attempt/link-token",
   KYC_PLAID_LINK_TOKEN: "/v1/me/kyc_attempt/kyc-link-token",
   KYC_ATTEMPT_SUBMIT: "/v1/me/kyc_attempt/submit",
