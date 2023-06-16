@@ -52,8 +52,8 @@ export const FormControlDescription: FC<{ description?: string }> = ({ descripti
 
 export const FormControlError: FC<{ error?: string | boolean | null }> = ({ error }) =>
   typeof error === "string" ? (
-    <div className="flex mt-2 gap-2 items-end">
-      <Image src="/img/logo/alert.svg" alt="alert" width={24} height={24} priority={true} />
-      <span className="block text-sm text-error">{error}</span>
+    <div className="flex mt-1 gap-1 items-end absolute">
+      <Image src="/img/logo/alert.svg" alt="alert" width={15} height={15} priority={true} />
+      <span className="block text-xs text-error">{error}</span>
     </div>
   ) : null;

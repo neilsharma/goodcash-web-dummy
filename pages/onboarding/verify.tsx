@@ -14,7 +14,7 @@ import {
   getUserOnboarding,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
-import { hardcodedPlan } from "@/shared/types";
+import { EOtpErrorCode, hardcodedPlan } from "@/shared/types";
 import { EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
@@ -48,6 +48,7 @@ export default function OnboardingVerifyPage() {
 
   const [code, setCode] = useState("");
   const [codeMask, setCodeMask] = useState("");
+  const [isOtpInvalid, setIsOtpInvalid] = useState(false);
   const { seconds, restart } = useTimer({
     autoStart: true,
     expiryTimestamp: new Date(Date.now() + 30000),
@@ -74,10 +75,17 @@ export default function OnboardingVerifyPage() {
       setPhoneVerified(!!res?.user);
 
       return res?.user;
-    } catch (e) {
-      redirectToGenericErrorPage();
+    } catch (e: any) {
+      setIsLoading(false);
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
+
+      if (e.code === EOtpErrorCode.INVALID_OTP) {
+        setIsOtpInvalid(true);
+      } else {
+        redirectToGenericErrorPage();
+      }
     }
-  }, [setPhoneVerified, confirmationResult, code, redirectToGenericErrorPage]);
+  }, [confirmationResult, code, setPhoneVerified, redirectToGenericErrorPage]);
 
   const userCreationHandler = useCallback(async () => {
     try {
@@ -101,10 +109,7 @@ export default function OnboardingVerifyPage() {
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
-    if (!user) {
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
-      return redirectToGenericErrorPage();
-    }
+    if (!user) return;
 
     const token = await user.getIdToken();
     const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
@@ -189,10 +194,13 @@ export default function OnboardingVerifyPage() {
 
       <FormControlText
         inputRef={(ref) => (inputRef.current = ref)}
-        className="tracking-[0.3em]"
+        className={`tracking-[0.3em] ${
+          isOtpInvalid ? "border-[1px] border-solid border-red-600" : ""
+        }`}
         label="Verification code"
         value={codeMask}
         onChange={(e) => {
+          setIsOtpInvalid(false);
           setCodeMask(e.target.value);
           setCode(e.target.value.replace(/\_/g, ""));
         }}
@@ -201,6 +209,7 @@ export default function OnboardingVerifyPage() {
         inputMask="999999"
         inputMode="numeric"
         onKeyDown={handleKeyPress}
+        error={isOtpInvalid ? "Code entered was incorrect, please try again" : false}
       />
 
       <div className="my-12 flex gap-4 flex-col sm:flex-row">

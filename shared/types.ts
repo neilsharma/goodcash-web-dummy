@@ -115,3 +115,6 @@ export interface Plan {
   productId: string;
 }
 export const hardcodedPlan: Plan = hardcodedPlans.ANNUAL;
+export enum EOtpErrorCode {
+  INVALID_OTP = "auth/invalid-verification-code",
+}
