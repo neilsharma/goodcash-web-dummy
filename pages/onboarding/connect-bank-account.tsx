@@ -1,47 +1,86 @@
+import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions } from "react-plaid-link";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { parseApiError } from "@/shared/error";
-import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
+import { submitKyc } from "@/shared/http/services/user";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
+import { usePlaidLink } from "react-plaid-link";
+import {
+  redirectIfServerSideRendered,
+  useConfirmIsOAuthRedirect,
+  useConfirmUnload,
+} from "@/shared/hooks";
 import {
   createBankAccount,
   failBankAccountCreation,
   getPlaidToken,
 } from "@/shared/http/services/plaid";
-import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
+import { useOnboarding } from "@/shared/context/onboarding";
+import { patchUserOnboarding } from "@/shared/http/services/user";
+import { onboardingStepToPageMap } from "@/shared/constants";
+import { parseApiError } from "@/shared/error";
+import { ELocalStorageKeys } from "../../utils/types";
+import { useGlobal } from "../../shared/context/global";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EScreenEventTitle } from "../../utils/types";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
+  const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
   useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT);
 
   const { push } = useRouter();
+  const { auth } = useGlobal();
   const {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    plaid,
     setPlaid,
+    redirectToGenericErrorPage,
+    phone,
+    email,
+    state,
     locId,
     setLocId,
-    redirectToGenericErrorPage,
+    plaid,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const getLocalToken = async () => {
+    const localToken = localStorage.getItem(ELocalStorageKeys.LINK_TOKEN);
+    if (localToken) setPlaidLinkToken(localToken);
+  };
+
   useEffect(() => {
-    getPlaidToken().then(setPlaidLinkToken);
-  }, [setPlaidLinkToken]);
+    if (isPlaidOAuthRedirect) {
+      getLocalToken();
+      return;
+    }
+    if (auth?.currentUser) {
+      getPlaidToken().then(async (link_token) => {
+        setPlaidLinkToken(link_token);
+        localStorage.setItem(ELocalStorageKeys.LINK_TOKEN, link_token);
+        const auth_token = await auth?.currentUser?.getIdToken();
+        const cached_user_info = {
+          auth_token: auth_token,
+          phone: phone,
+          email: email,
+          state: state,
+        };
+        auth_token &&
+          localStorage.setItem(
+            ELocalStorageKeys.CACHED_USER_INFO,
+            JSON.stringify(cached_user_info)
+          );
+      });
+    }
+  }, [auth?.currentUser, email, isPlaidOAuthRedirect, phone, setPlaidLinkToken, state]);
 
   const kycAndLoc = useCallback(async () => {
     let _locId = locId;
@@ -80,37 +119,53 @@ export default function OnboardingConnectBankAccountPage() {
     push,
   ]);
 
-  const { open, ready } = usePlaidLink({
-    token: plaidLinkToken,
-    onSuccess: async (publicToken, metadata) => {
-      try {
-        setIsLoading(true);
+  const onPlaidLinkSuccess = async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
+    try {
+      setIsLoading(true);
 
-        if (!onboardingOperationsMap.bankAccountCreated) {
-          await createBankAccount({ plaidPublicToken: publicToken });
-          setOnboardingOperationsMap((p) => ({ ...p, bankAccountCreated: true }));
-          setPlaid({ publicToken, metadata });
-          patchUserOnboarding({
-            plaid: { publicToken, metadata },
-            onboardingOperationsMap: { bankAccountCreated: true },
-          });
-        }
-
-        await kycAndLoc();
-      } catch (e: any) {
-        const errorObject = parseApiError(e);
-
-        if (errorObject?.errorCode === "UNDERWRITING0001") {
-          return push("/onboarding/not-enough-money");
-        }
-
-        redirectToGenericErrorPage();
+      if (!onboardingOperationsMap.bankAccountCreated) {
+        await createBankAccount({ plaidPublicToken: publicToken });
+        setOnboardingOperationsMap((p) => ({ ...p, bankAccountCreated: true }));
+        setPlaid({ publicToken, metadata });
+        patchUserOnboarding({
+          plaid: { publicToken, metadata },
+          onboardingOperationsMap: { bankAccountCreated: true },
+        });
       }
-    },
-    onExit: async (error, metadata) => {
+      await kycAndLoc();
+    } catch (e: any) {
+      const errorObject = parseApiError(e);
+
+      if (errorObject?.errorCode === "UNDERWRITING0001") {
+        return push("/onboarding/not-enough-money");
+      }
+
+      redirectToGenericErrorPage();
+    }
+  };
+
+  const plaidConfig: PlaidLinkOptions = {
+    // token must be the same token used for the first initialization of Link
+    token: plaidLinkToken,
+    onSuccess: onPlaidLinkSuccess,
+    onExit: () => async (error: any, metadata: any) => {
       await failBankAccountCreation({ error, metadata });
     },
-  });
+  };
+  if (isPlaidOAuthRedirect) {
+    // receivedRedirectUri must include the query params
+    plaidConfig.receivedRedirectUri = window.location.href;
+  }
+
+  const { open, ready } = usePlaidLink(plaidConfig);
+
+  useEffect(() => {
+    // If OAuth redirect, instantly open link when it is ready instead of
+    // making user click the button
+    if (isPlaidOAuthRedirect && ready) {
+      open();
+    }
+  }, [ready, open, isPlaidOAuthRedirect]);
 
   const onContinue = useCallback(async () => {
     if (!ready || !plaidLinkToken) return;

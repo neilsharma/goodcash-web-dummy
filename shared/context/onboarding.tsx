@@ -18,6 +18,8 @@ import { GCUser, UserStateCoverageMap } from "../http/types";
 import { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
 import { init } from "../feature";
 import { getUserStateCoverageMap } from "../http/services/loanAgreements";
+import { CachedUserInfo, ELocalStorageKeys } from "../../utils/types";
+import { getUserInfoFromCache } from "../http/util";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -143,6 +145,15 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [userStateCoverageMap, setUserStateCoverageMap] = useState<UserStateCoverageMap | null>(
     null
   );
+
+  useEffect(() => {
+    const cachedUserInfo = getUserInfoFromCache();
+    if (cachedUserInfo && !phone && !email && !state) {
+      setPhone(cachedUserInfo.phone);
+      setEmail(cachedUserInfo.email);
+      setState(EUsaStates[cachedUserInfo.state as keyof typeof EUsaStates]);
+    }
+  }, [email, phone, setEmail, setPhone, setState, state]);
 
   const indexPageIsValid = useMemo(() => {
     return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email) && state);

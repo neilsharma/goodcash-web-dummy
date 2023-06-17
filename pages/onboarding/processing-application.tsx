@@ -19,6 +19,7 @@ import {
   createLoanApplication,
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
+import Loader from "../../components/Loader";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
@@ -121,7 +122,9 @@ export default function ProcessingApplication() {
 
   return (
     <OnboardingLayout>
-      <Lottie options={{ loop: true, autoplay: true, animationData }} />
+      {/* TODO: Lottie having some issue in in-app webview so will debug later  */}
+      {/* <Lottie options={{ loop: true, autoplay: true, animationData }} /> */}
+      <Loader className="z-10 p-0" svgProps={{ className: "w-12 h-12 fill-primary my-4" }} />
       <SubTitle className="text-center">Processing application...</SubTitle>
     </OnboardingLayout>
   );

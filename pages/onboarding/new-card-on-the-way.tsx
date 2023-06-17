@@ -6,10 +6,15 @@ import { redirectIfServerSideRendered } from "@/shared/hooks";
 import Image from "next/image";
 import { Check } from "react-feather";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EScreenEventTitle } from "../../utils/types";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
+import { useEffect } from "react";
 
 export default function NewCardOnTheWay() {
   useTrackPage(EScreenEventTitle.NEW_CARD_ON_THE_WAY);
+
+  useEffect(() => {
+    localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);
+  }, []);
 
   return (
     <OnboardingLayout>

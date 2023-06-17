@@ -1,3 +1,5 @@
+import { CachedUserInfo, ELocalStorageKeys } from "@/utils/types";
+
 export const urlPaths = {
   USER_ME: "/v1/me",
   USER_ME_CREATE: "/v1/me/create",
@@ -64,4 +66,19 @@ export const longPoll = async <R>(
 
     startPolling();
   });
+};
+
+export const getUserInfoFromCache = (): CachedUserInfo | null => {
+  const cachedUserInfoJson = localStorage.getItem(ELocalStorageKeys.CACHED_USER_INFO);
+  let cachedUserInfo: CachedUserInfo | null = null;
+
+  if (cachedUserInfoJson) {
+    try {
+      cachedUserInfo = JSON.parse(cachedUserInfoJson);
+    } catch (error) {
+      console.error("Error parsing cached user info JSON:", error);
+    }
+  }
+
+  return cachedUserInfo;
 };

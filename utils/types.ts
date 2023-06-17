@@ -71,3 +71,15 @@ export enum GCUserState {
   ONBOARDING = "ONBOARDING",
   BLOCKED = "BLOCKED",
 }
+
+export enum ELocalStorageKeys {
+  LINK_TOKEN = "link_token",
+  CACHED_USER_INFO = "cached_user_info",
+}
+
+export type CachedUserInfo = {
+  auth_token: string;
+  phone: string;
+  email: string;
+  state: string;
+};
