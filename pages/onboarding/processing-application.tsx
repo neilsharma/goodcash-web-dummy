@@ -19,7 +19,6 @@ import {
   createLoanApplication,
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
-import Loader from "../../components/Loader";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
@@ -90,12 +89,12 @@ export default function ProcessingApplication() {
 
         setOnboardingOperationsMap((p) => ({ ...p, loanApplicationApproved: true }));
         patchUserOnboarding({
-          onboardingStep: "DOC_GENERATION",
+          onboardingStep: "READY_TO_JOIN",
           onboardingOperationsMap: { loanApplicationApproved: true },
         });
       }
 
-      setOnboardingStep("DOC_GENERATION");
+      setOnboardingStep("READY_TO_JOIN");
       push(onboardingStepToPageMap.READY_TO_JOIN);
     } catch (error: any) {
       const errorObject = parseApiError(error);
@@ -122,9 +121,7 @@ export default function ProcessingApplication() {
 
   return (
     <OnboardingLayout>
-      {/* TODO: Lottie having some issue in in-app webview so will debug later  */}
-      {/* <Lottie options={{ loop: true, autoplay: true, animationData }} /> */}
-      <Loader className="z-10 p-0" svgProps={{ className: "w-12 h-12 fill-primary my-4" }} />
+      <Lottie options={{ loop: true, autoplay: true, animationData }} />
       <SubTitle className="text-center">Processing application...</SubTitle>
     </OnboardingLayout>
   );

@@ -15,10 +15,10 @@ import {
   patchUserOnboarding,
 } from "@/shared/http/services/user";
 import { EOtpErrorCode, hardcodedPlan } from "@/shared/types";
-import { EScreenEventTitle, ETrackEvent } from "@/utils/types";
+import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
-import { KeyboardEvent, useCallback, useRef, useState } from "react";
+import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import { parseApiError } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
@@ -26,6 +26,11 @@ import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
+
+  useEffect(() => {
+    localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);
+  }, []);
+
   let inputRef = useRef<HTMLInputElement | null>(null);
 
   useTrackPage(EScreenEventTitle.VERIFY);

@@ -1,9 +1,10 @@
-import { FC, ReactNode, useEffect, useMemo } from "react";
+import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useServerSideOnboardingGuard } from "@/shared/hooks";
+import { getUserInfoFromCache } from "../shared/http/util";
 
 export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }> = ({
   children,
@@ -11,11 +12,14 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
 }) => {
   const { replace, pathname } = useRouter();
   const { onboardingStep, isUserBlocked } = useOnboarding();
+  const [_userInfo, setUserInfo] = useState<any>();
   const allowed = useServerSideOnboardingGuard(skipGuard);
 
   const isUserBlockedPage = useMemo(() => pathname === "/onboarding/user-is-blocked", [pathname]);
 
   useEffect(() => {
+    const response = getUserInfoFromCache();
+    setUserInfo(response);
     if (isUserBlockedPage) return;
     if (isUserBlocked) replace("/onboarding/user-is-blocked");
   }, [isUserBlockedPage, isUserBlocked, replace]);

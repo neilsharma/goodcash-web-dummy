@@ -12,10 +12,6 @@ import { useEffect } from "react";
 export default function NewCardOnTheWay() {
   useTrackPage(EScreenEventTitle.NEW_CARD_ON_THE_WAY);
 
-  useEffect(() => {
-    localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);
-  }, []);
-
   return (
     <OnboardingLayout>
       <Title className="text-primary text-center">
