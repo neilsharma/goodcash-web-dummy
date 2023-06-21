@@ -46,16 +46,16 @@ export default function OnboardingHowDidYouHearPage() {
             options: { from: howDidYouHearAboutUs },
           });
 
-        setOnboardingStep("THANKS_FOR_JOINING");
+        setOnboardingStep("NEW_CARD_ON_THE_WAY");
         setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
         patchUserOnboarding({
-          onboardingStep: "THANKS_FOR_JOINING",
+          onboardingStep: "NEW_CARD_ON_THE_WAY",
           onboardingOperationsMap: { onboardingCompleted: true },
           howDidYouHearAboutUs,
         });
       }
 
-      push(onboardingStepToPageMap.THANKS_FOR_JOINING);
+      push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
     } catch (error) {
       redirectToGenericErrorPage();
     }

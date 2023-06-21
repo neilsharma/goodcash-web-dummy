@@ -1,3 +1,6 @@
+import { hardcodedPlans } from "../shared/constants";
+import { Plan, PlanFrequency } from "../shared/types";
+
 export enum ETrackEvent {
   // Analytics events listed here
   USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
@@ -82,4 +85,21 @@ export type CachedUserInfo = {
   phone: string;
   email: string;
   state: string;
+};
+
+export const resolveText = (frequency: PlanFrequency) => {
+  switch (frequency) {
+    case "DAILY":
+      return "day";
+    case "WEEKLY":
+      return "week";
+    case "THIRTY_DAYS":
+      return "thirty days";
+    case "MONTHLY":
+      return "month";
+    case "ANNUAL":
+      return "year";
+    default:
+      return "month";
+  }
 };

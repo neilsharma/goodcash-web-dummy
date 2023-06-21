@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
+import Image from "next/image";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -9,12 +10,13 @@ import {
   bankPrivacyPolicyUrl,
   cardHolderAgreementUrl,
   eSignConsentUrl,
+  hardcodedPlan,
   onboardingStepToPageMap,
   privacyPolicyUrl,
   termsOfServiceUrl,
 } from "../../shared/constants";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EScreenEventTitle } from "../../utils/types";
+import { EScreenEventTitle, resolveText } from "../../utils/types";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -33,13 +35,27 @@ export default function OnboardingReadyToJoinPage() {
 
   return (
     <OnboardingLayout>
-      <Title className="m-0 pb-4">Ready to join GoodCash?</Title>
-
+      <Title className="m-0">Ready to join GoodCash?</Title>
+      <div className=" my-8 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
+        <Image
+          src="/img/goodcash-card-circle.png"
+          alt="card"
+          width={56}
+          height={56}
+          priority={true}
+        />
+        <div>
+          <p className="font-kansasNew text-3xl font-bold">
+            ${hardcodedPlan.price} per {resolveText(hardcodedPlan.frequency)}
+          </p>
+          <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
+        </div>
+      </div>
       <div className="overflow-y-scroll h-[40vh]">
         <CheckBox
           checked={electronicDisclosureCheckbox}
           onChange={setElectronicDisclosureCheckbox.bind(null, (v) => !v)}
-          containerProps={{ className: "mt-14" }}
+          containerProps={{ className: "mt-0" }}
         >
           I have read and agree to the{" "}
           <a href={eSignConsentUrl} className="text-primary" target="_blank">

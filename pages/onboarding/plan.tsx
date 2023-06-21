@@ -9,9 +9,9 @@ import { useOnboarding } from "@/shared/context/onboarding";
 import Image from "next/image";
 import { useGlobal } from "@/shared/context/global";
 import { patchUserOnboarding } from "@/shared/http/services/user";
-import { hardcodedPlans, onboardingStepToPageMap } from "@/shared/constants";
-import { Plan, PlanFrequency } from "@/shared/types";
-import { EScreenEventTitle } from "../../utils/types";
+import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
+import { PlanFrequency } from "@/shared/types";
+import { EScreenEventTitle, resolveText } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EFeature, isFeatureEnabled } from "@/shared/feature";
 
@@ -122,25 +122,6 @@ export default function OnboardingPlanPage() {
     </OnboardingLayout>
   );
 }
-
-const resolveText = (frequency: PlanFrequency) => {
-  switch (frequency) {
-    case "DAILY":
-      return "day";
-    case "WEEKLY":
-      return "week";
-    case "THIRTY_DAYS":
-      return "thirty days";
-    case "MONTHLY":
-      return "month";
-    case "ANNUAL":
-      return "year";
-    default:
-      return "month";
-  }
-};
-
-const hardcodedPlan: Plan = hardcodedPlans.ANNUAL;
 
 const CheckMark = () => (
   <Image src="/img/logo/checkmark.svg" alt="✔" width={24} height={24} priority={true} />

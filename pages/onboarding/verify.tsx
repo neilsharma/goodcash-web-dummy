@@ -3,7 +3,7 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
-import { onboardingStepToPageMap } from "@/shared/constants";
+import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
@@ -14,7 +14,7 @@ import {
   getUserOnboarding,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
-import { EOtpErrorCode, hardcodedPlan } from "@/shared/types";
+import { EOtpErrorCode } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";

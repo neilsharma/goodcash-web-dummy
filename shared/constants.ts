@@ -46,3 +46,5 @@ export const bankPrivacyPolicyUrl =
 export const cardHolderAgreementUrl = "https://bit.ly/goodcash-cardholder";
 export const eSignConsentUrl =
   "https://uploads-ssl.webflow.com/6332899ac4c8cd82e1f261b5/6480dd5556b22a3e2993dc0d_E-SIGN%20Consent.pdf";
+
+export const hardcodedPlan: Plan = hardcodedPlans.ANNUAL;
