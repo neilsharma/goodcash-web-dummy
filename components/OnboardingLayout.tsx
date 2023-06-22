@@ -43,8 +43,6 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
         return 80;
       case "REFERRAL_SOURCE":
         return 90;
-      case "THANKS_FOR_JOINING":
-        return 95;
       case "NEW_CARD_ON_THE_WAY":
         return 100;
     }
@@ -63,10 +61,6 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
         <title>GoodCash Onboarding</title>
       </Head>
       <header className="flex justify-center mt-8 mb-[7vh]">
-        <div
-          className="fixed top-0 left-0 h-1 bg-primary transition-all ease-in duration-500"
-          style={{ width: `${progress}vw` }}
-        />
         <Image
           src="/img/logo/goodcash.svg"
           alt="GoodCash"

@@ -29,7 +29,7 @@ export const useServerSideOnboardingGuard = (skipGuard = false) => {
 
   useEffect(() => {
     cachedUserInfo.current = getUserInfoFromCache();
-    if (!indexPageIsValid && !skipGuard && !cachedUserInfo) push("/onboarding");
+    if (!indexPageIsValid && !skipGuard && !cachedUserInfo.current) push("/onboarding");
   }, [indexPageIsValid, skipGuard, push]);
 
   if (cachedUserInfo.current) {
