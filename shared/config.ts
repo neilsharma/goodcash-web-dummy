@@ -18,6 +18,7 @@ export const googlePlayId = "";
 export const testFlightLink = process.env["NEXT_PUBLIC_TEST_FLIGHT_LINK"] || "";
 
 export const ldClientSideId = process.env["NEXT_PUBLIC_LD_CLIENT_SIDE_ID"] || "";
+export const fbPixelId = process.env["NEXT_PUBLIC_FACEBOOK_PIXEL_ID"] || "";
 
 export const getBaseUrl = () => {
   return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;

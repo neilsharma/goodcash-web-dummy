@@ -25,8 +25,10 @@ export const trackEvent = (log: {
   try {
     const trimmedLogEvent = log.event.substring(0, 40) as ETrackEvent;
 
-    amplitude?.logEvent(log.event, { platform: "web", ...log.options });
-    firebase?.logEvent(trimmedLogEvent, { platform: "web", ...log.options });
+    const eventOptions = { platform: "web", ...log.options };
+
+    amplitude?.logEvent(log.event, eventOptions);
+    firebase?.logEvent(trimmedLogEvent, eventOptions);
   } catch (error) {
     console.error("Log error", error);
   }
