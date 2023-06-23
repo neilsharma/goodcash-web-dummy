@@ -148,7 +148,7 @@ export default function OnboardingConnectBankAccountPage() {
     // token must be the same token used for the first initialization of Link
     token: plaidLinkToken,
     onSuccess: onPlaidLinkSuccess,
-    onExit: () => async (error: any, metadata: any) => {
+    onExit: async (error, metadata) => {
       await failBankAccountCreation({ error, metadata });
     },
   };
