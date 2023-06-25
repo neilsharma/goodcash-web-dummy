@@ -1,32 +1,29 @@
-import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions } from "react-plaid-link";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
-import { submitKyc } from "@/shared/http/services/user";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
+import { onboardingStepToPageMap } from "@/shared/constants";
+import { useOnboarding } from "@/shared/context/onboarding";
+import { parseApiError } from "@/shared/error";
 import {
   redirectIfServerSideRendered,
   useConfirmIsOAuthRedirect,
   useConfirmUnload,
 } from "@/shared/hooks";
+import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 import {
   createBankAccount,
   failBankAccountCreation,
   getPlaidToken,
 } from "@/shared/http/services/plaid";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { patchUserOnboarding } from "@/shared/http/services/user";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { parseApiError } from "@/shared/error";
-import { ELocalStorageKeys } from "../../utils/types";
+import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
+import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
 import { useGlobal } from "../../shared/context/global";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EScreenEventTitle } from "../../utils/types";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -175,10 +172,10 @@ export default function OnboardingConnectBankAccountPage() {
 
   return (
     <OnboardingLayout>
-      <Title>Connect your bank</Title>
+      <Title>Connect your checking account</Title>
       <SubTitle>
-        GoodCash uses Plaid to securely connect to your bank account. GoodCash does not retain your
-        bank login information.
+        GoodCash uses Plaid to securely connect to your checking account. GoodCash does not retain
+        your bank login information.
       </SubTitle>
 
       <div className="my-12 font-sharpGroteskBook text-black">
@@ -215,12 +212,9 @@ export default function OnboardingConnectBankAccountPage() {
 
 const connectionWillAllow = [
   ["lock", "Determine your eligibility"],
-  ["dollar", "Calculate your “Available to Spend” amount"],
+  ["dollar", "Calculate your “Spend Power”"],
   ["cart", "Use your bank account to cover your GoodCash purchases"],
-  [
-    "trending-up",
-    "Give your regular bank account super powers like growing your credit and earning rewards",
-  ],
+  ["trending-up", "Give your regular bank account super powers like growing your credit"],
 ];
 
 export const getServerSideProps = redirectIfServerSideRendered;
