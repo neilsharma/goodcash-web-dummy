@@ -11,7 +11,7 @@ import { onboardingStepToPageMap } from "@/shared/constants";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
 import { parseApiError } from "@/shared/error";
-import { EScreenEventTitle } from "../../utils/types";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import {
   approveApplication,
@@ -30,6 +30,7 @@ export default function ProcessingApplication() {
     setOnboardingOperationsMap,
     setOnboardingStep,
     redirectToGenericErrorPage,
+    setPlaid,
   } = useOnboarding();
 
   const processApplication = useCallback(async () => {
@@ -59,7 +60,7 @@ export default function ProcessingApplication() {
           return setIsUserBlocked(true);
         }
 
-        const { status } = await underwrite();
+        const { status } = await underwrite().catch(() => ({ status: "DENIED" }));
 
         switch (status) {
           case "APPROVED":
@@ -73,13 +74,21 @@ export default function ProcessingApplication() {
               ...p,
               loanApplicationCreated: false,
               loanApplicationApproved: false,
+              bankAccountCreated: false,
             }));
             patchUserOnboarding({
+              onboardingStep: "BANK_ACCOUNT_CONNECTION",
               onboardingOperationsMap: {
                 loanApplicationCreated: false,
                 loanApplicationApproved: false,
+                bankAccountCreated: false,
               },
             });
+            setPlaid(null);
+            setOnboardingStep("BANK_ACCOUNT_CONNECTION");
+
+            localStorage.removeItem(ELocalStorageKeys.LINK_TOKEN);
+
             return push("/onboarding/not-enough-money");
         }
       }
@@ -104,6 +113,7 @@ export default function ProcessingApplication() {
       redirectToGenericErrorPage();
     }
   }, [
+    setPlaid,
     setIsUserBlocked,
     onboardingOperationsMap,
     setOnboardingOperationsMap,
