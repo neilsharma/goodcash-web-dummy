@@ -95,9 +95,6 @@ interface OnboardingOperationsMap {
   userTaxInfoIsSet: boolean;
   userKycFilled: boolean;
   bankAccountCreated: boolean;
-  kycSubmitted: boolean;
-  locSubmitted: boolean;
-  locActivated: boolean;
 
   loanApplicationCreated: boolean;
   loanApplicationApproved: boolean;
@@ -121,9 +118,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     userTaxInfoIsSet: false,
     userKycFilled: false,
     bankAccountCreated: false,
-    kycSubmitted: false,
-    locSubmitted: false,
-    locActivated: false,
 
     loanApplicationCreated: false,
     loanApplicationApproved: false,

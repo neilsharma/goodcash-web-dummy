@@ -2,28 +2,30 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { parseApiError } from "@/shared/error";
+import { getLatestKycAttempt, longPollBankLocStatus } from "@/shared/http/services/user";
 import {
   redirectIfServerSideRendered,
   useConfirmIsOAuthRedirect,
   useConfirmUnload,
 } from "@/shared/hooks";
-import { activateLineOfCredit, submitLineOfCredit } from "@/shared/http/services/loc";
 import {
   createBankAccount,
   failBankAccountCreation,
   getPlaidToken,
 } from "@/shared/http/services/plaid";
-import { patchUserOnboarding, submitKyc } from "@/shared/http/services/user";
+import { useOnboarding } from "@/shared/context/onboarding";
+import { patchUserOnboarding } from "@/shared/http/services/user";
+import { onboardingStepToPageMap } from "@/shared/constants";
+import { parseApiError } from "@/shared/error";
+import { ELocalStorageKeys } from "../../utils/types";
+import { useGlobal } from "../../shared/context/global";
+import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EScreenEventTitle } from "../../utils/types";
+import { KYCFieldState } from "../../shared/http/types";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
-import { useGlobal } from "../../shared/context/global";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -79,57 +81,40 @@ export default function OnboardingConnectBankAccountPage() {
     }
   }, [auth?.currentUser, email, isPlaidOAuthRedirect, phone, setPlaidLinkToken, state]);
 
-  const kycAndLoc = useCallback(async () => {
-    let _locId = locId;
-
-    if (!_locId || !onboardingOperationsMap.kycSubmitted) {
-      const kyc = await submitKyc();
-      _locId = kyc.locId;
-      setLocId(kyc.locId);
-      setOnboardingOperationsMap((p) => ({ ...p, kycSubmitted: true }));
-      patchUserOnboarding({ onboardingOperationsMap: { kycSubmitted: true } });
-    }
-
-    if (!onboardingOperationsMap.locSubmitted) {
-      await submitLineOfCredit({ locId: _locId });
-      setOnboardingOperationsMap((p) => ({ ...p, locSubmitted: true }));
-      patchUserOnboarding({ onboardingOperationsMap: { locSubmitted: true } });
-    }
-
-    if (!onboardingOperationsMap.locActivated) {
-      await activateLineOfCredit({ locId: _locId });
-      setOnboardingOperationsMap((p) => ({ ...p, locActivated: true }));
-      patchUserOnboarding({
-        onboardingStep: "PROCESSING_APPLICATION",
-        onboardingOperationsMap: { locActivated: true },
-      });
-    }
-
-    setOnboardingStep("PROCESSING_APPLICATION");
-    push(onboardingStepToPageMap.PROCESSING_APPLICATION);
-  }, [
-    onboardingOperationsMap,
-    setOnboardingOperationsMap,
-    locId,
-    setLocId,
-    setOnboardingStep,
-    push,
-  ]);
+  const createBankAccountHandler = useCallback(
+    async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {
+      await createBankAccount({ plaidPublicToken: publicToken });
+      const bankLocStatus = await longPollBankLocStatus();
+      if (bankLocStatus == "FAILED") {
+        redirectToGenericErrorPage();
+      }
+      if (bankLocStatus == "COMPLETED") {
+        setOnboardingOperationsMap((p) => ({
+          ...p,
+          bankAccountCreated: true,
+        }));
+        metadata && setPlaid({ publicToken, metadata });
+        patchUserOnboarding({
+          plaid: { publicToken, metadata },
+          onboardingStep: "PROCESSING_APPLICATION",
+          onboardingOperationsMap: {
+            bankAccountCreated: true,
+          },
+        });
+        setOnboardingStep("PROCESSING_APPLICATION");
+        push(onboardingStepToPageMap.PROCESSING_APPLICATION);
+      }
+    },
+    [push, redirectToGenericErrorPage, setOnboardingOperationsMap, setOnboardingStep, setPlaid]
+  );
 
   const onPlaidLinkSuccess = async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
     try {
       setIsLoading(true);
 
       if (!onboardingOperationsMap.bankAccountCreated) {
-        await createBankAccount({ plaidPublicToken: publicToken });
-        setOnboardingOperationsMap((p) => ({ ...p, bankAccountCreated: true }));
-        setPlaid({ publicToken, metadata });
-        patchUserOnboarding({
-          plaid: { publicToken, metadata },
-          onboardingOperationsMap: { bankAccountCreated: true },
-        });
+        await createBankAccountHandler(publicToken, metadata);
       }
-      await kycAndLoc();
     } catch (e: any) {
       const errorObject = parseApiError(e);
 
@@ -149,6 +134,7 @@ export default function OnboardingConnectBankAccountPage() {
       await failBankAccountCreation({ error, metadata });
     },
   };
+
   if (isPlaidOAuthRedirect) {
     // receivedRedirectUri must include the query params
     plaidConfig.receivedRedirectUri = window.location.href;
@@ -166,9 +152,14 @@ export default function OnboardingConnectBankAccountPage() {
 
   const onContinue = useCallback(async () => {
     if (!ready || !plaidLinkToken) return;
+    const bankConnectionStatus = await getLatestKycAttempt();
+    if (bankConnectionStatus.bankConnectionState === KYCFieldState.READY) {
+      setIsLoading(true);
+      return createBankAccountHandler("");
+    }
 
     open();
-  }, [open, ready, plaidLinkToken]);
+  }, [ready, plaidLinkToken, open, createBankAccountHandler]);
 
   return (
     <OnboardingLayout>
@@ -195,15 +186,7 @@ export default function OnboardingConnectBankAccountPage() {
         ))}
       </div>
 
-      <Button
-        disabled={!ready || !plaidLinkToken}
-        isLoading={isLoading}
-        onClick={
-          plaid && onboardingOperationsMap.bankAccountCreated
-            ? () => kycAndLoc().catch(redirectToGenericErrorPage)
-            : onContinue
-        }
-      >
+      <Button disabled={!ready || !plaidLinkToken} isLoading={isLoading} onClick={onContinue}>
         Continue
       </Button>
     </OnboardingLayout>

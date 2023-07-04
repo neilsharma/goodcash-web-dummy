@@ -35,7 +35,8 @@ export default function OnboardingReadyToJoinPage() {
 
   return (
     <OnboardingLayout>
-      <Title className="m-0">Ready to join GoodCash?</Title>
+      <Title className="m-0">Ready to join</Title>
+      <Title className="m-0">GoodCash?</Title>
       <div className=" my-8 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
         <Image
           src="/img/goodcash-card-circle.png"
@@ -51,50 +52,47 @@ export default function OnboardingReadyToJoinPage() {
           <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
         </div>
       </div>
-      <div className="overflow-y-scroll h-[40vh]">
-        <CheckBox
-          checked={electronicDisclosureCheckbox}
-          onChange={setElectronicDisclosureCheckbox.bind(null, (v) => !v)}
-          containerProps={{ className: "mt-0" }}
-        >
-          I have read and agree to the{" "}
-          <a href={eSignConsentUrl} className="text-primary" target="_blank">
-            Electronic Signature and Communication Disclosure
-          </a>
-          , and{" "}
-          <a href={bankPrivacyPolicyUrl} className="text-primary" target="_blank">
-            Partner Bank Privacy Policy
-          </a>
-          .
-        </CheckBox>
-        <CheckBox
-          checked={recurringAuthorizationCheckbox}
-          onChange={setRecurringAuthorizationCheckbox.bind(null, (v) => !v)}
-          containerProps={{ className: "mt-14" }}
-        >
-          I agree to the optional GoodCash Recurring ACH Authorization and I agree to turn on
-          autopay.
-        </CheckBox>
-        <CheckBox
-          checked={cardholderAgreementCheckbox}
-          onChange={setCardholderAgreementCheckbox.bind(null, (v) => !v)}
-          containerProps={{ className: "mt-14" }}
-        >
-          I have read and agree to the{" "}
-          <a href={cardHolderAgreementUrl} className="text-primary" target="_blank">
-            Cardholder Agreement
-          </a>
-          ,{" "}
-          <a href={termsOfServiceUrl} className="text-primary" target="_blank">
-            GoodCash Terms of Service
-          </a>
-          , and{" "}
-          <a href={privacyPolicyUrl} className="text-primary" target="_blank">
-            Privacy Policy
-          </a>
-          .
-        </CheckBox>
-      </div>
+      <CheckBox
+        checked={electronicDisclosureCheckbox}
+        onChange={setElectronicDisclosureCheckbox.bind(null, (v) => !v)}
+        containerProps={{ className: "mt-0" }}
+      >
+        I have read and agree to the{" "}
+        <a href={eSignConsentUrl} className="text-primary" target="_blank">
+          Electronic Signature and Communication Disclosure
+        </a>
+        , and{" "}
+        <a href={bankPrivacyPolicyUrl} className="text-primary" target="_blank">
+          Partner Bank Privacy Policy
+        </a>
+        .
+      </CheckBox>
+      <CheckBox
+        checked={recurringAuthorizationCheckbox}
+        onChange={setRecurringAuthorizationCheckbox.bind(null, (v) => !v)}
+        containerProps={{ className: "mt-10" }}
+      >
+        I agree to the optional GoodCash Recurring ACH Authorization and I agree to turn on autopay.
+      </CheckBox>
+      <CheckBox
+        checked={cardholderAgreementCheckbox}
+        onChange={setCardholderAgreementCheckbox.bind(null, (v) => !v)}
+        containerProps={{ className: "mt-10" }}
+      >
+        I have read and agree to the{" "}
+        <a href={cardHolderAgreementUrl} className="text-primary" target="_blank">
+          Cardholder Agreement
+        </a>
+        ,{" "}
+        <a href={termsOfServiceUrl} className="text-primary" target="_blank">
+          GoodCash Terms of Service
+        </a>
+        , and{" "}
+        <a href={privacyPolicyUrl} className="text-primary" target="_blank">
+          Privacy Policy
+        </a>
+        .
+      </CheckBox>
       <div className="">
         <Button
           disabled={isButtonDisabled}

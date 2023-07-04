@@ -24,3 +24,7 @@ interface ErrorObject {
   errorInfo: string;
   message?: string;
 }
+
+export enum EOnboardingGenericErrors {
+  BANK_CONNECTION_STEP_FAILED = "Bank connection step failed",
+}

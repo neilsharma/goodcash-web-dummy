@@ -89,3 +89,29 @@ export enum ELoanAgreementStatus {
   SIGN_FAILED = "SIGN_FAILED",
   NOT_CREATED = "NOT_CREATED",
 }
+
+export type OnboardingStepStatus = "PENDING" | "FAILED" | "COMPLETED";
+
+export type KYCAttempt = {
+  id: string;
+  state: KYCAttemptState;
+  identityBasics: KYCFieldState;
+  addressState: KYCFieldState;
+  taxIdState: KYCFieldState;
+  docState: KYCFieldState;
+  bankConnectionState: KYCFieldState;
+};
+
+export enum KYCFieldState {
+  PENDING = "PENDING",
+  READY = "READY",
+}
+
+enum KYCAttemptState {
+  IN_PROGRESS,
+  SUBMITTED,
+  PENDING_DOCUMENT,
+  PENDING_RESUBMIT,
+  ACCEPTED,
+  REJECTED,
+}
