@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  experimental: {
+    legacyBrowsers: false,
+    outputFileTracingIgnores: ["**canvas**"],
+  },
   async rewrites() {
     return [
       {

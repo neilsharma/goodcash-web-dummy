@@ -8,7 +8,7 @@ import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { patchUserOnboarding } from "@/shared/http/services/user";
-import { onboardingStepToPageMap } from "@/shared/constants";
+import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import {
@@ -18,6 +18,7 @@ import {
   getLoanAgreementUrl,
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
+import PDFViewer from "../../components/PdfViewer";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -121,7 +122,7 @@ export default function OneLastStep() {
       </SubTitle>
 
       {loanAgreementDocumentUrl ? (
-        <iframe src={loanAgreementDocumentUrl} className="w-full h-96 my-10" allowFullScreen />
+        <PDFViewer url={loanAgreementDocumentUrl} />
       ) : (
         <LoadingPDFIndicator />
       )}
@@ -137,7 +138,10 @@ export default function OneLastStep() {
 
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By clicking “Agree to terms and conditions”, you agree to our partner Pier’s{" "}
-        <a href="#">Privacy Policy</a>, <a href="#">Terms of Service</a> and{" "}
+        <a href={privacyPolicyUrl} target="blank">
+          Privacy Policy
+        </a>
+        , <a href={termsOfServiceUrl}>Terms of Service</a> and{" "}
         <a href="#">Line of Credit Agreement</a>.
       </p>
     </OnboardingLayout>
