@@ -1,16 +1,16 @@
-import { useCallback, useState } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
+import { onboardingStepToPageMap } from "@/shared/constants";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { onboardingStepToPageMap } from "@/shared/constants";
+import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
+import { useRouter } from "next/router";
+import { useCallback, useState } from "react";
+import useTrackPage from "../../shared/hooks/useTrackPage";
 import { trackEvent } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { gtagId } from "@/shared/config";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
@@ -35,10 +35,7 @@ export default function OnboardingHowDidYouHearPage() {
       if (!onboardingOperationsMap.onboardingCompleted) {
         await completeUserOnboarding();
 
-        window.gtag?.("event", "conversion", {
-          send_to: `${gtagId}/pP3rCLvwn6sYEKm7srMp`,
-          transaction_id: "",
-        });
+        trackGTagConversion(ConversionEvent.OnboardingCompleted);
 
         if (howDidYouHearAboutUs)
           trackEvent({

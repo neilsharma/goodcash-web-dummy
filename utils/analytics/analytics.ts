@@ -7,6 +7,7 @@ import {
   ScreenTrackEvent,
   UserProperties,
 } from "../types";
+import { setGtagUserId } from "./gtag-analytics";
 import { AmplitudeAnalyticsTracker } from "./tracker/amplitude.tracker";
 import { FirebaseAnalyticsTracker } from "./tracker/firebase.tracker";
 
@@ -37,6 +38,7 @@ export const trackEvent = (log: {
 export const setUserId = (id: string) => {
   firebase?.setUser({ id });
   amplitude?.setUser({ id });
+  setGtagUserId(id);
 };
 
 export const setUserProperties = (properties: UserProperties | FirebaseUserProperties) => {

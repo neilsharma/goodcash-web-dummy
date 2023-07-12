@@ -61,8 +61,12 @@ export interface UnderwritingResponse {
 }
 
 export interface UserSession {
+  gaSessionId?: string;
+  gaSessionNumber?: string;
+  gaClientId?: string;
   fbc?: string;
   fbp?: string;
+  gclid?: string;
 }
 
 export type AssetStatus = "PENDING" | "MANUAL_REVIEW" | "APPROVED" | "DENIED";

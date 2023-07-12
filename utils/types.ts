@@ -1,5 +1,4 @@
-import { hardcodedPlans } from "../shared/constants";
-import { Plan, PlanFrequency } from "../shared/types";
+import { PlanFrequency } from "../shared/types";
 
 export enum ETrackEvent {
   // Analytics events listed here
@@ -35,6 +34,14 @@ export interface IGCAnalyticsData {
   [key: string]: string | number | boolean | undefined | Record<string, unknown>;
 }
 
+export enum GTagEventName {
+  "purchase" = "purchase",
+  "signUp" = "sign_up",
+  "login" = "login",
+  "addPaymentInfo" = "add_payment_info",
+  "setUserId" = "set_user_id",
+}
+
 export type PropertyType =
   | number
   | string
@@ -43,6 +50,7 @@ export type PropertyType =
   | {
       [key: string]: PropertyType;
     };
+export type AnalyticsEventProperties = Record<string, string>;
 export type FirebaseUserProperties = Record<string, string>;
 export type UserProperties = Record<string, PropertyType>;
 

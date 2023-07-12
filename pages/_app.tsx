@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>GoodCash</title>
-        <meta name="description" content="GoodCash web app" />
+        <meta name="description" content="GoodCash Card - Build credit history safely" />
         <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

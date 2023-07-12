@@ -73,9 +73,13 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   }, [resetAuth]);
 
   useEffect(() => {
-    const newUserSession = getUserSession();
-    computedUserSession = newUserSession;
-    setUserSession(newUserSession);
+    const getAndSetUserSession = async () => {
+      const newUserSession = await getUserSession();
+      computedUserSession = newUserSession;
+      setUserSession(newUserSession);
+    };
+
+    getAndSetUserSession().catch(console.error);
   }, []);
 
   const [confirmationResult, setConfirmationResult] = useState<null | ConfirmationResult>(null);

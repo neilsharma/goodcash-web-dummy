@@ -1,4 +1,5 @@
 import { UserSession } from "@/shared/http/types";
+import { getGtagSessionData } from "./analytics/gtag-analytics";
 
 function convertFbclidToFbc(fbclid: string): string {
   const domainIndex = 1; // Assuming the cookie is defined on 'facebook.com'
@@ -10,11 +11,17 @@ function convertFbclidToFbc(fbclid: string): string {
   return fbc;
 }
 
-function getUserSession(): UserSession | null {
+function getFbSession(): {
+  fbc?: string;
+  fbp?: string;
+} {
   const urlParams = new URLSearchParams(window.location.search);
   const fbclid = urlParams.get("fbclid");
 
-  const params: UserSession = {};
+  const params: {
+    fbc?: string;
+    fbp?: string;
+  } = {};
 
   const cookies = document.cookie.split(";");
   let cookieFbclid: string | null = null;
@@ -51,7 +58,52 @@ function getUserSession(): UserSession | null {
   if (cookieFbp !== null) {
     params.fbp = cookieFbp;
   }
-  return params.fbc || params.fbp ? params : null;
+  return params.fbc || params.fbp ? params : {};
+}
+
+function getGclid(): string {
+  const urlParams = new URLSearchParams(window.location.search);
+  const gclid = urlParams.get("gclid");
+
+  if (gclid) {
+    return gclid;
+  }
+
+  const cookies = document.cookie.split(";");
+
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("gclid=")) {
+      const gclidCookie = cookie.substring(6); // Remove 'gclid=' prefix
+      return gclidCookie;
+    }
+  }
+  return "";
+}
+
+async function getGaSession(): Promise<{
+  gaSessionId?: string;
+  gaSessionNumber?: string;
+  gaClientId?: string;
+  gclid?: string;
+}> {
+  const data = await getGtagSessionData();
+  const gclidId = getGclid();
+  return {
+    gaSessionId: data?.sessionId,
+    gaSessionNumber: data?.sessionNumber,
+    gaClientId: data?.clientId,
+    gclid: gclidId ?? data?.gclid,
+  };
+}
+
+async function getUserSession(): Promise<UserSession | null> {
+  const fbSession = getFbSession();
+  const gaSession = await getGaSession();
+  return {
+    ...fbSession,
+    ...gaSession,
+  };
 }
 
 export { getUserSession };
