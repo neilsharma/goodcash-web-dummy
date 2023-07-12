@@ -1,15 +1,16 @@
-import { FC, ReactNode, useEffect, useMemo, useState } from "react";
+import { useOnboarding } from "@/shared/context/onboarding";
+import { useServerSideOnboardingGuard } from "@/shared/hooks";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useOnboarding } from "@/shared/context/onboarding";
-import { useServerSideOnboardingGuard } from "@/shared/hooks";
+import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { getUserInfoFromCache } from "../shared/http/util";
 
-export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }> = ({
-  children,
-  skipGuard = false,
-}) => {
+export const OnboardingLayout: FC<{
+  children?: ReactNode;
+  skipGuard?: boolean;
+  pageTitle?: string;
+}> = ({ children, skipGuard = false, pageTitle = null }) => {
   const { replace, pathname } = useRouter();
   const { onboardingStep, isUserBlocked } = useOnboarding();
   const [_userInfo, setUserInfo] = useState<any>();
@@ -58,7 +59,7 @@ export const OnboardingLayout: FC<{ children?: ReactNode; skipGuard?: boolean }>
   return (
     <>
       <Head>
-        <title>GoodCash Onboarding</title>
+        <title>{pageTitle ?? `GoodCash Onboarding`}</title>
       </Head>
       <header className="flex justify-center mt-8 mb-[7vh]">
         <Image
