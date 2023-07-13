@@ -20,7 +20,7 @@ const PDFViewer = ({ url }: { url: string }) => {
   if (isAndroid || isIOS)
     return (
       <>
-        <div className="bg-white w-[90vw] h-[40vh] overflow-scroll">
+        <div className="bg-white w-[90vw] h-[40vh] overflow-scroll mt-5">
           <Document
             file={pdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}

@@ -1,7 +1,7 @@
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { appStoreAppUrl } from "@/shared/constants";
+import { appStoreAppUrl, playStoreAppUrl } from "@/shared/constants";
 import { redirectIfServerSideRendered } from "@/shared/hooks";
 import Image from "next/image";
 import { Check } from "react-feather";
@@ -55,6 +55,15 @@ export default function NewCardOnTheWay() {
       <div className="flex flex-col justify-center items-center gap-12 my-12 sm:flex-row">
         <a href={appStoreAppUrl}>
           <Image src="/img/app-store.png" alt="app store" width={154} height={48} priority={true} />
+        </a>
+        <a href={playStoreAppUrl}>
+          <Image
+            src="/img/google-play.png"
+            alt="play store"
+            width={154}
+            height={48}
+            priority={true}
+          />
         </a>
       </div>
       <div className="w-full flex justify-center items-center my-4">
