@@ -38,7 +38,7 @@ export const hardcodedPlans = {
 };
 
 export const appStoreAppUrl = "https://apps.apple.com/us/app/goodcash-card/id1636346143";
-export const playStoreAppUrl = "https://play.google.com/apps/internaltest/4700762069949850765";
+export const playStoreAppUrl = "https://play.google.com/store/apps/details?id=com.goodcashmobile";
 export const waitListUrl = "https://goodcash.com";
 export const termsOfServiceUrl = "https://bit.ly/goodcash-terms";
 export const privacyPolicyUrl = "https://bit.ly/goodcash-privacy";
