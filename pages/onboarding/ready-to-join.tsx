@@ -4,19 +4,22 @@ import Title from "@/components/Title";
 import Image from "next/image";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CheckBox from "../../components/CheckBox";
 import {
   bankPrivacyPolicyUrl,
   cardHolderAgreementUrl,
   eSignConsentUrl,
   hardcodedPlan,
+  hardcodedPlans,
   onboardingStepToPageMap,
   privacyPolicyUrl,
   termsOfServiceUrl,
 } from "../../shared/constants";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EScreenEventTitle, resolveText } from "../../utils/types";
+import { EFeature, isFeatureEnabled } from "../../shared/feature";
+import { useOnboarding } from "../../shared/context/onboarding";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -27,11 +30,27 @@ export default function OnboardingReadyToJoinPage() {
   const [electronicDisclosureCheckbox, setElectronicDisclosureCheckbox] = useState(false);
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
-
+  const [dynamicPlanId, setDynamicPlanId] = useState(2);
+  const { user } = useOnboarding();
   const isButtonDisabled =
     !electronicDisclosureCheckbox ||
     !recurringAuthorizationCheckbox ||
     !cardholderAgreementCheckbox;
+
+  const fetchDynamicSubscriptionFlag = useCallback(async () => {
+    try {
+      if (user) {
+        const dynamicPlan = await isFeatureEnabled(user.id, EFeature.DYNAMIC_SUBSCRIPTION_PLAN, 2);
+        setDynamicPlanId(dynamicPlan);
+      }
+    } catch (error) {
+      console.error("Error fetching monthly subscription plan:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchDynamicSubscriptionFlag();
+  }, [fetchDynamicSubscriptionFlag]);
 
   return (
     <OnboardingLayout>
@@ -47,7 +66,8 @@ export default function OnboardingReadyToJoinPage() {
         />
         <div>
           <p className="font-kansasNew text-3xl font-bold">
-            ${hardcodedPlan.price} per {resolveText(hardcodedPlan.frequency)}
+            ${hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].price} per{" "}
+            {resolveText(hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].frequency)}
           </p>
           <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
         </div>

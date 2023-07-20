@@ -3,6 +3,7 @@ import { ldClientSideId } from "./config";
 
 export enum EFeature {
   PLAID_UI_IDV = "plaid-ui-idv",
+  DYNAMIC_SUBSCRIPTION_PLAN = "dynamic-subscription-plan",
 }
 
 let client: LdClient.LDClient;
