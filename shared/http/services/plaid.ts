@@ -10,7 +10,9 @@ export const getPlaidToken = async () => {
 };
 
 export const getKycPlaidToken = async (payload: GetKycPlaidTokenPayload) => {
-  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_PLAID_LINK_TOKEN, payload);
+  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_PLAID_LINK_TOKEN, payload, {
+    timeout: 60_000,
+  });
 
   return res.data;
 };
