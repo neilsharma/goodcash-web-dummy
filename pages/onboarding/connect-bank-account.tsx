@@ -86,6 +86,7 @@ export default function OnboardingConnectBankAccountPage() {
 
   const createBankAccountHandler = useCallback(
     async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {
+      trackGTagConversion(ConversionEvent.BankAccountLinked);
       await createBankAccount({ plaidPublicToken: publicToken });
       const bankLocStatus = await longPollBankLocStatus();
       if (bankLocStatus == "FAILED") {

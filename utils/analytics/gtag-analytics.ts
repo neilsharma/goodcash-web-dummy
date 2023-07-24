@@ -2,6 +2,7 @@ import { gtagId } from "@/shared/config";
 import { AnalyticsEventProperties } from "../types";
 
 export enum ConversionEvent {
+  BankAccountLinked = "YBN7CMn9_sAYEKm7srMp",
   BankAccountConnected = "DjYeCO-u37oYEKm7srMp",
   OnboardingCompleted = "pP3rCLvwn6sYEKm7srMp",
 }
