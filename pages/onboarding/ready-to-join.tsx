@@ -9,7 +9,9 @@ import CheckBox from "../../components/CheckBox";
 import {
   bankPrivacyPolicyUrl,
   cardHolderAgreementUrl,
+  defaultPlanId,
   eSignConsentUrl,
+  freePlanId,
   hardcodedPlan,
   hardcodedPlans,
   onboardingStepToPageMap,
@@ -30,7 +32,7 @@ export default function OnboardingReadyToJoinPage() {
   const [electronicDisclosureCheckbox, setElectronicDisclosureCheckbox] = useState(false);
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
-  const [dynamicPlanId, setDynamicPlanId] = useState(2);
+  const [dynamicPlanId, setDynamicPlanId] = useState(defaultPlanId);
   const { user } = useOnboarding();
   const isButtonDisabled =
     !electronicDisclosureCheckbox ||
@@ -40,8 +42,14 @@ export default function OnboardingReadyToJoinPage() {
   const fetchDynamicSubscriptionFlag = useCallback(async () => {
     try {
       if (user) {
-        const dynamicPlan = await isFeatureEnabled(user.id, EFeature.DYNAMIC_SUBSCRIPTION_PLAN, 2);
+        const dynamicPlan = await isFeatureEnabled(
+          user.id,
+          EFeature.DYNAMIC_SUBSCRIPTION_PLAN,
+          defaultPlanId
+        );
         setDynamicPlanId(dynamicPlan);
+      } else {
+        setDynamicPlanId(defaultPlanId);
       }
     } catch (error) {
       console.error("Error fetching monthly subscription plan:", error);
@@ -56,26 +64,28 @@ export default function OnboardingReadyToJoinPage() {
     <OnboardingLayout>
       <Title className="m-0">Ready to join</Title>
       <Title className="m-0">GoodCash?</Title>
-      <div className=" my-8 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
-        <Image
-          src="/img/goodcash-card-circle.png"
-          alt="card"
-          width={56}
-          height={56}
-          priority={true}
-        />
-        <div>
-          <p className="font-kansasNew text-3xl font-bold">
-            ${hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].price} per{" "}
-            {resolveText(hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].frequency)}
-          </p>
-          <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
+      {dynamicPlanId != freePlanId ? (
+        <div className=" mt-8 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
+          <Image
+            src="/img/goodcash-card-circle.png"
+            alt="card"
+            width={56}
+            height={56}
+            priority={true}
+          />
+          <div>
+            <p className="font-kansasNew text-3xl font-bold">
+              ${hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].price} per{" "}
+              {resolveText(hardcodedPlans[dynamicPlanId as keyof typeof hardcodedPlans].frequency)}
+            </p>
+            <p className="font-sharpGroteskBook text-xs">Earn rewards and build credit</p>
+          </div>
         </div>
-      </div>
+      ) : null}
       <CheckBox
         checked={electronicDisclosureCheckbox}
         onChange={setElectronicDisclosureCheckbox.bind(null, (v) => !v)}
-        containerProps={{ className: "mt-0" }}
+        containerProps={{ className: "mt-8" }}
       >
         I have read and agree to the{" "}
         <a href={eSignConsentUrl} className="text-primary" target="_blank">
