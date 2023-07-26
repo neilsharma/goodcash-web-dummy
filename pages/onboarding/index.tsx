@@ -12,12 +12,13 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
 import { EUsaStates } from "../../shared/types";
-import { trackEvent, trackPage, trackerInitializer } from "../../utils/analytics/analytics";
+import { trackEvent, trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import useTrackerInitializer from "../../shared/hooks/useTrackerInitializer";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { auth, recaptchaVerifier, setConfirmationResult, analytics } = useGlobal();
+  const { auth, recaptchaVerifier, setConfirmationResult } = useGlobal();
   const {
     setState,
     redirectToStateNotSupportedPage,
@@ -35,14 +36,10 @@ export default function OnboardingIndexPage() {
   const [dimBackground, setDimBackground] = useState(false);
   const { push } = useRouter();
 
+  useTrackerInitializer();
   useEffect(() => {
-    (async function () {
-      if (analytics) {
-        await trackerInitializer(analytics);
-      }
-      trackPage(EScreenEventTitle.ONBOARDING);
-    })();
-  }, [analytics]);
+    trackPage(EScreenEventTitle.ONBOARDING);
+  }, []);
 
   const onContinue = useCallback(async () => {
     const stateValue = stateMask?.value;
