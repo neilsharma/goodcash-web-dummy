@@ -22,6 +22,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 import { EScreenEventTitle, resolveText } from "../../utils/types";
 import { EFeature, isFeatureEnabled } from "../../shared/feature";
 import { useOnboarding } from "../../shared/context/onboarding";
+import { getUserInfoFromCache } from "../../shared/http/util";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -41,9 +42,12 @@ export default function OnboardingReadyToJoinPage() {
 
   const fetchDynamicSubscriptionFlag = useCallback(async () => {
     try {
-      if (user) {
+      const cachedUserInfo = getUserInfoFromCache();
+      const userId = cachedUserInfo?.userId || user?.id;
+
+      if (userId) {
         const dynamicPlan = await isFeatureEnabled(
-          user.id,
+          userId,
           EFeature.DYNAMIC_SUBSCRIPTION_PLAN,
           defaultPlanId
         );

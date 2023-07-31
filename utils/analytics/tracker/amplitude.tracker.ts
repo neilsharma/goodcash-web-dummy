@@ -8,6 +8,7 @@ import {
   UserProperties,
 } from "../../types";
 import { AbstractEventTracker } from "../abstract-event-tracker";
+import { getUserInfoFromCache } from "../../../shared/http/util";
 
 export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
   private static instance: AmplitudeAnalyticsTracker;
@@ -26,7 +27,9 @@ export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
       return;
     }
 
-    init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY, undefined, {
+    const cachedUserInfo = getUserInfoFromCache();
+
+    init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY, cachedUserInfo?.userId || undefined, {
       serverUrl: `${getBaseUrl()}/events`,
     });
   }

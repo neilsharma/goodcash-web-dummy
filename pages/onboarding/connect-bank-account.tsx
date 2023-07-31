@@ -52,6 +52,7 @@ export default function OnboardingConnectBankAccountPage() {
     locId,
     setLocId,
     plaid,
+    user,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +77,7 @@ export default function OnboardingConnectBankAccountPage() {
           phone: phone,
           email: email,
           state: state,
+          userId: user?.id,
         };
         auth_token &&
           localStorage.setItem(
@@ -84,7 +86,7 @@ export default function OnboardingConnectBankAccountPage() {
           );
       });
     }
-  }, [auth?.currentUser, email, isPlaidOAuthRedirect, phone, setPlaidLinkToken, state]);
+  }, [auth?.currentUser, email, isPlaidOAuthRedirect, phone, setPlaidLinkToken, state, user?.id]);
 
   const createBankAccountHandler = useCallback(
     async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {

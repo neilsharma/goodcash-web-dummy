@@ -93,6 +93,7 @@ export type CachedUserInfo = {
   phone: string;
   email: string;
   state: string;
+  userId: string;
 };
 
 export const resolveText = (frequency: PlanFrequency) => {
