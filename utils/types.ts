@@ -113,3 +113,7 @@ export const resolveText = (frequency: PlanFrequency) => {
       return "month";
   }
 };
+
+export enum ESentryEvents {
+  USER_PHONE_EMAIL_CHECK = "User Phone Email Check",
+}
