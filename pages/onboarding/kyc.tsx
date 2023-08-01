@@ -5,7 +5,12 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { getKycPlaidToken } from "@/shared/http/services/plaid";
-import { fillKYCIdentity, patchUserOnboarding } from "@/shared/http/services/user";
+import {
+  fillKYCIdentity,
+  longPollKycSubmissionStatus,
+  patchUserOnboarding,
+  submitKyc,
+} from "@/shared/http/services/user";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
@@ -49,13 +54,23 @@ export default function OnboardingPlaidKycPage() {
           if (goodcashEnvironment !== "production") setShouldBeClosed(true);
 
           setOnboardingOperationsMap((p) => ({ ...p, userKycFilled: true }));
+          patchUserOnboarding({ onboardingOperationsMap: { userKycFilled: true } });
+        }
+
+        if (!onboardingOperationsMap.userKycSubmitted) {
+          await submitKyc();
+          const status = await longPollKycSubmissionStatus();
+
+          if (status === "COMPLETED") {
+            setOnboardingOperationsMap((p) => ({ ...p, userKycSubmitted: true }));
+            patchUserOnboarding({ onboardingOperationsMap: { userKycSubmitted: true } });
+          } else if (status === "FAILED") {
+            throw new Error(status);
+          }
         }
 
         setOnboardingStep("BANK_ACCOUNT_CONNECTION");
-        patchUserOnboarding({
-          onboardingStep: "BANK_ACCOUNT_CONNECTION",
-          onboardingOperationsMap: { userKycFilled: true },
-        });
+        patchUserOnboarding({ onboardingStep: "BANK_ACCOUNT_CONNECTION" });
 
         push(onboardingStepToPageMap.BANK_ACCOUNT_CONNECTION);
       } catch (e) {

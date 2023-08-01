@@ -14,12 +14,9 @@ import {
   createBankAccount,
   failBankAccountCreation,
   getPlaidToken,
+  longPollBankCreation,
 } from "@/shared/http/services/plaid";
-import {
-  getLatestKycAttempt,
-  longPollBankLocStatus,
-  patchUserOnboarding,
-} from "@/shared/http/services/user";
+import { getLatestKycAttempt, patchUserOnboarding } from "@/shared/http/services/user";
 import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -49,9 +46,6 @@ export default function OnboardingConnectBankAccountPage() {
     phone,
     email,
     state,
-    locId,
-    setLocId,
-    plaid,
     user,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
@@ -91,17 +85,18 @@ export default function OnboardingConnectBankAccountPage() {
   const createBankAccountHandler = useCallback(
     async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {
       trackGTagConversion(ConversionEvent.BankAccountLinked);
+
       await createBankAccount({ plaidPublicToken: publicToken });
-      const bankLocStatus = await longPollBankLocStatus();
-      if (bankLocStatus == "FAILED") {
-        redirectToGenericErrorPage();
-      }
-      if (bankLocStatus == "COMPLETED") {
+      const status = await longPollBankCreation();
+
+      if (status === "COMPLETED") {
         setOnboardingOperationsMap((p) => ({
           ...p,
           bankAccountCreated: true,
         }));
+
         metadata && setPlaid({ publicToken, metadata });
+
         patchUserOnboarding({
           plaid: { publicToken, metadata },
           onboardingStep: "PROCESSING_APPLICATION",
@@ -109,9 +104,13 @@ export default function OnboardingConnectBankAccountPage() {
             bankAccountCreated: true,
           },
         });
+
         trackGTagConversion(ConversionEvent.BankAccountConnected);
+
         setOnboardingStep("PROCESSING_APPLICATION");
         push(onboardingStepToPageMap.PROCESSING_APPLICATION);
+      } else if (status === "FAILED") {
+        redirectToGenericErrorPage();
       }
     },
     [push, redirectToGenericErrorPage, setOnboardingOperationsMap, setOnboardingStep, setPlaid]

@@ -1,7 +1,7 @@
 import type { AxiosResponse } from "axios";
 import http from "../client";
-import { CreateBankAccount, FailBankAccountCreation } from "../types";
-import { urlPaths } from "../util";
+import { CreateBankAccount, FailBankAccountCreation, OnboardingStepStatus } from "../types";
+import { longPoll, urlPaths } from "../util";
 
 export const getPlaidToken = async () => {
   const res = await http.post<any, AxiosResponse<string>>(urlPaths.PLAID_LINK_TOKEN);
@@ -23,15 +23,36 @@ interface GetKycPlaidTokenPayload {
 }
 
 export const createBankAccount = async (payload: CreateBankAccount) => {
-  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT, payload, {
+  const res = await http.post<any, AxiosResponse<string>>(urlPaths.BANK_ACCOUNT_CREATE, payload, {
     timeout: 0,
   });
 
   return res.data;
 };
 
-export const failBankAccountCreation = async (payload: FailBankAccountCreation) => {
-  const res = await http.post<any, AxiosResponse<string>>(urlPaths.KYC_BANK_ACCOUNT_FAIL, payload);
+export const fetchBankAccountCreationStatus = async () => {
+  const res = await http.get<any, AxiosResponse<OnboardingStepStatus>>(
+    urlPaths.BANK_ACCOUNT_STATUS
+  );
 
   return res.data;
 };
+
+export const failBankAccountCreation = async (payload: FailBankAccountCreation) => {
+  const res = await http.post<any, AxiosResponse<string>>(urlPaths.BANK_ACCOUNT_FAIL, payload);
+
+  return res.data;
+};
+
+export const longPollBankCreation = async (
+  expectedStatuses: OnboardingStepStatus[] = ["COMPLETED", "FAILED"],
+  fallback = "FAILED" as OnboardingStepStatus,
+  timeout = 500
+) =>
+  longPoll(
+    fetchBankAccountCreationStatus,
+    (status) => expectedStatuses.includes(status),
+    timeout,
+    0,
+    fallback
+  );

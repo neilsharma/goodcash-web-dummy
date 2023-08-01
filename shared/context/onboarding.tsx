@@ -94,6 +94,7 @@ interface OnboardingOperationsMap {
   userIdentityBasisCreated: boolean;
   userTaxInfoIsSet: boolean;
   userKycFilled: boolean;
+  userKycSubmitted: boolean;
   bankAccountCreated: boolean;
 
   loanApplicationCreated: boolean;
@@ -117,6 +118,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     userIdentityBasisCreated: false,
     userTaxInfoIsSet: false,
     userKycFilled: false,
+    userKycSubmitted: false,
     bankAccountCreated: false,
 
     loanApplicationCreated: false,

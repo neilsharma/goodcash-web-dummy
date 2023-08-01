@@ -19,5 +19,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "eslint.validate": ["typescript"],
-  "cSpell.words": ["fbclid", "gclid"]
+  "cSpell.words": [
+    "fbclid",
+    "gclid",
+    "gtag"
+  ]
 }

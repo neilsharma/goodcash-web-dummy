@@ -67,14 +67,33 @@ export const fillKYCIdentity = async (payload: { sessionId: string }) => {
 };
 
 export const submitKyc = async () => {
-  const res = await http.post<any, AxiosResponse<{ locId: string }>>(
-    urlPaths.KYC_ATTEMPT_SUBMIT,
-    null,
-    { timeout: 40_000 }
+  const res = await http.post<any, AxiosResponse<void>>(urlPaths.KYC_ATTEMPT_SUBMIT, null, {
+    timeout: 40_000,
+  });
+
+  return res.data;
+};
+
+export const fetchKycSubmissionStatus = async () => {
+  const res = await http.get<any, AxiosResponse<OnboardingStepStatus>>(
+    urlPaths.KYC_SUBMISSION_STATUS
   );
 
   return res.data;
 };
+
+export const longPollKycSubmissionStatus = async (
+  expectedStatuses: OnboardingStepStatus[] = ["COMPLETED", "FAILED"],
+  fallback = "FAILED" as OnboardingStepStatus,
+  timeout = 500
+) =>
+  longPoll(
+    fetchKycSubmissionStatus,
+    (status) => expectedStatuses.includes(status),
+    timeout,
+    0,
+    fallback
+  );
 
 export const getUserOnboarding = async (token: string) => {
   const res = await http.get<any, AxiosResponse<RecursivePartial<SharedOnboardingState> | null>>(
