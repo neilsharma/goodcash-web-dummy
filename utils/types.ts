@@ -6,6 +6,7 @@ export enum ETrackEvent {
   USER_LOGGED_IN_FAILED = "User Log In Failed",
   USER_HERD_ABOUT_US = "User Heard About Us Clicked",
   USER_STATE_VALIDATION_FAILED = "User State Validation Failed",
+  USER_CLOSED_BROWSER_TAB = "User Closed Browser Tab",
 }
 export enum EScreenEventTitle {
   ONBOARDING = "Onboarding Index",

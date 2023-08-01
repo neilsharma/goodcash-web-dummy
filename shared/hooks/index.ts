@@ -3,8 +3,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../context/onboarding";
-import { CachedUserInfo } from "../../utils/types";
+import { CachedUserInfo, ETrackEvent } from "../../utils/types";
 import { getUserInfoFromCache } from "../http/util";
+import { trackEvent } from "../../utils/analytics/analytics";
 
 export const canUseDOM = () =>
   !!(typeof window !== "undefined" && window.document && window.document.createElement);
@@ -40,10 +41,21 @@ export const useServerSideOnboardingGuard = (skipGuard = false) => {
 
 export const useConfirmUnload = () => {
   useEffect(() => {
-    window.onbeforeunload = () => confirm();
+    const handleBeforeUnload = (e: any) => {
+      e.preventDefault();
+      const currentURL = window.location.href;
+      const keywordsRegex = /connect-bank-account|kyc/;
+      const containsKeyword = keywordsRegex.test(currentURL);
+      if (containsKeyword) {
+        trackEvent({ event: ETrackEvent.USER_CLOSED_BROWSER_TAB, options: { url: currentURL } });
+      }
+      return (e.returnValue = "Are you sure you want to leave?");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.onbeforeunload = null;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 };
