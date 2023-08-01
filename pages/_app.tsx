@@ -3,8 +3,11 @@ import { OnboardingProvider } from "@/shared/context/onboarding";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import useTrackerInitializer from "../shared/hooks/useTrackerInitializer";
 
 export default function App({ Component, pageProps }: AppProps) {
+  useTrackerInitializer();
+
   return (
     <>
       <Head>

@@ -1,17 +1,26 @@
 import { useEffect } from "react";
-import { trackPage, trackerInitializer } from "../../utils/analytics/analytics";
-import { EScreenEventTitle } from "../../utils/types";
-import { useGlobal } from "../context/global";
+import { setUserId, trackerInitializer } from "../../utils/analytics/analytics";
+import { getUserInfoFromCache } from "../http/util";
+import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../config";
 
 const useTrackerInitializer = () => {
-  const { analytics } = useGlobal();
   useEffect(() => {
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
     (async function () {
       if (analytics) {
         await trackerInitializer(analytics);
+
+        const cachedUserInfo = getUserInfoFromCache();
+        if (cachedUserInfo) {
+          setUserId(cachedUserInfo.userId);
+        }
       }
     })();
-  }, [analytics]);
+  }, []);
 };
 
 export default useTrackerInitializer;

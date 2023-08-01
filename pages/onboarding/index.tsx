@@ -36,7 +36,6 @@ export default function OnboardingIndexPage() {
   const [dimBackground, setDimBackground] = useState(false);
   const { push } = useRouter();
 
-  useTrackerInitializer();
   useEffect(() => {
     trackPage(EScreenEventTitle.ONBOARDING);
   }, []);

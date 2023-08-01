@@ -27,11 +27,12 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 import { KYCFieldState } from "../../shared/http/types";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
 import useTrackerInitializer from "../../shared/hooks/useTrackerInitializer";
+import { setUserId } from "../../utils/analytics/analytics";
+import { getUserInfoFromCache } from "../../shared/http/util";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
-  useTrackerInitializer();
 
   useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT);
 
@@ -46,6 +47,9 @@ export default function OnboardingConnectBankAccountPage() {
     phone,
     email,
     state,
+    locId,
+    setLocId,
+    plaid,
     user,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");

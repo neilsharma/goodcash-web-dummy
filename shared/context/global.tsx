@@ -56,7 +56,7 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const resetAuth = useCallback(() => {
     const _analytics = getAnalytics(app);
     const _auth = getAuth(app);
-    const _recaptchaVerifier = new RecaptchaVerifier("recaptcha-container", {}, _auth);
+    const _recaptchaVerifier = new RecaptchaVerifier(_auth, "recaptcha-container", {});
 
     computedAuth = _auth;
     computedAnalytics = _analytics;
