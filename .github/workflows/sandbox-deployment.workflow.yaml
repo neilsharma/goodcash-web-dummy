@@ -1,0 +1,41 @@
+name: Sandbox Deployment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  trigger-sandbox-deployment:
+    name: Trigger Vercel Sandbox Deployment
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, 'deploy:sandbox') && github.event.issue.pull_request
+    steps:
+      - name: Get the PR branch name
+        id: pr_branch
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            const repository = context.repo;
+            const pr = await github.pulls.get({
+              owner: repository.owner,
+              repo: repository.repo,
+              pull_number: issue_number
+            });
+            console.log(`PR branch name is: ${pr.data.head.ref}`);
+            return pr.data.head.ref;
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: "Update sandbox branch"
+        run: |
+          export PR_BRANCH_NAME=${{ steps.pr_branch.outputs.result }}
+          echo "Merging $PR_BRANCH_NAME into sandbox and pushing"
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git checkout sandbox
+          git merge $PR_BRANCH_NAME
+          git push origin sandbox
