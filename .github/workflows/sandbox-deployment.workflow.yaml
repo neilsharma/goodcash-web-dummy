@@ -12,12 +12,12 @@ jobs:
     steps:
       - name: Get the PR branch name
         id: pr_branch
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const issue_number = context.issue.number;
             const repository = context.repo;
-            const pr = await github.pulls.get({
+            const pr = await github.rest.pulls.get({
               owner: repository.owner,
               repo: repository.repo,
               pull_number: issue_number
