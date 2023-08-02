@@ -11,6 +11,9 @@ jobs:
   trigger-sandbox-deployment:
     name: Trigger Vercel Sandbox Deployment
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: write
     if: (contains(github.event.comment.body, 'deploy:sandbox') && github.event.issue.pull_request) || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     steps:
       - name: Get the source branch name
