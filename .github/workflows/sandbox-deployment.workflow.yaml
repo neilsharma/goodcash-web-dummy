@@ -36,6 +36,11 @@ jobs:
               return pr.data.head.ref;
             }
 
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: "Update sandbox branch"
         run: |
           export SOURCE_BRANCH_NAME=${{ steps.source_branch.outputs.result }}
