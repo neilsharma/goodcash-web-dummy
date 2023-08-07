@@ -31,9 +31,10 @@ export const createBankAccount = async (payload: CreateBankAccount) => {
 };
 
 export const fetchBankAccountCreationStatus = async () => {
-  const res = await http.get<any, AxiosResponse<OnboardingStepStatus>>(
-    urlPaths.BANK_ACCOUNT_STATUS
-  );
+  const res = await http.get<
+    any,
+    AxiosResponse<{ status: OnboardingStepStatus; error?: string | null }>
+  >(urlPaths.BANK_ACCOUNT_STATUS);
 
   return res.data;
 };
@@ -46,12 +47,12 @@ export const failBankAccountCreation = async (payload: FailBankAccountCreation) 
 
 export const longPollBankCreation = async (
   expectedStatuses: OnboardingStepStatus[] = ["COMPLETED", "FAILED"],
-  fallback = "FAILED" as OnboardingStepStatus,
+  fallback = { status: "FAILED" as OnboardingStepStatus, error: null },
   timeout = 500
 ) =>
   longPoll(
     fetchBankAccountCreationStatus,
-    (status) => expectedStatuses.includes(status),
+    ({ status }) => expectedStatuses.includes(status),
     timeout,
     0,
     fallback

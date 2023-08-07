@@ -18,7 +18,6 @@ import { GCUser, UserStateCoverageMap } from "../http/types";
 import { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
 import { init } from "../feature";
 import { getUserStateCoverageMap } from "../http/services/loanAgreements";
-import { CachedUserInfo, ELocalStorageKeys } from "../../utils/types";
 import { getUserInfoFromCache } from "../http/util";
 
 export interface IOnboardingContext {
@@ -85,6 +84,7 @@ export interface IOnboardingContext {
   mergeOnboardingState: (state: RecursivePartial<SharedOnboardingState>) => void;
   redirectToGenericErrorPage: () => Promise<boolean>;
   redirectToStateNotSupportedPage: () => Promise<boolean>;
+  redirectToNotEnoughMoneyPage: () => Promise<boolean>;
   userStateCoverageMap: UserStateCoverageMap | null;
 }
 
@@ -283,6 +283,11 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     [push]
   );
 
+  const redirectToNotEnoughMoneyPage = useCallback(
+    () => push("/onboarding/not-enough-money"),
+    [push]
+  );
+
   useEffect(() => {
     (async function () {
       try {
@@ -362,6 +367,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         mergeOnboardingState,
         redirectToGenericErrorPage,
         redirectToStateNotSupportedPage,
+        redirectToNotEnoughMoneyPage,
         userStateCoverageMap,
       }}
     >

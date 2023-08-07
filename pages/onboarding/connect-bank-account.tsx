@@ -4,7 +4,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { onboardingStepToPageMap } from "@/shared/constants";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { parseApiError } from "@/shared/error";
+import { BankAccountVerificationErrCodes, parseApiError } from "@/shared/error";
 import {
   redirectIfServerSideRendered,
   useConfirmIsOAuthRedirect,
@@ -26,9 +26,6 @@ import { useGlobal } from "../../shared/context/global";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { KYCFieldState } from "../../shared/http/types";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
-import useTrackerInitializer from "../../shared/hooks/useTrackerInitializer";
-import { setUserId } from "../../utils/analytics/analytics";
-import { getUserInfoFromCache } from "../../shared/http/util";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -44,12 +41,10 @@ export default function OnboardingConnectBankAccountPage() {
     setOnboardingStep,
     setPlaid,
     redirectToGenericErrorPage,
+    redirectToNotEnoughMoneyPage,
     phone,
     email,
     state,
-    locId,
-    setLocId,
-    plaid,
     user,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
@@ -91,7 +86,7 @@ export default function OnboardingConnectBankAccountPage() {
       trackGTagConversion(ConversionEvent.BankAccountLinked);
 
       await createBankAccount({ plaidPublicToken: publicToken });
-      const status = await longPollBankCreation();
+      const { status, error } = await longPollBankCreation();
 
       if (status === "COMPLETED") {
         setOnboardingOperationsMap((p) => ({
@@ -114,10 +109,19 @@ export default function OnboardingConnectBankAccountPage() {
         setOnboardingStep("PROCESSING_APPLICATION");
         push(onboardingStepToPageMap.PROCESSING_APPLICATION);
       } else if (status === "FAILED") {
-        redirectToGenericErrorPage();
+        error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
+          ? redirectToNotEnoughMoneyPage()
+          : redirectToGenericErrorPage();
       }
     },
-    [push, redirectToGenericErrorPage, setOnboardingOperationsMap, setOnboardingStep, setPlaid]
+    [
+      push,
+      redirectToGenericErrorPage,
+      redirectToNotEnoughMoneyPage,
+      setOnboardingOperationsMap,
+      setOnboardingStep,
+      setPlaid,
+    ]
   );
 
   const onPlaidLinkSuccess = async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
@@ -130,7 +134,7 @@ export default function OnboardingConnectBankAccountPage() {
     } catch (e: any) {
       const errorObject = parseApiError(e);
 
-      if (errorObject?.errorCode === "UNDERWRITING0001") {
+      if (errorObject?.errorCode === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY) {
         return push("/onboarding/not-enough-money");
       }
 

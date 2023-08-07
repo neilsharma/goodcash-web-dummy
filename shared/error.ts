@@ -28,3 +28,7 @@ interface ErrorObject {
 export enum EOnboardingGenericErrors {
   BANK_CONNECTION_STEP_FAILED = "Bank connection step failed",
 }
+
+export enum BankAccountVerificationErrCodes {
+  NOT_ENOUGH_MONEY = "UNDERWRITING0001",
+}
