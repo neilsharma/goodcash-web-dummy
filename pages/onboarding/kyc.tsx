@@ -16,7 +16,6 @@ import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
 import { EScreenEventTitle, ESentryEvents } from "@/utils/types";
 import Loader from "@/components/Loader";
-import * as Sentry from "@sentry/nextjs";
 
 export default function OnboardingPlaidKycPage() {
   useConfirmUnload();
@@ -39,16 +38,6 @@ export default function OnboardingPlaidKycPage() {
   const isCompleted = useRef(false);
 
   useEffect(() => {
-    //TODO : clear this event after 2 weeks when we have some data on which scenarios would trigger the phone and email as empty
-    Sentry.captureEvent(
-      {
-        message: ESentryEvents.USER_PHONE_EMAIL_CHECK,
-      },
-      {
-        data: { phone, email },
-      }
-    );
-
     if (phone && email) {
       getKycPlaidToken({ phone, email }).then(setPlaidLinkToken);
     }

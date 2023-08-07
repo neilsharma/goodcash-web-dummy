@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const { withSentryConfig } = require("@sentry/nextjs");
+
 const nextConfig = {
   reactStrictMode: false,
   experimental: {
@@ -13,27 +15,7 @@ const nextConfig = {
       },
     ];
   },
-};
-
-module.exports = nextConfig;
-
-// Injected content via Sentry wizard below
-
-const { withSentryConfig } = require("@sentry/nextjs");
-
-module.exports = withSentryConfig(
-  module.exports,
-  {
-    // For all available options, see:
-    // https://github.com/getsentry/sentry-webpack-plugin#options
-
-    // Suppresses source map uploading logs during build
-    silent: true,
-
-    org: "goodcash-node",
-    project: "goodcash-web",
-  },
-  {
+  sentry: {
     // For all available options, see:
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -51,5 +33,19 @@ module.exports = withSentryConfig(
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
-  }
-);
+  },
+};
+
+const userSentryWebpackPluginOptions = {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Suppresses source map uploading logs during build
+  silent: true,
+  authToken: process.env.NEXT_PUBLIC_SENTRY_AUTH_TOKEN,
+
+  org: "goodcash-node",
+  project: "web-production",
+};
+
+module.exports = withSentryConfig(nextConfig, userSentryWebpackPluginOptions);

@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: process.env["NEXT_PUBLIC_SENTRY_DSN"],
   debug: false,
+  ignoreErrors: ["Non-Error promise rejection captured"],
   integrations: [
     new Sentry.BrowserTracing(),
     new Sentry.Replay({
