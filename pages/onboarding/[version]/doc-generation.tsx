@@ -9,8 +9,8 @@ import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { patchUserOnboarding } from "@/shared/http/services/user";
 import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
-import { EScreenEventTitle } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EScreenEventTitle } from "../../../utils/types";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
 import {
   longPollLongAgreementStatus,
   completeLoanAgreement,
@@ -18,7 +18,8 @@ import {
   getLoanAgreementUrl,
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
-import PDFViewer from "../../components/PdfViewer";
+import PDFViewer from "../../../components/PdfViewer";
+import { EStepStatus } from "../../../shared/types";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -31,6 +32,8 @@ export default function OneLastStep() {
     loanAgreementDocumentUrl,
     setLoanAgreementDocumentUrl,
     redirectToGenericErrorPage,
+    currentOnboardingStep,
+    onboardingStepHandler,
   } = useOnboarding();
 
   const createLoanAgreementHandler = useCallback(async () => {
@@ -54,13 +57,13 @@ export default function OneLastStep() {
         }
       }
     } catch (e) {
-      redirectToGenericErrorPage();
+      onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [
-    onboardingOperationsMap,
+    onboardingOperationsMap.loanAgreementCreated,
     setOnboardingOperationsMap,
     setLoanAgreementDocumentUrl,
-    redirectToGenericErrorPage,
+    onboardingStepHandler,
   ]);
 
   const documentSigned = useMemo(
@@ -73,7 +76,7 @@ export default function OneLastStep() {
     setIsLoading(true);
     try {
       if (onboardingOperationsMap.loanAgreementCompleted)
-        return push(onboardingStepToPageMap.REFERRAL_SOURCE);
+        return onboardingStepHandler(EStepStatus.COMPLETED);
       if (!documentSigned) return;
 
       await completeLoanAgreement();
@@ -81,7 +84,6 @@ export default function OneLastStep() {
         ELoanAgreementStatus.COMPLETED,
         ELoanAgreementStatus.COMPLETION_FAILED,
       ]);
-
       if (status === ELoanAgreementStatus.COMPLETED) {
         setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCompleted: true }));
         setOnboardingStep("REFERRAL_SOURCE");
@@ -89,21 +91,19 @@ export default function OneLastStep() {
           onboardingStep: "REFERRAL_SOURCE",
           onboardingOperationsMap: { loanAgreementCompleted: true },
         });
-        push(onboardingStepToPageMap.REFERRAL_SOURCE);
+        onboardingStepHandler(EStepStatus.COMPLETED);
       } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
         throw new Error("Loan Agreement Completion Failed");
       }
     } catch (error) {
-      redirectToGenericErrorPage();
+      onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [
-    onboardingOperationsMap,
-    setOnboardingOperationsMap,
-    setIsLoading,
+    onboardingOperationsMap.loanAgreementCompleted,
+    onboardingStepHandler,
     documentSigned,
+    setOnboardingOperationsMap,
     setOnboardingStep,
-    push,
-    redirectToGenericErrorPage,
   ]);
 
   useTrackPage(EScreenEventTitle.DOC_GENERATION);

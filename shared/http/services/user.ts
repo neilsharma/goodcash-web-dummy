@@ -12,18 +12,19 @@ import {
   KYCAttempt,
   OnboardingStepStatus,
 } from "../types";
-import { RecursivePartial, SharedOnboardingState } from "@/shared/types";
+import { RecursivePartial, SharedOnboardingState, UserOnboardingState } from "@/shared/types";
 
-export const createUser = async (auth: Auth | null) => {
+export const createUser = async (auth: Auth | null, flowName?: string | string[]) => {
   if (!auth) throw new Error("not authenticated");
 
   const jwt = await getComputedAuth()?.currentUser?.getIdToken();
 
   if (!jwt) throw new Error("not authenticated");
 
-  const res = await http.post<any, AxiosResponse<GCUser>>(urlPaths.USER_ME_CREATE, {
-    jwt,
-  });
+  const payload: { jwt: string; flowName?: string | string[] } = { jwt };
+  if (flowName) payload.flowName = flowName;
+
+  const res = await http.post<any, AxiosResponse<GCUser>>(urlPaths.USER_ME_CREATE, payload);
 
   return res.data;
 };
@@ -95,6 +96,17 @@ export const longPollKycSubmissionStatus = async (
     fallback
   );
 
+export const getUserOnboardingVersion = async (token: string) => {
+  const res = await http.get<any, AxiosResponse<RecursivePartial<UserOnboardingState> | null>>(
+    urlPaths.USER_ONBOARDING_VERSION,
+    {
+      headers: { "goodcash-authorization": token },
+    }
+  );
+
+  return res.data;
+};
+
 export const getUserOnboarding = async (token: string) => {
   const res = await http.get<any, AxiosResponse<RecursivePartial<SharedOnboardingState> | null>>(
     urlPaths.USER_ONBOARDING,
@@ -107,7 +119,7 @@ export const getUserOnboarding = async (token: string) => {
 };
 
 export const patchUserOnboarding = async (data: RecursivePartial<SharedOnboardingState>) => {
-  const res = await http.patch(urlPaths.USER_ONBOARDING, data);
+  const res = await http.patch(urlPaths.PATCH_USER_ONBOARDING, data);
 
   return res.data;
 };
@@ -130,9 +142,7 @@ export const getAssetStatus = async () => {
   return res.data;
 };
 export const getBankLocStatus = async () => {
-  const res = await http.get<any, AxiosResponse<OnboardingStepStatus>>(
-    urlPaths.KYC_BANK_LOC_STATUS
-  );
+  const res = await http.get<any, AxiosResponse<OnboardingStepStatus>>(urlPaths.BANK_LOC_STATUS);
 
   return res.data;
 };
@@ -141,8 +151,3 @@ const completedAssetStatuses = ["APPROVED", "DENIED"] as AssetStatus[];
 
 export const longPollAssetStatus = async (timeout = 500, attempts = 240) =>
   longPoll(getAssetStatus, (s) => completedAssetStatuses.includes(s), timeout, attempts, "DENIED");
-
-const BankLocStatuses = ["COMPLETED", "FAILED"] as OnboardingStepStatus[];
-
-export const longPollBankLocStatus = async (timeout = 5000) =>
-  longPoll(getBankLocStatus, (s) => BankLocStatuses.includes(s), timeout, 0);

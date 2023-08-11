@@ -1041,6 +1041,18 @@
     "@sentry/cli" "^1.74.6"
     webpack-sources "^2.0.0 || ^3.0.0"
 
+"@stripe/react-stripe-js@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@stripe/react-stripe-js/-/react-stripe-js-2.1.1.tgz#92fe1498bc9db4e0b51d63df3849214cc8021c55"
+  integrity sha512-aHm6cWOqmOyq3eKKlR42hgvrcZhzc9ijL+BeXJ5H3uaWUKKcooSsBys0tiKl0gLxYQHUjUCvrRSX8fYaPBmAKg==
+  dependencies:
+    prop-types "^15.7.2"
+
+"@stripe/stripe-js@1.54.2":
+  version "1.54.2"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.54.2.tgz#0665848e22cbda936cfd05256facdfbba121438d"
+  integrity sha512-R1PwtDvUfs99cAjfuQ/WpwJ3c92+DAMy9xGApjqlWQMj0FKQabUAys2swfTRNzuYAYJh7NqK2dzcYVNkKLEKUg==
+
 "@swc/helpers@0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.1.tgz#e9031491aa3f26bfcc974a67f48bd456c8a5357a"
@@ -3652,7 +3664,7 @@ react-dom@18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
-react-facebook-pixel@^1.0.4:
+react-facebook-pixel@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/react-facebook-pixel/-/react-facebook-pixel-1.0.4.tgz#4760b60dc0451e345649d9710152b4b5419cf989"
   integrity sha512-givZY8MS0v/mdbRzvcvouBo/j0TtDiu/93f4gIjJXwDDgwlf6bYUiQvb2qcqjluOOD/hIKUQHNYLNsSOnoEklg==

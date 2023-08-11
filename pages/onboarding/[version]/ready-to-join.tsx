@@ -5,7 +5,7 @@ import Image from "next/image";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useState, useEffect, useCallback } from "react";
-import CheckBox from "../../components/CheckBox";
+import CheckBox from "../../../components/CheckBox";
 import {
   bankPrivacyPolicyUrl,
   cardHolderAgreementUrl,
@@ -17,12 +17,13 @@ import {
   onboardingStepToPageMap,
   privacyPolicyUrl,
   termsOfServiceUrl,
-} from "../../shared/constants";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EScreenEventTitle, resolveText } from "../../utils/types";
-import { EFeature, isFeatureEnabled } from "../../shared/feature";
-import { useOnboarding } from "../../shared/context/onboarding";
-import { getUserInfoFromCache } from "../../shared/http/util";
+} from "../../../shared/constants";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
+import { EScreenEventTitle, resolveText } from "../../../utils/types";
+import { EFeature, isFeatureEnabled } from "../../../shared/feature";
+import { useOnboarding } from "../../../shared/context/onboarding";
+import { getUserInfoFromCache } from "../../../shared/http/util";
+import { EStepStatus } from "../../../shared/types";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -34,7 +35,7 @@ export default function OnboardingReadyToJoinPage() {
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
   const [dynamicPlanId, setDynamicPlanId] = useState(defaultPlanId);
-  const { user } = useOnboarding();
+  const { user, onboardingStepHandler } = useOnboarding();
   const isButtonDisabled =
     !electronicDisclosureCheckbox ||
     !recurringAuthorizationCheckbox ||
@@ -130,7 +131,9 @@ export default function OnboardingReadyToJoinPage() {
       <div className="">
         <Button
           disabled={isButtonDisabled}
-          onClick={() => push(onboardingStepToPageMap.DOC_GENERATION)}
+          onClick={() => {
+            onboardingStepHandler(EStepStatus.COMPLETED);
+          }}
         >
           Continue
         </Button>

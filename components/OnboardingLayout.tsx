@@ -27,24 +27,21 @@ export const OnboardingLayout: FC<{
 
   const progress = useMemo(() => {
     switch (onboardingStep) {
-      case "WELCOME":
+      case "USER_IDENTITY_COLLECTION":
         return 5;
-      case "PHONE_VERIFICATION":
-        return 10;
-      case "KYC":
-      case "CONTACT_INFO":
+      case "USER_IDENTITY_VERIFICATION":
         return 30;
-      case "BANK_ACCOUNT_CONNECTION":
+      case "BANK_ACCOUNT_LINKING":
         return 50;
-      case "PROCESSING_APPLICATION":
+      case "BANK_ACCOUNT_VERIFICATION":
         return 60;
-      case "READY_TO_JOIN":
+      case "LOAN_AGREEMENT_CREATION":
         return 70;
-      case "DOC_GENERATION":
+      case "LOAN_APPLICATION_SUBMISSION":
         return 80;
       case "REFERRAL_SOURCE":
         return 90;
-      case "NEW_CARD_ON_THE_WAY":
+      case "APP_DOWNLOAD":
         return 100;
     }
   }, [onboardingStep]);

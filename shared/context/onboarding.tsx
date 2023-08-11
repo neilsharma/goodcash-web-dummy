@@ -15,10 +15,22 @@ import type { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 import { GCUser, UserStateCoverageMap } from "../http/types";
-import { EUsaStates, OnboardingStep, RecursivePartial, SharedOnboardingState } from "../types";
+import {
+  EStepStatus,
+  EUsaStates,
+  OnboardingStep,
+  OnboardingSteps,
+  RecursivePartial,
+  SharedOnboardingState,
+} from "../types";
 import { init } from "../feature";
 import { getUserStateCoverageMap } from "../http/services/loanAgreements";
-import { getUserInfoFromCache } from "../http/util";
+import { getUserInfoFromCache, navigateWithQuery } from "../http/util";
+import { onboardingStepToPageMap } from "../constants";
+import { getUserOnboarding, getUserOnboardingVersion } from "../http/services/user";
+import { app } from "./global";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useConfirmIsOAuthRedirect } from "../hooks";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -86,9 +98,17 @@ export interface IOnboardingContext {
   redirectToStateNotSupportedPage: () => Promise<boolean>;
   redirectToNotEnoughMoneyPage: () => Promise<boolean>;
   userStateCoverageMap: UserStateCoverageMap | null;
+  onboardingStepState: object;
+  onboardingStepHandler: (status: EStepStatus) => void;
+  currentOnboardingStep: string;
+  version: number;
+  setVersion: Dispatch<SetStateAction<number>>;
+  updateOnboardingStepData: (onboardingData?: OnboardingOperationsMap) => void;
+  isLoadingUserInfo: boolean;
+  mergeOnboardingStateHandler: (token: string) => Promise<void>;
 }
 
-interface OnboardingOperationsMap {
+export interface OnboardingOperationsMap {
   userCreated: boolean;
   userAddressCreated: boolean;
   userIdentityBasisCreated: boolean;
@@ -111,7 +131,7 @@ type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMe
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
-  const { push } = useRouter();
+  const { push, query, pathname } = useRouter();
   const [onboardingOperationsMap, setOnboardingOperationsMap] = useState<OnboardingOperationsMap>({
     userCreated: false,
     userAddressCreated: false,
@@ -129,7 +149,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     underwritingSucceeded: false,
     onboardingCompleted: false,
   });
-  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("WELCOME");
+  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("USER_IDENTITY_COLLECTION");
 
   const [isUserBlocked, setIsUserBlocked] = useState(false);
 
@@ -165,10 +185,131 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [city, setCity] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [ssn, setSsn] = useState("");
+  const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(false);
 
   const [agreedToCardHolderAgreement, setAgreedToCardHolderAgreement] = useState(false);
   const [agreedToAutopay, setAgreedToAutopay] = useState(false);
   const [agreedToTermsOfService, setAgreedToTermsOfService] = useState(false);
+  const [currentOnboardingStep, setCurrentOnboardingStep] =
+    useState<string>("BANK_ACCOUNT_LINKING");
+  const [version, setVersion] = useState<number>(0);
+
+  const onboardingStepState = useMemo(
+    () => ({
+      BANK_ACCOUNT_LINKING: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+      BANK_ACCOUNT_VERIFICATION: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+      LOAN_APPLICATION_SUBMISSION: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+      LOAN_AGREEMENT_CREATION: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+      REFERRAL_SOURCE: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+      APP_DOWNLOAD: {
+        status: "NOT_STARTED",
+        metadata: {},
+      },
+    }),
+    []
+  );
+
+  const updateOnboardingStepData = useCallback(
+    (onboardingData?: OnboardingOperationsMap) => {
+      if (onboardingData) {
+        for (const stepKey in onboardingStepState) {
+          if (onboardingData.bankAccountCreated && stepKey === "BANK_ACCOUNT_LINKING") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          }
+          if (onboardingData.loanApplicationApproved && stepKey === "BANK_ACCOUNT_VERIFICATION") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          }
+          if (onboardingData.loanAgreementCompleted && stepKey === "LOAN_APPLICATION_SUBMISSION") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          }
+          if (onboardingData.loanAgreementCompleted && stepKey === "LOAN_AGREEMENT_CREATION") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          }
+          if (onboardingData.onboardingCompleted && stepKey === "REFERRAL_SOURCE") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          }
+        }
+      }
+    },
+    [onboardingStepState]
+  );
+
+  const updateTheOnboardingStepMapData = useCallback(
+    (status: EStepStatus) => {
+      const oldData =
+        onboardingStepState[currentOnboardingStep as keyof typeof onboardingStepState];
+      if (oldData) {
+        onboardingStepState[currentOnboardingStep as keyof typeof onboardingStepState].status =
+          status;
+      }
+    },
+    [currentOnboardingStep, onboardingStepState]
+  );
+
+  const redirectToNextOnboardingStep = useCallback(
+    (step: string) => {
+      const urlWithQuery = navigateWithQuery(query, `/onboarding/${version}/${step}`);
+      push(urlWithQuery).finally(() => setIsLoadingUserInfo(false));
+    },
+    [push, query, version]
+  );
+
+  const redirectToGenericErrorPage = useCallback(
+    () => push(`/onboarding/something-went-wrong`),
+    [push]
+  );
+
+  const redirectToStateNotSupportedPage = useCallback(
+    () => push(`/onboarding/state-not-supported`),
+    [push]
+  );
+
+  const redirectToNotEnoughMoneyPage = useCallback(
+    () => push(`/onboarding/${version}/not-enough-money`),
+    [push, version]
+  );
+
+  const onboardingStepHandler = useCallback(
+    (status: EStepStatus) => {
+      updateTheOnboardingStepMapData(status);
+      for (const stepKey in onboardingStepState) {
+        if (status === EStepStatus.FAILED) {
+          return redirectToGenericErrorPage();
+        }
+        const value = onboardingStepState[stepKey as keyof typeof onboardingStepState];
+        if (value.status === "NOT_STARTED" || value.status === "IN_PROGRESS") {
+          const firstNotStartedStep = stepKey as OnboardingStep;
+          onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "IN_PROGRESS";
+          setCurrentOnboardingStep(stepKey);
+          redirectToNextOnboardingStep(
+            onboardingStepToPageMap[firstNotStartedStep as OnboardingStep]
+          );
+          break;
+        }
+      }
+    },
+    [
+      onboardingStepState,
+      redirectToGenericErrorPage,
+      redirectToNextOnboardingStep,
+      updateTheOnboardingStepMapData,
+    ]
+  );
 
   const is18YearsOld = useMemo(() => {
     if (!dateOfBirth) return false;
@@ -273,20 +414,60 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     ]
   );
 
-  const redirectToGenericErrorPage = useCallback(
-    () => push("/onboarding/something-went-wrong"),
-    [push]
-  );
+  const redirectToOnboardingIfUserNotFound = () => {
+    const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
+    if (pathname !== "/onboarding") {
+      push(urlWithQuery);
+    }
+  };
 
-  const redirectToStateNotSupportedPage = useCallback(
-    () => push("/onboarding/state-not-supported"),
-    [push]
-  );
+  const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
-  const redirectToNotEnoughMoneyPage = useCallback(
-    () => push("/onboarding/not-enough-money"),
-    [push]
-  );
+  const mergeOnboardingStateHandler = async (token: string) => {
+    setIsLoadingUserInfo(true);
+    try {
+      const userOnboardingVersion = await getUserOnboardingVersion(token);
+      if (userOnboardingVersion?.version !== undefined) {
+        setVersion(userOnboardingVersion.version);
+      }
+      const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
+      const onboardingState = await onboardingStatePromise;
+      if (onboardingState) {
+        mergeOnboardingState(onboardingState);
+        updateOnboardingStepData(
+          onboardingState.onboardingOperationsMap as OnboardingOperationsMap
+        );
+        if (
+          onboardingState.onboardingOperationsMap?.userKycSubmitted ||
+          onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
+          isPlaidOAuthRedirect
+        ) {
+          setCurrentOnboardingStep("BANK_ACCOUNT_LINKING");
+          onboardingStepHandler(EStepStatus.IN_PROGRESS);
+        } else {
+          setIsLoadingUserInfo(false);
+        }
+      }
+    } catch (error) {
+      setIsLoadingUserInfo(false);
+      redirectToOnboardingIfUserNotFound();
+    }
+  };
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        user.getIdToken().then((token) => {
+          mergeOnboardingStateHandler(token);
+        });
+      } else {
+        redirectToOnboardingIfUserNotFound();
+      }
+    });
+    return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     (async function () {
@@ -369,6 +550,14 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         redirectToStateNotSupportedPage,
         redirectToNotEnoughMoneyPage,
         userStateCoverageMap,
+        onboardingStepState,
+        onboardingStepHandler,
+        currentOnboardingStep,
+        version,
+        setVersion,
+        updateOnboardingStepData,
+        isLoadingUserInfo,
+        mergeOnboardingStateHandler,
       }}
     >
       {children}

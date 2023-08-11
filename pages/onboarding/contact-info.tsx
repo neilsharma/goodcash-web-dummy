@@ -8,7 +8,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { EUsaStates, EUsaStatesLookup } from "@/shared/types";
+import { EStepStatus, EUsaStates, EUsaStatesLookup } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
 import {
   patchUserOnboarding,
@@ -62,6 +62,7 @@ export default function OnboardingContactInfoPage() {
     is18YearsOld,
     contactInfoPageIsValid,
     redirectToGenericErrorPage,
+    onboardingStepHandler,
   } = useOnboarding();
   const { push } = useRouter();
 
@@ -111,35 +112,36 @@ export default function OnboardingContactInfoPage() {
           agreedToAutopay,
           agreedToTermsOfService,
           onboardingOperationsMap: { userTaxInfoIsSet: true },
-          onboardingStep: "BANK_ACCOUNT_CONNECTION",
+          onboardingStep: "BANK_ACCOUNT_LINKING",
         });
       }
 
-      setOnboardingStep("BANK_ACCOUNT_CONNECTION");
-      push(onboardingStepToPageMap.BANK_ACCOUNT_CONNECTION);
+      setOnboardingStep("BANK_ACCOUNT_LINKING");
+      onboardingStepHandler(EStepStatus.COMPLETED);
     } catch (e) {
       redirectToGenericErrorPage();
     }
   }, [
-    agreedToCardHolderAgreement,
-    agreedToAutopay,
-    agreedToTermsOfService,
-    onboardingOperationsMap,
-    setOnboardingOperationsMap,
-    setOnboardingStep,
-    push,
     contactInfoPageIsValid,
+    onboardingOperationsMap.userAddressCreated,
+    onboardingOperationsMap.userIdentityBasisCreated,
+    onboardingOperationsMap.userTaxInfoIsSet,
+    setOnboardingStep,
+    onboardingStepHandler,
     legalAddress,
     aptNumber,
     city,
     zipCode,
     state,
+    setOnboardingOperationsMap,
     dateOfBirth,
     email,
     firstName,
     lastName,
     ssnMask,
-    setIsLoading,
+    agreedToCardHolderAgreement,
+    agreedToAutopay,
+    agreedToTermsOfService,
     redirectToGenericErrorPage,
   ]);
 

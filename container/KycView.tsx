@@ -16,8 +16,9 @@ import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
 import { EScreenEventTitle, ESentryEvents } from "@/utils/types";
 import Loader from "@/components/Loader";
+import { EStepStatus } from "../shared/types";
 
-export default function OnboardingPlaidKycPage() {
+export default function OnboardingPlaidKycView() {
   useConfirmUnload();
   const { push } = useRouter();
   const {
@@ -26,7 +27,7 @@ export default function OnboardingPlaidKycPage() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    redirectToGenericErrorPage,
+    onboardingStepHandler,
   } = useOnboarding();
 
   useTrackPage(EScreenEventTitle.KYC);
@@ -56,7 +57,9 @@ export default function OnboardingPlaidKycPage() {
           if (goodcashEnvironment !== "production") setShouldBeClosed(true);
 
           setOnboardingOperationsMap((p) => ({ ...p, userKycFilled: true }));
-          patchUserOnboarding({ onboardingOperationsMap: { userKycFilled: true } });
+          patchUserOnboarding({
+            onboardingOperationsMap: { userKycFilled: true },
+          });
         }
 
         if (!onboardingOperationsMap.userKycSubmitted) {
@@ -65,19 +68,20 @@ export default function OnboardingPlaidKycPage() {
 
           if (status === "COMPLETED") {
             setOnboardingOperationsMap((p) => ({ ...p, userKycSubmitted: true }));
-            patchUserOnboarding({ onboardingOperationsMap: { userKycSubmitted: true } });
+            patchUserOnboarding({
+              onboardingOperationsMap: { userKycSubmitted: true },
+            });
           } else if (status === "FAILED") {
             throw new Error(status);
           }
         }
 
-        setOnboardingStep("BANK_ACCOUNT_CONNECTION");
-        patchUserOnboarding({ onboardingStep: "BANK_ACCOUNT_CONNECTION" });
-
-        push(onboardingStepToPageMap.BANK_ACCOUNT_CONNECTION);
+        setOnboardingStep("BANK_ACCOUNT_LINKING");
+        patchUserOnboarding({ onboardingStep: "BANK_ACCOUNT_LINKING" });
+        onboardingStepHandler(EStepStatus.IN_PROGRESS);
       } catch (e) {
         setShouldBeClosed(true);
-        redirectToGenericErrorPage();
+        onboardingStepHandler(EStepStatus.FAILED);
       }
     },
     onExit: () => {

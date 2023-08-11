@@ -11,10 +11,12 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
-import { EUsaStates } from "../../shared/types";
+import { EStepStatus, EUsaStates } from "../../shared/types";
 import { trackEvent, trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import useTrackerInitializer from "../../shared/hooks/useTrackerInitializer";
+import Loader from "../../components/Loader";
+import { navigateWithQuery } from "../../shared/http/util";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
@@ -29,18 +31,23 @@ export default function OnboardingIndexPage() {
     email,
     setEmail,
     indexPageIsValid,
+    isLoadingUserInfo,
   } = useOnboarding();
   const [phoneMask, setPhoneMask] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stateMask, setStateMask] = useState<{ value: string; label: string } | null>(null);
   const [dimBackground, setDimBackground] = useState(false);
-  const { push } = useRouter();
+  const { push, query } = useRouter();
 
   useEffect(() => {
     trackPage(EScreenEventTitle.ONBOARDING);
   }, []);
 
   const onContinue = useCallback(async () => {
+    const urlWithQuery = navigateWithQuery(
+      query,
+      onboardingStepToPageMap.USER_IDENTITY_VERIFICATION
+    );
     const stateValue = stateMask?.value;
 
     if (!indexPageIsValid) {
@@ -64,14 +71,14 @@ export default function OnboardingIndexPage() {
       setDimBackground(false);
 
       setConfirmationResult(res);
-      setOnboardingStep("PHONE_VERIFICATION");
-
-      push(onboardingStepToPageMap.PHONE_VERIFICATION);
+      setOnboardingStep("USER_IDENTITY_VERIFICATION");
+      push(urlWithQuery);
     } catch (e) {
       setIsLoading(false);
       setDimBackground(false);
     }
   }, [
+    query,
     stateMask,
     indexPageIsValid,
     userStateCoverageMap,

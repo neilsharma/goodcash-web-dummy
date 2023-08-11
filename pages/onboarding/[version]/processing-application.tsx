@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import Lottie from "react-lottie";
-import * as animationData from "../../public/lottie/growing-tree.json";
+import * as animationData from "../../../public/lottie/growing-tree.json";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import { useOnboarding } from "@/shared/context/onboarding";
@@ -11,14 +11,15 @@ import { onboardingStepToPageMap } from "@/shared/constants";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
 import { parseApiError } from "@/shared/error";
-import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
 import {
   approveApplication,
   longPollLongAgreementStatus,
   createLoanApplication,
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
+import { EStepStatus } from "../../../shared/types";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
@@ -29,8 +30,9 @@ export default function ProcessingApplication() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    redirectToGenericErrorPage,
     setPlaid,
+    onboardingStepHandler,
+    version,
   } = useOnboarding();
 
   const processApplication = useCallback(async () => {
@@ -77,7 +79,7 @@ export default function ProcessingApplication() {
               bankAccountCreated: false,
             }));
             patchUserOnboarding({
-              onboardingStep: "BANK_ACCOUNT_CONNECTION",
+              onboardingStep: "BANK_ACCOUNT_LINKING",
               onboardingOperationsMap: {
                 loanApplicationCreated: false,
                 loanApplicationApproved: false,
@@ -85,11 +87,11 @@ export default function ProcessingApplication() {
               },
             });
             setPlaid(null);
-            setOnboardingStep("BANK_ACCOUNT_CONNECTION");
+            setOnboardingStep("BANK_ACCOUNT_LINKING");
 
             localStorage.removeItem(ELocalStorageKeys.LINK_TOKEN);
 
-            return push("/onboarding/not-enough-money");
+            return push(`/onboarding/${version}/not-enough-money`);
         }
       }
 
@@ -98,28 +100,31 @@ export default function ProcessingApplication() {
 
         setOnboardingOperationsMap((p) => ({ ...p, loanApplicationApproved: true }));
         patchUserOnboarding({
-          onboardingStep: "READY_TO_JOIN",
+          onboardingStep: "LOAN_APPLICATION_SUBMISSION",
           onboardingOperationsMap: { loanApplicationApproved: true },
         });
       }
 
-      setOnboardingStep("READY_TO_JOIN");
-      push(onboardingStepToPageMap.READY_TO_JOIN);
+      setOnboardingStep("LOAN_APPLICATION_SUBMISSION");
+      onboardingStepHandler(EStepStatus.COMPLETED);
     } catch (error: any) {
       const errorObject = parseApiError(error);
 
       if (errorObject?.errorCode === "UNDERWRITING0002") return setIsUserBlocked(true);
 
-      redirectToGenericErrorPage();
+      onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [
-    setPlaid,
-    setIsUserBlocked,
-    onboardingOperationsMap,
-    setOnboardingOperationsMap,
+    onboardingOperationsMap.loanApplicationCreated,
+    onboardingOperationsMap.underwritingSucceeded,
+    onboardingOperationsMap.loanApplicationApproved,
     setOnboardingStep,
+    onboardingStepHandler,
+    setOnboardingOperationsMap,
+    setIsUserBlocked,
+    setPlaid,
     push,
-    redirectToGenericErrorPage,
+    version,
   ]);
 
   useTrackPage(EScreenEventTitle.PROCESSING_APPLICATION);

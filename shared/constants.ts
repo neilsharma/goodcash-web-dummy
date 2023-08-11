@@ -2,18 +2,17 @@ import { isFeatureEnabled } from "./feature";
 import type { OnboardingStep, Plan } from "./types";
 
 export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
-  WELCOME: "/onboarding",
-  PHONE_VERIFICATION: "/onboarding/verify",
-  CONTACT_INFO: "/onboarding/contact-info",
-  KYC: "/onboarding/kyc",
-  BANK_ACCOUNT_CONNECTION: "/onboarding/connect-bank-account",
-  PROCESSING_APPLICATION: "/onboarding/processing-application",
-  DOC_GENERATION: "/onboarding/doc-generation",
-  REFERRAL_SOURCE: "/onboarding/how-did-you-hear",
-  APPLICATION_COMPLETE: "/onboarding/application-complete",
-  READY_TO_JOIN: "/onboarding/ready-to-join",
-  THANKS_FOR_JOINING: "/onboarding/thanks-for-joining",
-  NEW_CARD_ON_THE_WAY: "/onboarding/new-card-on-the-way",
+  USER_IDENTITY_COLLECTION: "/onboarding",
+  USER_IDENTITY_VERIFICATION: "onboarding/verify",
+  USER_CONTACT_INFO: "contact-info",
+  BANK_ACCOUNT_LINKING: "connect-bank-account",
+  BANK_ACCOUNT_VERIFICATION: "processing-application",
+  LOAN_APPLICATION_SUBMISSION: "ready-to-join",
+  LOAN_AGREEMENT_CREATION: "doc-generation",
+  REFERRAL_SOURCE: "how-did-you-hear",
+  ONBOARDING_COMPLETION: "application-complete",
+  APP_DOWNLOAD: "app-download",
+  FUNDING_CARD_LINKING: "connect-debit-card",
 };
 
 /** This should be replaced with plans from Db in the future */

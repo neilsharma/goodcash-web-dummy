@@ -4,8 +4,9 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../context/onboarding";
 import { CachedUserInfo, ETrackEvent } from "../../utils/types";
-import { getUserInfoFromCache } from "../http/util";
+import { getUserInfoFromCache, navigateWithQuery } from "../http/util";
 import { trackEvent } from "../../utils/analytics/analytics";
+import { onboardingStepToPageMap } from "../constants";
 
 export const canUseDOM = () =>
   !!(typeof window !== "undefined" && window.document && window.document.createElement);
@@ -25,13 +26,13 @@ export const redirectIfServerSideRendered = (to = "/onboarding") => {
 
 export const useServerSideOnboardingGuard = (skipGuard = false) => {
   const { indexPageIsValid } = useOnboarding();
-  const { push } = useRouter();
+  const { push, query } = useRouter();
   const cachedUserInfo = useRef<CachedUserInfo | null>(null);
-
+  const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
   useEffect(() => {
     cachedUserInfo.current = getUserInfoFromCache();
-    if (!indexPageIsValid && !skipGuard && !cachedUserInfo.current) push("/onboarding");
-  }, [indexPageIsValid, skipGuard, push]);
+    if (!indexPageIsValid && !skipGuard && !cachedUserInfo.current) push(urlWithQuery);
+  }, [indexPageIsValid, skipGuard, push, urlWithQuery]);
 
   if (cachedUserInfo.current) {
     return true;

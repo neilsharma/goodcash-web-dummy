@@ -2,25 +2,23 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
-import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EStepStatus } from "../../shared/types";
 
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
 
   useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG);
 
-  const { push } = useRouter();
-  const { onboardingStep } = useOnboarding();
+  const { push, back } = useRouter();
 
   const tryAgain = useCallback(() => {
-    push(onboardingStepToPageMap[onboardingStep]);
-  }, [push, onboardingStep]);
+    back();
+  }, [back]);
 
   return (
     <OnboardingLayout>

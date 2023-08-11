@@ -5,8 +5,8 @@ import { appStoreAppUrl, playStoreAppUrl } from "@/shared/constants";
 import { redirectIfServerSideRendered } from "@/shared/hooks";
 import Image from "next/image";
 import { Check } from "react-feather";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import { useEffect } from "react";
 
 export default function NewCardOnTheWay() {

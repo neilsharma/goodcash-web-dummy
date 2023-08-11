@@ -71,18 +71,17 @@ export type RecursivePartial<T> = {
 };
 
 export type OnboardingStep =
-  | "WELCOME"
-  | "PHONE_VERIFICATION"
-  | "CONTACT_INFO"
-  | "KYC"
-  | "BANK_ACCOUNT_CONNECTION"
-  | "PROCESSING_APPLICATION"
-  | "DOC_GENERATION"
+  | "USER_IDENTITY_COLLECTION"
+  | "USER_IDENTITY_VERIFICATION"
+  | "USER_CONTACT_INFO"
+  | "BANK_ACCOUNT_LINKING"
+  | "BANK_ACCOUNT_VERIFICATION"
+  | "LOAN_APPLICATION_SUBMISSION"
+  | "LOAN_AGREEMENT_CREATION"
+  | "ONBOARDING_COMPLETION"
   | "REFERRAL_SOURCE"
-  | "READY_TO_JOIN"
-  | "NEW_CARD_ON_THE_WAY"
-  | "THANKS_FOR_JOINING"
-  | "APPLICATION_COMPLETE";
+  | "FUNDING_CARD_LINKING"
+  | "APP_DOWNLOAD";
 
 export type SharedOnboardingState = Pick<
   IOnboardingContext,
@@ -110,6 +109,47 @@ export type SharedOnboardingState = Pick<
   | "howDidYouHearAboutUs"
 >;
 
+export interface UserOnboardingState {
+  id: string;
+  version: number;
+  flowName: string;
+  status: OnboardingStatus;
+  steps: Record<OnboardingStepType, UserOnboardingStateStep>;
+}
+
+export interface OnboardingStatus {
+  NOT_STARTED: "NOT_STARTED";
+  IN_PROGRESS: "IN_PROGRESS";
+  COMPLETED: "COMPLETED";
+  FAILED: "FAILED";
+}
+
+export interface OnboardingStepStatus {
+  NOT_STARTED: "NOT_STARTED";
+  IN_PROGRESS: "IN_PROGRESS";
+  COMPLETED: "COMPLETED";
+  FAILED: "FAILED";
+}
+
+export interface UserOnboardingStateStep {
+  status: OnboardingStepStatus;
+  metadata: Record<string, any>;
+  steps?: Record<OnboardingStepType, UserOnboardingStateStep>;
+}
+
+export enum OnboardingStepType {
+  PRICING_PLAN_SELECTION = "PRICING_PLAN_SELECTION",
+  USER_IDENTITY_COLLECTION = "USER_IDENTITY_COLLECTION",
+  BANK_ACCOUNT_LINKING = "BANK_ACCOUNT_LINKING",
+  BANK_ACCOUNT_VERIFICATION = "BANK_ACCOUNT_VERIFICATION",
+  LOAN_APPLICATION_CREATION = "LOAN_APPLICATION_CREATION",
+  LOAN_APPLICATION_PROCESSING = "LOAN_APPLICATION_PROCESSING",
+  LOAN_APPLICATION_COMPLETION = "LOAN_APPLICATION_COMPLETION",
+  LOAN_AGREEMENT_CREATION = "LOAN_AGREEMENT_CREATION",
+  LOAN_AGREEMENT_COMPLETION = "LOAN_AGREEMENT_COMPLETION",
+  REFERRAL_SOURCE = "REFERRAL_SOURCE",
+}
+
 export type PlanFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "THIRTY_DAYS" | "ANNUAL";
 export interface Plan {
   id: string;
@@ -123,4 +163,51 @@ export interface Plan {
 
 export enum EOtpErrorCode {
   INVALID_OTP = "auth/invalid-verification-code",
+}
+export type StepStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+export enum EStepStatus {
+  NOT_STARTED = "NOT_STARTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+}
+type StandardErrorCode = string; // You might want to define a more specific type for error codes
+
+interface StepMetadata {
+  // Define the structure of step metadata if needed
+}
+
+export interface Step {
+  status: String;
+  metadata: StepMetadata;
+}
+export interface OnboardingSteps {
+  BANK_ACCOUNT_LINKING: Step;
+  BANK_ACCOUNT_VERIFICATION: Step;
+  FUNDING_CARD_LINKING: Step;
+  LOAN_APPLICATION_SUBMISSION: Step;
+  LOAN_AGREEMENT_CREATION: Step;
+  REFERRAL_SOURCE: Step;
+  APP_DOWNLOAD: Step;
+}
+
+export enum OnboardingStepEnum {
+  USER_IDENTITY_COLLECTION = "user_identity_collection",
+  USER_IDENTITY_VERIFICATION = "user_identity_verification",
+  BANK_ACCOUNT_LINKING = "bank_account_linking",
+  BANK_ACCOUNT_VERIFICATION = "bank_account_verification",
+  LOAN_APPLICATION_SUBMISSION = "loan_application_submission",
+  LOAN_APPLICATION_VERIFICATION = "loan_application_verification",
+  LOAN_AGREEMENT_CREATION = "loan_agreement_creation",
+  LOAN_AGREEMENT_COMPLETION = "loan_agreement_completion",
+  ONBOARDING_COMPLETION = "onboarding_completion",
+  REFERRAL_SOURCE = "referral_source",
+  APP_DOWNLOAD = "app_download",
+}
+export interface OnboardingProcess {
+  id: string;
+  version: number;
+  status: EStepStatus;
+  currentStep: keyof OnboardingSteps;
+  steps: OnboardingSteps;
 }

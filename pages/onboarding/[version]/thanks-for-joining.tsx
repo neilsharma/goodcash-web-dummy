@@ -6,21 +6,22 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { onboardingStepToPageMap } from "@/shared/constants";
-import { EScreenEventTitle } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
+import { EScreenEventTitle } from "../../../utils/types";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { useOnboarding } from "@/shared/context/onboarding";
+import { EStepStatus } from "../../../shared/types";
 
 export default function ThanksForJoining() {
   useConfirmUnload();
-  const { setOnboardingStep } = useOnboarding();
+  const { setOnboardingStep, onboardingStepHandler } = useOnboarding();
   useTrackPage(EScreenEventTitle.THANKS_FOR_JOINING);
 
   const { push } = useRouter();
 
   const navigate = useCallback(() => {
-    setOnboardingStep("NEW_CARD_ON_THE_WAY");
-    push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
-  }, [push, setOnboardingStep]);
+    setOnboardingStep("APP_DOWNLOAD");
+    onboardingStepHandler(EStepStatus.COMPLETED);
+  }, [onboardingStepHandler, setOnboardingStep]);
 
   return (
     <OnboardingLayout>

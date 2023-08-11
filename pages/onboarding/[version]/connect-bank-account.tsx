@@ -22,10 +22,14 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
-import { useGlobal } from "../../shared/context/global";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { KYCFieldState } from "../../shared/http/types";
-import { ELocalStorageKeys, EScreenEventTitle } from "../../utils/types";
+import { useGlobal } from "../../../shared/context/global";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
+import { KYCFieldState } from "../../../shared/http/types";
+import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
+import useTrackerInitializer from "../../../shared/hooks/useTrackerInitializer";
+import { setUserId } from "../../../utils/analytics/analytics";
+import { getUserInfoFromCache } from "../../../shared/http/util";
+import { EStepStatus } from "../../../shared/types";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -46,6 +50,8 @@ export default function OnboardingConnectBankAccountPage() {
     email,
     state,
     user,
+    onboardingStepHandler,
+    mergeOnboardingStateHandler,
   } = useOnboarding();
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +60,17 @@ export default function OnboardingConnectBankAccountPage() {
     const localToken = localStorage.getItem(ELocalStorageKeys.LINK_TOKEN);
     if (localToken) setPlaidLinkToken(localToken);
   };
+
+  useEffect(() => {
+    if (isPlaidOAuthRedirect) {
+      const cachedUserInfo = getUserInfoFromCache();
+      if (cachedUserInfo?.auth_token) {
+        mergeOnboardingStateHandler(cachedUserInfo?.auth_token);
+      }
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaidOAuthRedirect]);
 
   useEffect(() => {
     if (isPlaidOAuthRedirect) {
@@ -83,39 +100,42 @@ export default function OnboardingConnectBankAccountPage() {
 
   const createBankAccountHandler = useCallback(
     async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {
-      trackGTagConversion(ConversionEvent.BankAccountLinked);
+      try {
+        trackGTagConversion(ConversionEvent.BankAccountLinked);
 
-      await createBankAccount({ plaidPublicToken: publicToken });
-      const { status, error } = await longPollBankCreation();
-
-      if (status === "COMPLETED") {
-        setOnboardingOperationsMap((p) => ({
-          ...p,
-          bankAccountCreated: true,
-        }));
-
-        metadata && setPlaid({ publicToken, metadata });
-
-        patchUserOnboarding({
-          plaid: { publicToken, metadata },
-          onboardingStep: "PROCESSING_APPLICATION",
-          onboardingOperationsMap: {
+        await createBankAccount({ plaidPublicToken: publicToken });
+        const { status, error } = await longPollBankCreation();
+        if (status === "COMPLETED") {
+          setOnboardingOperationsMap((p) => ({
+            ...p,
             bankAccountCreated: true,
-          },
-        });
+          }));
 
-        trackGTagConversion(ConversionEvent.BankAccountConnected);
+          metadata && setPlaid({ publicToken, metadata });
 
-        setOnboardingStep("PROCESSING_APPLICATION");
-        push(onboardingStepToPageMap.PROCESSING_APPLICATION);
-      } else if (status === "FAILED") {
-        error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
-          ? redirectToNotEnoughMoneyPage()
-          : redirectToGenericErrorPage();
+          patchUserOnboarding({
+            plaid: { publicToken, metadata },
+            onboardingStep: "BANK_ACCOUNT_VERIFICATION",
+            onboardingOperationsMap: {
+              bankAccountCreated: true,
+            },
+          });
+
+          trackGTagConversion(ConversionEvent.BankAccountConnected);
+
+          setOnboardingStep("BANK_ACCOUNT_VERIFICATION");
+          onboardingStepHandler(EStepStatus.COMPLETED);
+        } else if (status === "FAILED") {
+          error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
+            ? redirectToNotEnoughMoneyPage()
+            : redirectToGenericErrorPage();
+        }
+      } catch (error) {
+        onboardingStepHandler(EStepStatus.FAILED);
       }
     },
     [
-      push,
+      onboardingStepHandler,
       redirectToGenericErrorPage,
       redirectToNotEnoughMoneyPage,
       setOnboardingOperationsMap,
@@ -138,7 +158,7 @@ export default function OnboardingConnectBankAccountPage() {
         return push("/onboarding/not-enough-money");
       }
 
-      redirectToGenericErrorPage();
+      onboardingStepHandler(EStepStatus.FAILED);
     }
   };
 

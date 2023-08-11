@@ -8,9 +8,10 @@ import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/servi
 import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { trackEvent } from "../../utils/analytics/analytics";
-import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
+import { trackEvent } from "../../../utils/analytics/analytics";
+import { EScreenEventTitle, ETrackEvent } from "../../../utils/types";
+import { EStepStatus } from "../../../shared/types";
 
 export default function OnboardingHowDidYouHearPage() {
   useConfirmUnload();
@@ -24,6 +25,7 @@ export default function OnboardingHowDidYouHearPage() {
     howDidYouHearAboutUs,
     setHowDidYouHearAboutUs,
     redirectToGenericErrorPage,
+    onboardingStepHandler,
   } = useOnboarding();
   const { push } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -43,26 +45,26 @@ export default function OnboardingHowDidYouHearPage() {
             options: { from: howDidYouHearAboutUs },
           });
 
-        setOnboardingStep("NEW_CARD_ON_THE_WAY");
+        setOnboardingStep("LOAN_AGREEMENT_CREATION");
         setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
         patchUserOnboarding({
-          onboardingStep: "NEW_CARD_ON_THE_WAY",
+          onboardingStep: "LOAN_AGREEMENT_CREATION",
           onboardingOperationsMap: { onboardingCompleted: true },
           howDidYouHearAboutUs,
         });
       }
 
-      push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
+      onboardingStepHandler(EStepStatus.COMPLETED);
     } catch (error) {
       redirectToGenericErrorPage();
     }
   }, [
-    onboardingOperationsMap,
-    setOnboardingOperationsMap,
-    setIsLoading,
-    setOnboardingStep,
+    onboardingOperationsMap.onboardingCompleted,
+    onboardingStepHandler,
+
     howDidYouHearAboutUs,
-    push,
+    setOnboardingStep,
+    setOnboardingOperationsMap,
     redirectToGenericErrorPage,
   ]);
 

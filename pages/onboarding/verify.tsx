@@ -5,16 +5,17 @@ import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
-import { useOnboarding } from "@/shared/context/onboarding";
+import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import {
   createUser,
   getUser,
   getUserOnboarding,
+  getUserOnboardingVersion,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
-import { EOtpErrorCode } from "@/shared/types";
+import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
@@ -23,6 +24,7 @@ import { useTimer } from "react-timer-hook";
 import { parseApiError } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
+import OnboardingPlaidKycView from "../../container/KycView";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -48,12 +50,17 @@ export default function OnboardingVerifyPage() {
     redirectToGenericErrorPage,
     setUser,
     setOnboardingOperationsMap,
+    onboardingStepHandler,
+    setVersion,
+    version,
+    updateOnboardingStepData,
   } = useOnboarding();
-  const { push } = useRouter();
+  const { push, query } = useRouter();
 
   const [code, setCode] = useState("");
   const [codeMask, setCodeMask] = useState("");
   const [isOtpInvalid, setIsOtpInvalid] = useState(false);
+  const [showKycView, setShowKycView] = useState(false);
   const { seconds, restart } = useTimer({
     autoStart: true,
     expiryTimestamp: new Date(Date.now() + 30000),
@@ -94,7 +101,8 @@ export default function OnboardingVerifyPage() {
 
   const userCreationHandler = useCallback(async () => {
     try {
-      return await createUser(auth);
+      const { flowName } = query;
+      return await createUser(auth, flowName);
     } catch (error: any) {
       const errorObject = parseApiError(error);
 
@@ -106,11 +114,10 @@ export default function OnboardingVerifyPage() {
             "Join our waitlist on goodcash.com to get notified when we open up to new users!"
         );
       }
-
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
-      redirectToGenericErrorPage();
+      onboardingStepHandler(EStepStatus.FAILED);
     }
-  }, [auth, redirectToGenericErrorPage]);
+  }, [auth, onboardingStepHandler, query]);
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
@@ -119,6 +126,11 @@ export default function OnboardingVerifyPage() {
     const token = await user.getIdToken();
     const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
     const gcUser = await getUser(token).catch(userCreationHandler);
+
+    const userOnboardingState = await getUserOnboardingVersion(token);
+    if (userOnboardingState?.version) {
+      setVersion(userOnboardingState.version);
+    }
 
     if (gcUser && gcUser.id) {
       setUser(gcUser);
@@ -138,52 +150,61 @@ export default function OnboardingVerifyPage() {
           return redirectToGenericErrorPage();
 
         case "LIVE":
-          return push(onboardingStepToPageMap.NEW_CARD_ON_THE_WAY);
+          return push(`${version}/${onboardingStepToPageMap.APP_DOWNLOAD}`);
       }
 
       const onboardingState = await onboardingStatePromise;
 
       if (onboardingState) {
         mergeOnboardingState(onboardingState);
-
-        if (onboardingState.onboardingStep) {
-          return push(onboardingStepToPageMap[onboardingState.onboardingStep]);
-        }
+        updateOnboardingStepData(
+          onboardingState.onboardingOperationsMap as OnboardingOperationsMap
+        );
       }
 
       const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);
       const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
 
-      setOnboardingStep(targetSept);
+      setOnboardingStep("BANK_ACCOUNT_LINKING");
       patchUserOnboarding({
         firstName,
         lastName,
         phone,
         email,
         user: gcUser,
-        onboardingStep: targetSept,
+        onboardingStep: "BANK_ACCOUNT_LINKING",
         onboardingOperationsMap: { userCreated: true },
         plan: hardcodedPlan.id,
       });
       setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
-      push(onboardingStepToPageMap[targetSept]);
+      if (!onboardingState?.onboardingOperationsMap?.userKycSubmitted && targetSept === "KYC") {
+        return setShowKycView(true);
+      } else if (targetSept === "CONTACT_INFO") {
+        push(onboardingStepToPageMap.USER_CONTACT_INFO);
+      } else {
+        return onboardingStepHandler(EStepStatus.IN_PROGRESS);
+      }
     }
   }, [
     confirmPhone,
     userCreationHandler,
-    redirectToGenericErrorPage,
+    setVersion,
     setUser,
     userSession?.fbc,
     userSession?.fbp,
-    setIsUserBlocked,
-    push,
-    mergeOnboardingState,
     setOnboardingStep,
     firstName,
     lastName,
     phone,
     email,
     setOnboardingOperationsMap,
+    setIsUserBlocked,
+    redirectToGenericErrorPage,
+    push,
+    version,
+    mergeOnboardingState,
+    updateOnboardingStepData,
+    onboardingStepHandler,
   ]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -191,6 +212,10 @@ export default function OnboardingVerifyPage() {
       inputRef.current?.blur();
     }
   };
+
+  if (showKycView) {
+    return <OnboardingPlaidKycView />;
+  }
 
   return (
     <OnboardingLayout>

@@ -1,4 +1,6 @@
 import { CachedUserInfo, ELocalStorageKeys } from "@/utils/types";
+import { onboardingStepToPageMap } from "../constants";
+import { ParsedUrlQuery } from "querystring";
 
 export const urlPaths = {
   USER_ME: "/v1/me",
@@ -21,7 +23,9 @@ export const urlPaths = {
   LOC_BALANCE: "/v1/lines_of_credit/:line_of_credit_id/balance",
   CARD_URL: "/v1/cards/",
   TRANSACTIONS_LIST: "/v1/transactions/list-loc-transactions",
+  USER_ONBOARDING_VERSION: "/v1/onboarding",
   USER_ONBOARDING: "/v1/me/onboarding",
+  PATCH_USER_ONBOARDING: "/v1/me/onboarding",
   USER_COMPLETE_ONBOARDING: "/v1/me/complete-onboarding",
   USER_ASSET_STATUS: "/v1/me/asset-status",
   UNDERWRITING: "/v1/underwriting",
@@ -31,7 +35,7 @@ export const urlPaths = {
   LOAN_AGREEMENTS_APPLICATIONS: "/v1/loan-agreements/applications",
   LOAN_AGREEMENTS_APPLICATION_APPROVE: "/v1/loan-agreements/applications/approve",
   LOAN_AGREEMENTS_COMPLETE: "/v1/loan-agreements/complete",
-  KYC_BANK_LOC_STATUS: "/v1/me/kyc_attempt/bank-status",
+  BANK_LOC_STATUS: "/v1/bank-account/status",
 } as const;
 
 /**
@@ -84,4 +88,12 @@ export const getUserInfoFromCache = (): CachedUserInfo | null => {
   }
 
   return cachedUserInfo;
+};
+
+export const navigateWithQuery = (query: ParsedUrlQuery, baseUrl: string) => {
+  const queryString = Object.keys(query)
+    .map((key) => `${key}=${query[key]}`)
+    .join("&");
+  const urlWithQuery = `${baseUrl}?${queryString}`;
+  return urlWithQuery;
 };
