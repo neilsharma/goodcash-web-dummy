@@ -58,17 +58,25 @@ export const longPoll = async <R>(
 
   return new Promise((resolve) => {
     const startPolling = async (): Promise<any> => {
-      const response = await cb();
-      const expectedResponse = check(response);
+      try {
+        const response = await cb();
+        const expectedResponse = check(response);
 
-      attemptsTried++;
+        attemptsTried++;
 
-      if (!expectedResponse)
-        return attempts > 0 && attemptsTried >= attempts
+        if (!expectedResponse)
+          return attempts > 0 && attemptsTried >= attempts
+            ? resolve(fallback!)
+            : setTimeout(startPolling, timeout);
+
+        return resolve(response);
+      } catch {
+        attemptsTried++;
+
+        attempts > 0 && attemptsTried >= attempts
           ? resolve(fallback!)
           : setTimeout(startPolling, timeout);
-
-      return resolve(response);
+      }
     };
 
     startPolling();
