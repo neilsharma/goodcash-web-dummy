@@ -1,29 +1,29 @@
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
-import Image from "next/image";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CheckBox from "../../../components/CheckBox";
 import {
+  OnboardingFlowName,
+  OnboardingFlowVersionsMap,
   bankPrivacyPolicyUrl,
   cardHolderAgreementUrl,
   defaultPlanId,
   eSignConsentUrl,
   freePlanId,
-  hardcodedPlan,
   hardcodedPlans,
-  onboardingStepToPageMap,
   privacyPolicyUrl,
   termsOfServiceUrl,
 } from "../../../shared/constants";
-import useTrackPage from "../../../shared/hooks/useTrackPage";
-import { EScreenEventTitle, resolveText } from "../../../utils/types";
-import { EFeature, isFeatureEnabled } from "../../../shared/feature";
 import { useOnboarding } from "../../../shared/context/onboarding";
+import { EFeature, isFeatureEnabled } from "../../../shared/feature";
+import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { getUserInfoFromCache } from "../../../shared/http/util";
 import { EStepStatus } from "../../../shared/types";
+import { EScreenEventTitle, resolveText } from "../../../utils/types";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -35,7 +35,7 @@ export default function OnboardingReadyToJoinPage() {
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
   const [dynamicPlanId, setDynamicPlanId] = useState(defaultPlanId);
-  const { user, onboardingStepHandler } = useOnboarding();
+  const { user, version, onboardingStepHandler } = useOnboarding();
   const isButtonDisabled =
     !electronicDisclosureCheckbox ||
     !recurringAuthorizationCheckbox ||
@@ -46,10 +46,14 @@ export default function OnboardingReadyToJoinPage() {
       const cachedUserInfo = getUserInfoFromCache();
       const userId = cachedUserInfo?.userId || user?.id;
 
+      const onboardingFlowName = OnboardingFlowVersionsMap[version];
+
       if (userId) {
         const dynamicPlan = await isFeatureEnabled(
           userId,
-          EFeature.DYNAMIC_SUBSCRIPTION_PLAN,
+          onboardingFlowName === OnboardingFlowName.DEBIT_CARD_FUNDING
+            ? EFeature.DYNAMIC_SUBSCRIPTION_PLAN_FUNDING_CARD
+            : EFeature.DYNAMIC_SUBSCRIPTION_PLAN,
           defaultPlanId
         );
         setDynamicPlanId(dynamicPlan);

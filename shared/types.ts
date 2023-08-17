@@ -1,4 +1,3 @@
-import { hardcodedPlans } from "./constants";
 import type { IOnboardingContext } from "./context/onboarding";
 
 declare global {

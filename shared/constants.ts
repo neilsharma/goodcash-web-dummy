@@ -1,4 +1,3 @@
-import { isFeatureEnabled } from "./feature";
 import type { OnboardingStep, Plan } from "./types";
 
 export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
@@ -60,3 +59,13 @@ export const eSignConsentUrl =
 export const defaultPlanId = 2;
 export const freePlanId = 3;
 export const hardcodedPlan: Plan = hardcodedPlans[defaultPlanId];
+
+export enum OnboardingFlowName {
+  BANK_ACCOUNT_FUNDING = "bank-account-funding",
+  DEBIT_CARD_FUNDING = "debit-card-funding",
+}
+
+export const OnboardingFlowVersionsMap: Record<number, OnboardingFlowName> = {
+  0: OnboardingFlowName.BANK_ACCOUNT_FUNDING,
+  1: OnboardingFlowName.DEBIT_CARD_FUNDING,
+};
