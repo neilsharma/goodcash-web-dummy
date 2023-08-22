@@ -29,9 +29,9 @@ export const createUser = async (auth: Auth | null, flowName?: string | string[]
   return res.data;
 };
 
-export const getUser = async (token: string) => {
+export const getUser = async (token?: string) => {
   const res = await http.get<any, AxiosResponse<GCUser | null>>(urlPaths.USER_ME, {
-    headers: { "goodcash-authorization": token },
+    ...(token ? { headers: { "goodcash-authorization": token } } : {}),
   });
 
   return res.data;

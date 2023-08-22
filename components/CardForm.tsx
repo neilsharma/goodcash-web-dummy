@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   useStripe,
   useElements,
@@ -12,7 +12,7 @@ import { EStepStatus } from "../shared/types";
 import { trackEvent } from "../utils/analytics/analytics";
 import { ETrackEvent, IUserAddress } from "../utils/types";
 import Button from "./Button";
-import { patchUserOnboarding } from "../shared/http/services/user";
+import { getUser, patchUserOnboarding } from "../shared/http/services/user";
 import DebitCardAddressForm from "./DebitCardAddressForm";
 import { FormControlError } from "./form-control/shared";
 
@@ -42,6 +42,8 @@ function CardForm() {
     return false;
   };
 
+  const userPromise = useMemo(getUser, []);
+
   const handleSubmit = useCallback(
     async (event: React.FormEvent) => {
       try {
@@ -54,11 +56,19 @@ function CardForm() {
 
         const cardElement = elements.getElement(CardNumberElement);
 
+        const user = await userPromise.catch(() => null);
+
         if (cardElement && userAddress) {
           const { error, paymentMethod } = await stripe.createPaymentMethod({
             type: "card",
             card: cardElement,
             billing_details: {
+              name:
+                user?.contactInfo?.firstName && user.contactInfo.lastName
+                  ? `${user.contactInfo?.firstName} ${user.contactInfo?.lastName}`
+                  : undefined,
+              phone: user?.contactInfo?.phone || undefined,
+              email: user?.contactInfo?.email || undefined,
               address: {
                 city: userAddress.city || "",
                 country: "US",
@@ -108,6 +118,7 @@ function CardForm() {
       }
     },
     [
+      userPromise,
       elements,
       onboardingStepHandler,
       setOnboardingOperationsMap,

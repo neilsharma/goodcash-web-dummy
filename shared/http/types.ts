@@ -7,6 +7,20 @@ export interface GCUser {
   lithicAccount: string | null;
   createdAt: Date;
   updatedAt: Date;
+
+  contactInfo: {
+    phone: string | null;
+    email: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    addressLine3: string | null;
+    city: string | null;
+    state: string | null;
+    zip: string | null;
+    country: string | null;
+    firstName: string | null;
+    lastName: string | null;
+  } | null;
 }
 
 export interface UserAddress {
