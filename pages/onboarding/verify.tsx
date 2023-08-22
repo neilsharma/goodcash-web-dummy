@@ -54,6 +54,7 @@ export default function OnboardingVerifyPage() {
     setVersion,
     version,
     updateOnboardingStepData,
+    mergeOnboardingStateHandler,
   } = useOnboarding();
   const { push, query } = useRouter();
 
@@ -124,13 +125,8 @@ export default function OnboardingVerifyPage() {
     if (!user) return;
 
     const token = await user.getIdToken();
-    const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
     const gcUser = await getUser(token).catch(userCreationHandler);
-
-    const userOnboardingState = await getUserOnboardingVersion(token);
-    if (userOnboardingState?.version) {
-      setVersion(userOnboardingState.version);
-    }
+    mergeOnboardingStateHandler(token);
 
     if (gcUser && gcUser.id) {
       setUser(gcUser);
@@ -153,30 +149,22 @@ export default function OnboardingVerifyPage() {
           return push(`${version}/${onboardingStepToPageMap.APP_DOWNLOAD}`);
       }
 
-      const onboardingState = await onboardingStatePromise;
-
-      if (onboardingState) {
-        mergeOnboardingState(onboardingState);
-        updateOnboardingStepData(
-          onboardingState.onboardingOperationsMap as OnboardingOperationsMap
-        );
-      }
-
       const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);
       const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
 
-      setOnboardingStep("BANK_ACCOUNT_LINKING");
+      setOnboardingStep(version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING");
       patchUserOnboarding({
         firstName,
         lastName,
         phone,
         email,
         user: gcUser,
-        onboardingStep: "BANK_ACCOUNT_LINKING",
+        onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
         onboardingOperationsMap: { userCreated: true },
         plan: hardcodedPlan.id,
       });
       setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
+      const onboardingState = await getUserOnboarding(token).catch(() => null);
       if (!onboardingState?.onboardingOperationsMap?.userKycSubmitted && targetSept === "KYC") {
         return setShowKycView(true);
       } else if (targetSept === "CONTACT_INFO") {
@@ -188,7 +176,7 @@ export default function OnboardingVerifyPage() {
   }, [
     confirmPhone,
     userCreationHandler,
-    setVersion,
+    mergeOnboardingStateHandler,
     setUser,
     userSession?.fbc,
     userSession?.fbp,
@@ -202,8 +190,6 @@ export default function OnboardingVerifyPage() {
     redirectToGenericErrorPage,
     push,
     version,
-    mergeOnboardingState,
-    updateOnboardingStepData,
     onboardingStepHandler,
   ]);
 

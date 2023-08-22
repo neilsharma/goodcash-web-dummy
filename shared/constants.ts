@@ -5,7 +5,7 @@ export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
   USER_IDENTITY_VERIFICATION: "onboarding/verify",
   USER_CONTACT_INFO: "contact-info",
   BANK_ACCOUNT_LINKING: "connect-bank-account",
-  BANK_ACCOUNT_VERIFICATION: "processing-application",
+  PAYMENT_METHOD_VERIFICATION: "processing-application",
   LOAN_APPLICATION_SUBMISSION: "ready-to-join",
   LOAN_AGREEMENT_CREATION: "doc-generation",
   REFERRAL_SOURCE: "how-did-you-hear",

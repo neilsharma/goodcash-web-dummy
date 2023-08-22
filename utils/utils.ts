@@ -11,6 +11,16 @@ function convertFbclidToFbc(fbclid: string): string {
   return fbc;
 }
 
+const sharpGroteskBook20FontUrl =
+  process.env["NEXT_PUBLIC_GOODCASH_ENVIRONMENT"] === "production"
+    ? "url(https://firebasestorage.googleapis.com/v0/b/goodcash-production.appspot.com/o/SharpGroteskBook20.otf?alt=media&token=99565d67-2721-4c0c-b167-460d79b9ce80)"
+    : "url(https://firebasestorage.googleapis.com/v0/b/goodcash-sandbox.appspot.com/o/SharpGroteskBook20.otf?alt=media&token=9056812d-5fae-4bcd-899a-383675278a9f)";
+
+export const sharpGroteskFont = {
+  family: "SharpGroteskBook20",
+  src: sharpGroteskBook20FontUrl,
+};
+
 function getFbSession(): {
   fbc?: string;
   fbp?: string;

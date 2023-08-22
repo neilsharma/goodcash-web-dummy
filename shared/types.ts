@@ -74,7 +74,7 @@ export type OnboardingStep =
   | "USER_IDENTITY_VERIFICATION"
   | "USER_CONTACT_INFO"
   | "BANK_ACCOUNT_LINKING"
-  | "BANK_ACCOUNT_VERIFICATION"
+  | "PAYMENT_METHOD_VERIFICATION"
   | "LOAN_APPLICATION_SUBMISSION"
   | "LOAN_AGREEMENT_CREATION"
   | "ONBOARDING_COMPLETION"
@@ -140,7 +140,7 @@ export enum OnboardingStepType {
   PRICING_PLAN_SELECTION = "PRICING_PLAN_SELECTION",
   USER_IDENTITY_COLLECTION = "USER_IDENTITY_COLLECTION",
   BANK_ACCOUNT_LINKING = "BANK_ACCOUNT_LINKING",
-  BANK_ACCOUNT_VERIFICATION = "BANK_ACCOUNT_VERIFICATION",
+  PAYMENT_METHOD_VERIFICATION = "PAYMENT_METHOD_VERIFICATION",
   LOAN_APPLICATION_CREATION = "LOAN_APPLICATION_CREATION",
   LOAN_APPLICATION_PROCESSING = "LOAN_APPLICATION_PROCESSING",
   LOAN_APPLICATION_COMPLETION = "LOAN_APPLICATION_COMPLETION",
@@ -182,7 +182,7 @@ export interface Step {
 }
 export interface OnboardingSteps {
   BANK_ACCOUNT_LINKING: Step;
-  BANK_ACCOUNT_VERIFICATION: Step;
+  PAYMENT_METHOD_VERIFICATION: Step;
   FUNDING_CARD_LINKING: Step;
   LOAN_APPLICATION_SUBMISSION: Step;
   LOAN_AGREEMENT_CREATION: Step;
@@ -190,11 +190,18 @@ export interface OnboardingSteps {
   APP_DOWNLOAD: Step;
 }
 
+export interface OnboardingStepState<T = any> {
+  [key: string]: {
+    status: EStepStatus;
+    metadata: Record<string, T>; // You can replace 'any' with a more specific type if needed
+  };
+}
+
 export enum OnboardingStepEnum {
   USER_IDENTITY_COLLECTION = "user_identity_collection",
   USER_IDENTITY_VERIFICATION = "user_identity_verification",
   BANK_ACCOUNT_LINKING = "bank_account_linking",
-  BANK_ACCOUNT_VERIFICATION = "bank_account_verification",
+  PAYMENT_METHOD_VERIFICATION = "PAYMENT_METHOD_VERIFICATION",
   LOAN_APPLICATION_SUBMISSION = "loan_application_submission",
   LOAN_APPLICATION_VERIFICATION = "loan_application_verification",
   LOAN_AGREEMENT_CREATION = "loan_agreement_creation",

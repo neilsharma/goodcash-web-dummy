@@ -1,13 +1,18 @@
 import { PlanFrequency } from "../shared/types";
 
 export enum ETrackEvent {
-  // Analytics events listed here
+  // Existing events
   USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
   USER_LOGGED_IN_FAILED = "User Log In Failed",
-  USER_HERD_ABOUT_US = "User Heard About Us Clicked",
+  USER_HEARD_ABOUT_US = "User Heard About Us Clicked",
   USER_STATE_VALIDATION_FAILED = "User State Validation Failed",
   USER_CLOSED_BROWSER_TAB = "User Closed Browser Tab",
+
+  //card events
+  ADD_FUNDING_CARD_SUCCESS = "Add Funding Card Success",
+  ADD_FUNDING_CARD_FAILED = "Add Funding Card Failed",
 }
+
 export enum EScreenEventTitle {
   ONBOARDING = "Onboarding Index",
   PLAN = "Plan",
@@ -116,4 +121,12 @@ export const resolveText = (frequency: PlanFrequency) => {
 
 export enum ESentryEvents {
   USER_PHONE_EMAIL_CHECK = "User Phone Email Check",
+}
+
+export interface IUserAddress {
+  addressLine1: string;
+  addressLine2: string;
+  state: string;
+  city: string;
+  zipCode: string;
 }

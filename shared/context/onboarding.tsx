@@ -20,6 +20,7 @@ import {
   EUsaStates,
   OnboardingStep,
   OnboardingSteps,
+  OnboardingStepState,
   RecursivePartial,
   SharedOnboardingState,
 } from "../types";
@@ -31,6 +32,8 @@ import { getUserOnboarding, getUserOnboardingVersion } from "../http/services/us
 import { app } from "./global";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useConfirmIsOAuthRedirect } from "../hooks";
+import useStripePromise from "../hooks/useStripePromise";
+import { Stripe } from "@stripe/stripe-js";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -106,6 +109,7 @@ export interface IOnboardingContext {
   updateOnboardingStepData: (onboardingData?: OnboardingOperationsMap) => void;
   isLoadingUserInfo: boolean;
   mergeOnboardingStateHandler: (token: string) => Promise<void>;
+  stripe: Stripe | null;
 }
 
 export interface OnboardingOperationsMap {
@@ -116,7 +120,7 @@ export interface OnboardingOperationsMap {
   userKycFilled: boolean;
   userKycSubmitted: boolean;
   bankAccountCreated: boolean;
-
+  fundingCardLinked: boolean;
   loanApplicationCreated: boolean;
   loanApplicationApproved: boolean;
   loanAgreementCreated: boolean;
@@ -140,7 +144,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     userKycFilled: false,
     userKycSubmitted: false,
     bankAccountCreated: false,
-
+    fundingCardLinked: false,
     loanApplicationCreated: false,
     loanApplicationApproved: false,
     loanAgreementCreated: false,
@@ -194,30 +198,36 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     useState<string>("BANK_ACCOUNT_LINKING");
   const [version, setVersion] = useState<number>(0);
 
-  const onboardingStepState = useMemo(
+  const stripe = useStripePromise();
+
+  const onboardingStepState: OnboardingStepState = useMemo(
     () => ({
       BANK_ACCOUNT_LINKING: {
-        status: "NOT_STARTED",
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
-      BANK_ACCOUNT_VERIFICATION: {
-        status: "NOT_STARTED",
+      FUNDING_CARD_LINKING: {
+        status: EStepStatus.NOT_STARTED,
+        metadata: {},
+      },
+      PAYMENT_METHOD_VERIFICATION: {
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
       LOAN_APPLICATION_SUBMISSION: {
-        status: "NOT_STARTED",
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
       LOAN_AGREEMENT_CREATION: {
-        status: "NOT_STARTED",
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
       REFERRAL_SOURCE: {
-        status: "NOT_STARTED",
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
       APP_DOWNLOAD: {
-        status: "NOT_STARTED",
+        status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
     }),
@@ -229,19 +239,28 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       if (onboardingData) {
         for (const stepKey in onboardingStepState) {
           if (onboardingData.bankAccountCreated && stepKey === "BANK_ACCOUNT_LINKING") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
           }
-          if (onboardingData.loanApplicationApproved && stepKey === "BANK_ACCOUNT_VERIFICATION") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+          if (onboardingData.fundingCardLinked && stepKey === "FUNDING_CARD_LINKING") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
+          }
+          if (onboardingData.loanApplicationApproved && stepKey === "PAYMENT_METHOD_VERIFICATION") {
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
           }
           if (onboardingData.loanAgreementCompleted && stepKey === "LOAN_APPLICATION_SUBMISSION") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
           }
           if (onboardingData.loanAgreementCompleted && stepKey === "LOAN_AGREEMENT_CREATION") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
           }
           if (onboardingData.onboardingCompleted && stepKey === "REFERRAL_SOURCE") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "COMPLETED";
+            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+              EStepStatus.COMPLETED;
           }
         }
       }
@@ -253,7 +272,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     (status: EStepStatus) => {
       const oldData =
         onboardingStepState[currentOnboardingStep as keyof typeof onboardingStepState];
-      if (oldData) {
+      if (oldData && oldData.status !== EStepStatus.COMPLETED) {
         onboardingStepState[currentOnboardingStep as keyof typeof onboardingStepState].status =
           status;
       }
@@ -288,13 +307,19 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     (status: EStepStatus) => {
       updateTheOnboardingStepMapData(status);
       for (const stepKey in onboardingStepState) {
+        if (stepKey === "BANK_ACCOUNT_LINKING" && version == 1) {
+          continue;
+        } else if (stepKey === "FUNDING_CARD_LINKING" && version == 0) {
+          continue;
+        }
         if (status === EStepStatus.FAILED) {
           return redirectToGenericErrorPage();
         }
         const value = onboardingStepState[stepKey as keyof typeof onboardingStepState];
         if (value.status === "NOT_STARTED" || value.status === "IN_PROGRESS") {
           const firstNotStartedStep = stepKey as OnboardingStep;
-          onboardingStepState[stepKey as keyof typeof onboardingStepState].status = "IN_PROGRESS";
+          onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
+            EStepStatus.IN_PROGRESS;
           setCurrentOnboardingStep(stepKey);
           redirectToNextOnboardingStep(
             onboardingStepToPageMap[firstNotStartedStep as OnboardingStep]
@@ -308,6 +333,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       redirectToGenericErrorPage,
       redirectToNextOnboardingStep,
       updateTheOnboardingStepMapData,
+      version,
     ]
   );
 
@@ -423,6 +449,15 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
+  useEffect(() => {
+    setCurrentOnboardingStep(() => {
+      if (version === 1) {
+        return "FUNDING_CARD_LINKING";
+      }
+      return "BANK_ACCOUNT_LINKING";
+    });
+  }, [onboardingStepState.BANK_ACCOUNT_LINKING, onboardingStepState.FUNDING_CARD_LINKING, version]);
+
   const mergeOnboardingStateHandler = async (token: string) => {
     setIsLoadingUserInfo(true);
     try {
@@ -442,7 +477,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
           onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
           isPlaidOAuthRedirect
         ) {
-          setCurrentOnboardingStep("BANK_ACCOUNT_LINKING");
           onboardingStepHandler(EStepStatus.IN_PROGRESS);
         } else {
           setIsLoadingUserInfo(false);
@@ -558,6 +592,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         updateOnboardingStepData,
         isLoadingUserInfo,
         mergeOnboardingStateHandler,
+        stripe,
       }}
     >
       {children}

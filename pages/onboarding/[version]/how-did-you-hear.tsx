@@ -41,7 +41,7 @@ export default function OnboardingHowDidYouHearPage() {
 
         if (howDidYouHearAboutUs)
           trackEvent({
-            event: ETrackEvent.USER_HERD_ABOUT_US,
+            event: ETrackEvent.USER_HEARD_ABOUT_US,
             options: { from: howDidYouHearAboutUs },
           });
 

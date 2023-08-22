@@ -28,6 +28,7 @@ export default function OnboardingPlaidKycView() {
     setOnboardingOperationsMap,
     setOnboardingStep,
     onboardingStepHandler,
+    version,
   } = useOnboarding();
 
   useTrackPage(EScreenEventTitle.KYC);
@@ -67,17 +68,20 @@ export default function OnboardingPlaidKycView() {
           const status = await longPollKycSubmissionStatus();
 
           if (status === "COMPLETED") {
-            setOnboardingOperationsMap((p) => ({ ...p, userKycSubmitted: true }));
             patchUserOnboarding({
               onboardingOperationsMap: { userKycSubmitted: true },
             });
+            setOnboardingOperationsMap((p) => ({ ...p, userKycSubmitted: true }));
           } else if (status === "FAILED") {
             throw new Error(status);
           }
         }
 
-        setOnboardingStep("BANK_ACCOUNT_LINKING");
-        patchUserOnboarding({ onboardingStep: "BANK_ACCOUNT_LINKING" });
+        setOnboardingStep(version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING");
+        patchUserOnboarding({
+          onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
+        });
+        setShouldBeClosed(true);
         onboardingStepHandler(EStepStatus.IN_PROGRESS);
       } catch (e) {
         setShouldBeClosed(true);

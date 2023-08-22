@@ -50,9 +50,12 @@ export const FormControlLabel: FC<{ label?: string; labelDescription?: string }>
 export const FormControlDescription: FC<{ description?: string }> = ({ description }) =>
   description ? <span className="block mt-3 text-sm text-thinText">{description}</span> : null;
 
-export const FormControlError: FC<{ error?: string | boolean | null }> = ({ error }) =>
+export const FormControlError: FC<{ error?: string | boolean | null; className?: string }> = ({
+  error,
+  className,
+}) =>
   typeof error === "string" ? (
-    <div className="flex mt-1 gap-1 items-end absolute">
+    <div className={`flex mt-1 gap-1 items-start absolute ${className}`}>
       <Image src="/img/logo/alert.svg" alt="alert" width={15} height={15} priority={true} />
       <span className="block text-xs text-error">{error}</span>
     </div>

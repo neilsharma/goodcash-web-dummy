@@ -79,7 +79,7 @@ export default function ProcessingApplication() {
               bankAccountCreated: false,
             }));
             patchUserOnboarding({
-              onboardingStep: "BANK_ACCOUNT_LINKING",
+              onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
               onboardingOperationsMap: {
                 loanApplicationCreated: false,
                 loanApplicationApproved: false,
@@ -87,7 +87,7 @@ export default function ProcessingApplication() {
               },
             });
             setPlaid(null);
-            setOnboardingStep("BANK_ACCOUNT_LINKING");
+            setOnboardingStep(version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING");
 
             localStorage.removeItem(ELocalStorageKeys.LINK_TOKEN);
 

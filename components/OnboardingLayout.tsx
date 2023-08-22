@@ -33,7 +33,7 @@ export const OnboardingLayout: FC<{
         return 30;
       case "BANK_ACCOUNT_LINKING":
         return 50;
-      case "BANK_ACCOUNT_VERIFICATION":
+      case "PAYMENT_METHOD_VERIFICATION":
         return 60;
       case "LOAN_AGREEMENT_CREATION":
         return 70;

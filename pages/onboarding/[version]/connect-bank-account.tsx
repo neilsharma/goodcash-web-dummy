@@ -26,10 +26,8 @@ import { useGlobal } from "../../../shared/context/global";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { KYCFieldState } from "../../../shared/http/types";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
-import useTrackerInitializer from "../../../shared/hooks/useTrackerInitializer";
-import { setUserId } from "../../../utils/analytics/analytics";
-import { getUserInfoFromCache } from "../../../shared/http/util";
 import { EStepStatus } from "../../../shared/types";
+import { getUserInfoFromCache } from "../../../shared/http/util";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -115,7 +113,7 @@ export default function OnboardingConnectBankAccountPage() {
 
           patchUserOnboarding({
             plaid: { publicToken, metadata },
-            onboardingStep: "BANK_ACCOUNT_VERIFICATION",
+            onboardingStep: "PAYMENT_METHOD_VERIFICATION",
             onboardingOperationsMap: {
               bankAccountCreated: true,
             },
@@ -123,7 +121,7 @@ export default function OnboardingConnectBankAccountPage() {
 
           trackGTagConversion(ConversionEvent.BankAccountConnected);
 
-          setOnboardingStep("BANK_ACCOUNT_VERIFICATION");
+          setOnboardingStep("PAYMENT_METHOD_VERIFICATION");
           onboardingStepHandler(EStepStatus.COMPLETED);
         } else if (status === "FAILED") {
           error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
