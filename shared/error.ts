@@ -32,3 +32,15 @@ export enum EOnboardingGenericErrors {
 export enum BankAccountVerificationErrCodes {
   NOT_ENOUGH_MONEY = "UNDERWRITING0001",
 }
+
+export enum EUserError {
+  MAX_USERS = "USER0001",
+  MAS_LIVE_USERS = "USER0002",
+  FUNDING_CARD_GLOBAL_LIMIT_REACHED = "USER0005",
+}
+
+export const userLimitErrors = [
+  EUserError.MAX_USERS,
+  EUserError.MAS_LIVE_USERS,
+  EUserError.FUNDING_CARD_GLOBAL_LIMIT_REACHED,
+];

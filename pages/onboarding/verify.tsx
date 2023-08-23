@@ -5,14 +5,13 @@ import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
-import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import {
   createUser,
   getUser,
   getUserOnboarding,
-  getUserOnboardingVersion,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
@@ -21,7 +20,7 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
-import { parseApiError } from "../../shared/error";
+import { EUserError, parseApiError, userLimitErrors } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 import OnboardingPlaidKycView from "../../container/KycView";
@@ -107,7 +106,7 @@ export default function OnboardingVerifyPage() {
     } catch (error: any) {
       const errorObject = parseApiError(error);
 
-      if ((["USER0001", "USER0002"] as any[]).includes(errorObject?.errorCode)) {
+      if (userLimitErrors.includes(errorObject?.errorCode as EUserError)) {
         setIsLoading(false);
         return alert(
           "We've currently reached our maximum number of beta users " +
