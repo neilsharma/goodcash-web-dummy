@@ -176,8 +176,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   }, [email, phone, setEmail, setPhone, setState, state]);
 
   const indexPageIsValid = useMemo(() => {
-    return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email) && state);
-  }, [phone, email, state]);
+    return !!(isMobilePhone(phone, "en-US", { strictMode: true }) && isEmail(email));
+  }, [phone, email]);
 
   const [phoneVerified, setPhoneVerified] = useState(false);
 
@@ -194,9 +194,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [agreedToCardHolderAgreement, setAgreedToCardHolderAgreement] = useState(false);
   const [agreedToAutopay, setAgreedToAutopay] = useState(false);
   const [agreedToTermsOfService, setAgreedToTermsOfService] = useState(false);
-  const [currentOnboardingStep, setCurrentOnboardingStep] =
-    useState<string>("BANK_ACCOUNT_LINKING");
   const [version, setVersion] = useState<number>(0);
+  const [currentOnboardingStep, setCurrentOnboardingStep] = useState<string>(
+    version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING"
+  );
 
   const stripe = useStripePromise();
 
@@ -238,11 +239,17 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     (onboardingData?: OnboardingOperationsMap) => {
       if (onboardingData) {
         for (const stepKey in onboardingStepState) {
-          if (onboardingData.bankAccountCreated && stepKey === "BANK_ACCOUNT_LINKING") {
+          if (
+            (onboardingData.bankAccountCreated || onboardingData.fundingCardLinked) &&
+            stepKey === "BANK_ACCOUNT_LINKING"
+          ) {
             onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
               EStepStatus.COMPLETED;
           }
-          if (onboardingData.fundingCardLinked && stepKey === "FUNDING_CARD_LINKING") {
+          if (
+            (onboardingData.fundingCardLinked || onboardingData.bankAccountCreated) &&
+            stepKey === "FUNDING_CARD_LINKING"
+          ) {
             onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
               EStepStatus.COMPLETED;
           }
@@ -281,8 +288,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const redirectToNextOnboardingStep = useCallback(
-    (step: string) => {
-      const urlWithQuery = navigateWithQuery(query, `/onboarding/${version}/${step}`);
+    (step: string, currentVersion: number = version) => {
+      const urlWithQuery = navigateWithQuery(query, `/onboarding/${currentVersion}/${step}`);
       push(urlWithQuery).finally(() => setIsLoadingUserInfo(false));
     },
     [push, query, version]
@@ -304,12 +311,33 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const onboardingStepHandler = useCallback(
-    (status: EStepStatus) => {
+    (
+      status: EStepStatus,
+      currentVersion: number = version,
+      onboardingData: OnboardingOperationsMap = onboardingOperationsMap
+    ) => {
       updateTheOnboardingStepMapData(status);
+      const stepsToComplete = [
+        {
+          key: "BANK_ACCOUNT_LINKING",
+          completed: onboardingData.bankAccountCreated,
+        },
+        {
+          key: "FUNDING_CARD_LINKING",
+          completed: onboardingData.fundingCardLinked,
+        },
+        { key: "PAYMENT_METHOD_VERIFICATION", completed: onboardingData.loanApplicationApproved },
+        { key: "LOAN_APPLICATION_SUBMISSION", completed: onboardingData.loanAgreementCompleted },
+        { key: "LOAN_AGREEMENT_CREATION", completed: onboardingData.loanAgreementCompleted },
+        { key: "REFERRAL_SOURCE", completed: onboardingData.onboardingCompleted },
+      ];
       for (const stepKey in onboardingStepState) {
-        if (stepKey === "BANK_ACCOUNT_LINKING" && version == 1) {
-          continue;
-        } else if (stepKey === "FUNDING_CARD_LINKING" && version == 0) {
+        const stepCheck = stepsToComplete.filter((step) => step.key === stepKey);
+        if (
+          stepCheck?.[0]?.completed ||
+          (stepKey === "BANK_ACCOUNT_LINKING" && currentVersion === 1) ||
+          (stepKey === "FUNDING_CARD_LINKING" && currentVersion === 0)
+        ) {
           continue;
         }
         if (status === EStepStatus.FAILED) {
@@ -322,13 +350,15 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
             EStepStatus.IN_PROGRESS;
           setCurrentOnboardingStep(stepKey);
           redirectToNextOnboardingStep(
-            onboardingStepToPageMap[firstNotStartedStep as OnboardingStep]
+            onboardingStepToPageMap[firstNotStartedStep as OnboardingStep],
+            currentVersion
           );
           break;
         }
       }
     },
     [
+      onboardingOperationsMap,
       onboardingStepState,
       redirectToGenericErrorPage,
       redirectToNextOnboardingStep,
@@ -477,7 +507,11 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
           onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
           isPlaidOAuthRedirect
         ) {
-          onboardingStepHandler(EStepStatus.IN_PROGRESS);
+          onboardingStepHandler(
+            EStepStatus.IN_PROGRESS,
+            userOnboardingVersion?.version,
+            onboardingState.onboardingOperationsMap as OnboardingOperationsMap
+          );
         } else {
           setIsLoadingUserInfo(false);
         }

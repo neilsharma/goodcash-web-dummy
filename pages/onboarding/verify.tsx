@@ -145,7 +145,7 @@ export default function OnboardingVerifyPage() {
           return redirectToGenericErrorPage();
 
         case "LIVE":
-          return push(`${version}/${onboardingStepToPageMap.APP_DOWNLOAD}`);
+          return onboardingStepHandler(EStepStatus.COMPLETED);
       }
 
       const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);

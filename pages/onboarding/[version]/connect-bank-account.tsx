@@ -202,7 +202,6 @@ export default function OnboardingConnectBankAccountPage() {
         GoodCash uses Plaid to securely connect to your checking account. GoodCash does not retain
         your bank login information.
       </SubTitle>
-
       <div className="my-12 font-sharpGroteskBook text-black">
         <p className="text-lg my-4">This connection allow GoodCash to:</p>
 
