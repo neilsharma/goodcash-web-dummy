@@ -16,7 +16,7 @@ import {
 } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
-import { signInWithPhoneNumber } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
@@ -68,8 +68,8 @@ export default function OnboardingVerifyPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const resentCode = useCallback(async () => {
-    const [auth, recaptchaVerifier] = resetAuth();
-
+    const [auth] = resetAuth();
+    const recaptchaVerifier = auth && new RecaptchaVerifier(auth, "recaptcha-container", {});
     await recaptchaVerifier?.render();
     const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
     recaptchaVerifier?.clear();

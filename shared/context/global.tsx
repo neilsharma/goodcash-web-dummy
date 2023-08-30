@@ -27,7 +27,7 @@ export interface IGlobalContext {
   userSession: UserSession | null;
   confirmationResult: ConfirmationResult | null;
   setConfirmationResult: Dispatch<SetStateAction<ConfirmationResult | null>>;
-  resetAuth: () => readonly [Auth, RecaptchaVerifier, Analytics];
+  resetAuth: () => readonly [Auth, Analytics];
 }
 
 export const app = initializeApp(firebaseConfig);
@@ -56,16 +56,14 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const resetAuth = useCallback(() => {
     const _analytics = getAnalytics(app);
     const _auth = getAuth(app);
-    const _recaptchaVerifier = new RecaptchaVerifier(_auth, "recaptcha-container", {});
 
     computedAuth = _auth;
     computedAnalytics = _analytics;
 
     setAnalytics(_analytics);
     setAuth(_auth);
-    setRecaptchaVerifier(_recaptchaVerifier);
 
-    return [_auth, _recaptchaVerifier, _analytics] as const;
+    return [_auth, _analytics] as const;
   }, []);
 
   useEffect(() => {

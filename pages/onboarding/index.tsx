@@ -7,20 +7,18 @@ import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/
 import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
-import { signInWithPhoneNumber } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
-import { EStepStatus, EUsaStates } from "../../shared/types";
+import { EUsaStates } from "../../shared/types";
 import { trackEvent, trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
-import useTrackerInitializer from "../../shared/hooks/useTrackerInitializer";
-import Loader from "../../components/Loader";
 import { navigateWithQuery } from "../../shared/http/util";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { auth, recaptchaVerifier, setConfirmationResult } = useGlobal();
+  const { auth, setConfirmationResult } = useGlobal();
   const {
     setState,
     redirectToStateNotSupportedPage,
@@ -31,7 +29,6 @@ export default function OnboardingIndexPage() {
     email,
     setEmail,
     indexPageIsValid,
-    isLoadingUserInfo,
   } = useOnboarding();
   const [phoneMask, setPhoneMask] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +60,8 @@ export default function OnboardingIndexPage() {
       return;
     }
 
+    const recaptchaVerifier = auth && new RecaptchaVerifier(auth, "recaptcha-container", {});
+
     setIsLoading(true);
     try {
       setDimBackground(true);
@@ -86,7 +85,6 @@ export default function OnboardingIndexPage() {
     email,
     redirectToStateNotSupportedPage,
     auth,
-    recaptchaVerifier,
     setConfirmationResult,
     setOnboardingStep,
     push,
