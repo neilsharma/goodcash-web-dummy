@@ -4,10 +4,10 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
-import { useGlobal } from "@/shared/context/global";
+import { app, useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { RecaptchaVerifier, getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
@@ -18,7 +18,7 @@ import { navigateWithQuery } from "../../shared/http/util";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { auth, setConfirmationResult } = useGlobal();
+  const { setConfirmationResult } = useGlobal();
   const {
     setState,
     redirectToStateNotSupportedPage,
@@ -59,22 +59,24 @@ export default function OnboardingIndexPage() {
       redirectToStateNotSupportedPage();
       return;
     }
+    let recaptchaVerifier: RecaptchaVerifier;
+    const auth = getAuth(app);
+    if (auth) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {});
+      setIsLoading(true);
+      try {
+        setDimBackground(true);
+        const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier);
+        recaptchaVerifier?.clear();
+        setDimBackground(false);
 
-    const recaptchaVerifier = auth && new RecaptchaVerifier(auth, "recaptcha-container", {});
-
-    setIsLoading(true);
-    try {
-      setDimBackground(true);
-      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
-      recaptchaVerifier?.clear();
-      setDimBackground(false);
-
-      setConfirmationResult(res);
-      setOnboardingStep("USER_IDENTITY_VERIFICATION");
-      push(urlWithQuery);
-    } catch (e) {
-      setIsLoading(false);
-      setDimBackground(false);
+        setConfirmationResult(res);
+        setOnboardingStep("USER_IDENTITY_VERIFICATION");
+        push(urlWithQuery);
+      } catch (e) {
+        setIsLoading(false);
+        setDimBackground(false);
+      }
     }
   }, [
     query,
@@ -84,7 +86,6 @@ export default function OnboardingIndexPage() {
     phone,
     email,
     redirectToStateNotSupportedPage,
-    auth,
     setConfirmationResult,
     setOnboardingStep,
     push,

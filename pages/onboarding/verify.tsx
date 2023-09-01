@@ -4,7 +4,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
-import { useGlobal } from "@/shared/context/global";
+import { app, useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
@@ -16,7 +16,7 @@ import {
 } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { RecaptchaVerifier, getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
@@ -68,15 +68,18 @@ export default function OnboardingVerifyPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const resentCode = useCallback(async () => {
-    const [auth] = resetAuth();
-    const recaptchaVerifier = auth && new RecaptchaVerifier(auth, "recaptcha-container", {});
-    await recaptchaVerifier?.render();
-    const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
-    recaptchaVerifier?.clear();
+    let recaptchaVerifier: RecaptchaVerifier;
+    const auth = getAuth(app);
+    if (auth) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {});
+      await recaptchaVerifier?.render();
+      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+      recaptchaVerifier?.clear();
 
-    setConfirmationResult(res);
-    restart(new Date(Date.now() + 30000), true);
-  }, [resetAuth, phone, setConfirmationResult, restart]);
+      setConfirmationResult(res);
+      restart(new Date(Date.now() + 30000), true);
+    }
+  }, [phone, setConfirmationResult, restart]);
 
   const confirmPhone = useCallback(async () => {
     try {
