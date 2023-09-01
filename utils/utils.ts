@@ -116,4 +116,6 @@ async function getUserSession(): Promise<UserSession | null> {
   };
 }
 
+export const nonOnboardingPaths = ["/cqr", "/close-account"];
+
 export { getUserSession };

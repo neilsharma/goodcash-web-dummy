@@ -11,7 +11,7 @@ export default function Document() {
         <div
           id="recaptcha-container"
           className="fixed left-2/4 bottom-[16.5rem] sm:bottom-72 -translate-x-1/2 z-20"
-        ></div>
+        />
 
         {goodcashEnvironment === "production" ? (
           <>

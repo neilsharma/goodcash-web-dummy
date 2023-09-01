@@ -34,6 +34,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useConfirmIsOAuthRedirect } from "../hooks";
 import useStripePromise from "../hooks/useStripePromise";
 import { Stripe } from "@stripe/stripe-js";
+import { nonOnboardingPaths } from "../../utils/utils";
 
 export interface IOnboardingContext {
   onboardingOperationsMap: OnboardingOperationsMap;
@@ -472,9 +473,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const redirectToOnboardingIfUserNotFound = () => {
     const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
-    if (pathname !== "/onboarding") {
-      push(urlWithQuery);
-    }
+    return push(nonOnboardingPaths.includes(pathname) ? pathname : urlWithQuery);
   };
 
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
