@@ -18,7 +18,7 @@ import { navigateWithQuery } from "../../shared/http/util";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { setConfirmationResult } = useGlobal();
+  const { auth, setConfirmationResult, recaptchaVerifier } = useGlobal();
   const {
     setState,
     redirectToStateNotSupportedPage,
@@ -59,24 +59,19 @@ export default function OnboardingIndexPage() {
       redirectToStateNotSupportedPage();
       return;
     }
-    let recaptchaVerifier: RecaptchaVerifier;
-    const auth = getAuth(app);
-    if (auth) {
-      recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {});
-      setIsLoading(true);
-      try {
-        setDimBackground(true);
-        const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier);
-        recaptchaVerifier?.clear();
-        setDimBackground(false);
+    setIsLoading(true);
+    try {
+      setDimBackground(true);
+      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+      recaptchaVerifier?.clear();
+      setDimBackground(false);
 
-        setConfirmationResult(res);
-        setOnboardingStep("USER_IDENTITY_VERIFICATION");
-        push(urlWithQuery);
-      } catch (e) {
-        setIsLoading(false);
-        setDimBackground(false);
-      }
+      setConfirmationResult(res);
+      setOnboardingStep("USER_IDENTITY_VERIFICATION");
+      push(urlWithQuery);
+    } catch (e) {
+      setIsLoading(false);
+      setDimBackground(false);
     }
   }, [
     query,
@@ -86,6 +81,8 @@ export default function OnboardingIndexPage() {
     phone,
     email,
     redirectToStateNotSupportedPage,
+    auth,
+    recaptchaVerifier,
     setConfirmationResult,
     setOnboardingStep,
     push,
