@@ -35,6 +35,7 @@ export default function OnboardingReadyToJoinPage() {
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
   const [dynamicPlanId, setDynamicPlanId] = useState(defaultPlanId);
+  const [isLoading, setIsLoading] = useState(false);
   const { user, version, onboardingStepHandler } = useOnboarding();
   const isButtonDisabled =
     !electronicDisclosureCheckbox ||
@@ -63,7 +64,7 @@ export default function OnboardingReadyToJoinPage() {
     } catch (error) {
       console.error("Error fetching monthly subscription plan:", error);
     }
-  }, [user]);
+  }, [user?.id, version]);
 
   useEffect(() => {
     fetchDynamicSubscriptionFlag();
@@ -135,7 +136,9 @@ export default function OnboardingReadyToJoinPage() {
       <div className="">
         <Button
           disabled={isButtonDisabled}
+          isLoading={isLoading}
           onClick={() => {
+            setIsLoading(true);
             onboardingStepHandler(EStepStatus.COMPLETED);
           }}
         >
