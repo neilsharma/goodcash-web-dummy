@@ -2,7 +2,6 @@ import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { BankAccountVerificationErrCodes, parseApiError } from "@/shared/error";
 import {
@@ -44,10 +43,7 @@ export default function OnboardingConnectBankAccountPage() {
     setPlaid,
     redirectToGenericErrorPage,
     redirectToNotEnoughMoneyPage,
-    phone,
-    email,
-    state,
-    user,
+    cacheUser,
     onboardingStepHandler,
     mergeOnboardingStateHandler,
   } = useOnboarding();
@@ -79,22 +75,10 @@ export default function OnboardingConnectBankAccountPage() {
       getPlaidToken().then(async (link_token) => {
         setPlaidLinkToken(link_token);
         localStorage.setItem(ELocalStorageKeys.LINK_TOKEN, link_token);
-        const auth_token = await auth?.currentUser?.getIdToken();
-        const cached_user_info = {
-          auth_token: auth_token,
-          phone: phone,
-          email: email,
-          state: state,
-          userId: user?.id,
-        };
-        auth_token &&
-          localStorage.setItem(
-            ELocalStorageKeys.CACHED_USER_INFO,
-            JSON.stringify(cached_user_info)
-          );
+        await cacheUser();
       });
     }
-  }, [auth?.currentUser, email, isPlaidOAuthRedirect, phone, setPlaidLinkToken, state, user?.id]);
+  }, [cacheUser, auth?.currentUser, isPlaidOAuthRedirect, setPlaidLinkToken]);
 
   const createBankAccountHandler = useCallback(
     async (publicToken: string, metadata?: PlaidLinkOnSuccessMetadata) => {

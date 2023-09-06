@@ -1,6 +1,6 @@
 import { CachedUserInfo, ELocalStorageKeys } from "@/utils/types";
-import { onboardingStepToPageMap } from "../constants";
 import { ParsedUrlQuery } from "querystring";
+import { Auth } from "firebase/auth";
 
 export const urlPaths = {
   USER_ME: "/v1/me",
@@ -37,6 +37,7 @@ export const urlPaths = {
   LOAN_AGREEMENTS_COMPLETE: "/v1/loan-agreements/complete",
   BANK_LOC_STATUS: "/v1/bank-account/status",
   CREATE_FUNDING_CARD: "/v1/funding-card",
+  VERIFY_FUNDING_CARD: "/v1/funding-card/verify",
 } as const;
 
 /**
@@ -84,6 +85,21 @@ export const longPoll = async <R>(
   });
 };
 
+export const saveUserToCache = async (
+  auth: Auth | null,
+  partialCachedUserInfo: Omit<CachedUserInfo, "auth_token">
+) => {
+  const auth_token = (await auth?.currentUser?.getIdToken()) as string;
+
+  const cachedUserInfo: CachedUserInfo = {
+    auth_token,
+    ...partialCachedUserInfo,
+  };
+
+  if (auth_token)
+    localStorage.setItem(ELocalStorageKeys.CACHED_USER_INFO, JSON.stringify(cachedUserInfo));
+};
+
 export const getUserInfoFromCache = (): CachedUserInfo | null => {
   const cachedUserInfoJson = localStorage.getItem(ELocalStorageKeys.CACHED_USER_INFO);
   let cachedUserInfo: CachedUserInfo | null = null;
@@ -98,6 +114,9 @@ export const getUserInfoFromCache = (): CachedUserInfo | null => {
 
   return cachedUserInfo;
 };
+
+export const popUserInfoFromCache = () =>
+  localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);
 
 export const navigateWithQuery = (query: ParsedUrlQuery, baseUrl: string) => {
   const queryString = Object.keys(query)

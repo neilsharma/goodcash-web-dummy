@@ -32,6 +32,7 @@ export enum EScreenEventTitle {
   READY_TO_JOIN = "Ready To Join",
   THANKS_FOR_JOINING = "Thanks For Joining",
   NEW_CARD_ON_THE_WAY = "New Card On The Way",
+  CARD_VERIFICATION = "Card Verification",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;
@@ -92,6 +93,7 @@ export enum GCUserState {
 export enum ELocalStorageKeys {
   LINK_TOKEN = "link_token",
   CACHED_USER_INFO = "cached_user_info",
+  CARD_VERIFICATION_DATA = "card_verification_data",
 }
 
 export type CachedUserInfo = {

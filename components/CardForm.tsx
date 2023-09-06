@@ -6,15 +6,17 @@ import {
   CardCvcElement,
   CardExpiryElement,
 } from "@stripe/react-stripe-js";
-import { createFundingCard } from "../shared/http/services/debitCard";
-import { useOnboarding } from "../shared/context/onboarding";
+import { createFundingCard, verifyFundingCard } from "../shared/http/services/debitCard";
+import { IOnboardingContext, useOnboarding } from "../shared/context/onboarding";
 import { EStepStatus } from "../shared/types";
 import { trackEvent } from "../utils/analytics/analytics";
-import { ETrackEvent, IUserAddress } from "../utils/types";
+import { ELocalStorageKeys, ETrackEvent, IUserAddress } from "../utils/types";
 import Button from "./Button";
 import { getUser, patchUserOnboarding } from "../shared/http/services/user";
 import DebitCardAddressForm from "./DebitCardAddressForm";
 import { FormControlError } from "./form-control/shared";
+import { FundingCardState } from "@/shared/http/types";
+import { goodcashEnvironment } from "@/shared/config";
 
 function CardForm() {
   const stripe = useStripe();
@@ -28,7 +30,13 @@ function CardForm() {
   const [cardReady, setCardReady] = useState(false);
   const [cardValidationError, setCardValidationError] = useState<string | undefined>(undefined);
   const [userAddress, setUserAddress] = useState<IUserAddress | null>(null);
-  const { onboardingStepHandler, setOnboardingOperationsMap, setOnboardingStep } = useOnboarding();
+  const {
+    cacheUser,
+    onboardingStepHandler,
+    setOnboardingOperationsMap,
+    setOnboardingStep,
+    version,
+  } = useOnboarding();
 
   const isAddressComplete = () => {
     if (
@@ -86,30 +94,64 @@ function CardForm() {
             });
             onboardingStepHandler(EStepStatus.FAILED);
           } else {
-            if (paymentMethod.card?.funding !== "debit") {
+            if (goodcashEnvironment === "production" && paymentMethod.card?.funding !== "debit") {
               setIsLoading(false);
               return setCardValidationError(
                 "Only debit cards are allowed, Please enter a debit card number."
               );
             }
-            const response = await createFundingCard({ paymentMethodId: paymentMethod?.id });
 
-            if (response.state === "OPEN") {
-              setOnboardingOperationsMap((p) => ({
-                ...p,
-                fundingCardLinked: true,
-              }));
-              patchUserOnboarding({
-                onboardingStep: "PAYMENT_METHOD_VERIFICATION",
-                onboardingOperationsMap: {
-                  fundingCardLinked: true,
-                },
+            const fundingCard = await createFundingCard({ paymentMethodId: paymentMethod?.id });
+
+            if (fundingCard.state === FundingCardState.OPEN) {
+              onAfterConfirm({
+                setOnboardingOperationsMap,
+                setOnboardingStep,
+                onboardingStepHandler,
               });
-              setOnboardingStep("PAYMENT_METHOD_VERIFICATION");
-              trackEvent({
-                event: ETrackEvent.ADD_FUNDING_CARD_SUCCESS,
+            } else if (fundingCard.state === FundingCardState.VERIFYING) {
+              let { setupIntent, error: setupIntentRetrievalError } =
+                await stripe.retrieveSetupIntent(fundingCard.setupIntentClientSecret);
+
+              if (setupIntentRetrievalError || !setupIntent)
+                throw new Error("Setup intent retrieval failed");
+
+              const returnUrl = `${window.location.origin}/onboarding/${version}/confirm-setup-landing`;
+
+              localStorage.setItem(
+                ELocalStorageKeys.CARD_VERIFICATION_DATA,
+                JSON.stringify({
+                  setupIntentId: setupIntent.id,
+                  paymentMethodId: paymentMethod.id,
+                  setupIntentClientSecret: fundingCard.setupIntentClientSecret,
+                })
+              );
+
+              await cacheUser();
+
+              const { setupIntent: confirmedSetup, error: confirmSetupError } =
+                await stripe.confirmSetup({
+                  clientSecret: fundingCard.setupIntentClientSecret,
+                  redirect: "if_required",
+                  confirmParams: {
+                    return_url: returnUrl,
+                  },
+                });
+
+              if (confirmSetupError || confirmedSetup.status !== "succeeded")
+                throw new Error("Setup confirmation failed");
+
+              await verifyFundingCard({
+                setupIntentId: setupIntent.id,
+                paymentMethodId: paymentMethod.id,
+                setupIntentClientSecret: fundingCard.setupIntentClientSecret,
               });
-              onboardingStepHandler(EStepStatus.COMPLETED);
+
+              onAfterConfirm({
+                setOnboardingOperationsMap,
+                setOnboardingStep,
+                onboardingStepHandler,
+              });
             }
           }
         }
@@ -118,6 +160,8 @@ function CardForm() {
       }
     },
     [
+      cacheUser,
+      version,
       userPromise,
       elements,
       onboardingStepHandler,
@@ -229,5 +273,39 @@ function CardForm() {
     </form>
   );
 }
+
+interface OnAfterConfirmProps {
+  setOnboardingStep: IOnboardingContext["setOnboardingStep"];
+  setOnboardingOperationsMap: IOnboardingContext["setOnboardingOperationsMap"];
+  onboardingStepHandler: IOnboardingContext["onboardingStepHandler"];
+}
+
+export const onAfterConfirm = ({
+  setOnboardingOperationsMap,
+  setOnboardingStep,
+  onboardingStepHandler,
+}: OnAfterConfirmProps) => {
+  setOnboardingOperationsMap((p) => ({
+    ...p,
+    fundingCardLinked: true,
+  }));
+
+  patchUserOnboarding({
+    onboardingStep: "PAYMENT_METHOD_VERIFICATION",
+    onboardingOperationsMap: {
+      fundingCardLinked: true,
+    },
+  });
+
+  setOnboardingStep("PAYMENT_METHOD_VERIFICATION");
+
+  trackEvent({
+    event: ETrackEvent.ADD_FUNDING_CARD_SUCCESS,
+  });
+
+  onboardingStepHandler(EStepStatus.COMPLETED);
+
+  localStorage.removeItem(ELocalStorageKeys.CARD_VERIFICATION_DATA);
+};
 
 export default CardForm;

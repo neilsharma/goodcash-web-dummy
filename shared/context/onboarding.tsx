@@ -26,10 +26,10 @@ import {
 } from "../types";
 import { init } from "../feature";
 import { getUserStateCoverageMap } from "../http/services/loanAgreements";
-import { getUserInfoFromCache, navigateWithQuery } from "../http/util";
+import { getUserInfoFromCache, navigateWithQuery, saveUserToCache } from "../http/util";
 import { onboardingStepToPageMap } from "../constants";
 import { getUserOnboarding, getUserOnboardingVersion } from "../http/services/user";
-import { app } from "./global";
+import { app, useGlobal } from "./global";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useConfirmIsOAuthRedirect } from "../hooks";
 import useStripePromise from "../hooks/useStripePromise";
@@ -37,6 +37,7 @@ import { Stripe } from "@stripe/stripe-js";
 import { nonOnboardingPaths } from "../../utils/utils";
 
 export interface IOnboardingContext {
+  cacheUser: () => Promise<void>;
   onboardingOperationsMap: OnboardingOperationsMap;
   setOnboardingOperationsMap: Dispatch<SetStateAction<OnboardingOperationsMap>>;
   onboardingStep: OnboardingStep;
@@ -136,6 +137,8 @@ type PlaidPayload = null | { publicToken: string; metadata: PlaidLinkOnSuccessMe
 const onboardingContext = createContext<IOnboardingContext>(null as any);
 
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
+  const { auth } = useGlobal();
+
   const { push, query, pathname } = useRouter();
   const [onboardingOperationsMap, setOnboardingOperationsMap] = useState<OnboardingOperationsMap>({
     userCreated: false,
@@ -158,6 +161,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
 
   const [isUserBlocked, setIsUserBlocked] = useState(false);
 
+  const [user, setUser] = useState<IOnboardingContext["user"]>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -165,6 +169,17 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const [state, setState] = useState<EUsaStates | "">("");
   const [userStateCoverageMap, setUserStateCoverageMap] = useState<UserStateCoverageMap | null>(
     null
+  );
+
+  const cacheUser = useCallback(
+    () =>
+      saveUserToCache(auth, {
+        email,
+        phone,
+        state,
+        userId: user?.id as string,
+      }),
+    [auth, email, phone, state, user]
   );
 
   useEffect(() => {
@@ -358,8 +373,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      onboardingOperationsMap,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      JSON.stringify(onboardingOperationsMap),
       onboardingStepState,
       redirectToGenericErrorPage,
       redirectToNextOnboardingStep,
@@ -401,7 +418,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const [plaid, setPlaid] = useState<PlaidPayload>(null);
-  const [user, setUser] = useState<IOnboardingContext["user"]>(null);
 
   const [locId, setLocId] = useState("");
 
@@ -471,10 +487,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     ]
   );
 
-  const redirectToOnboardingIfUserNotFound = () => {
+  const redirectToOnboardingIfUserNotFound = useCallback(() => {
     const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
     return push(nonOnboardingPaths.includes(pathname) ? pathname : urlWithQuery);
-  };
+  }, [push, pathname, query]);
 
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
@@ -487,39 +503,48 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     });
   }, [onboardingStepState.BANK_ACCOUNT_LINKING, onboardingStepState.FUNDING_CARD_LINKING, version]);
 
-  const mergeOnboardingStateHandler = async (token: string) => {
-    setIsLoadingUserInfo(true);
-    try {
-      const userOnboardingVersion = await getUserOnboardingVersion(token);
-      if (userOnboardingVersion?.version !== undefined) {
-        setVersion(userOnboardingVersion.version);
-      }
-      const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
-      const onboardingState = await onboardingStatePromise;
-      if (onboardingState) {
-        mergeOnboardingState(onboardingState);
-        updateOnboardingStepData(
-          onboardingState.onboardingOperationsMap as OnboardingOperationsMap
-        );
-        if (
-          onboardingState.onboardingOperationsMap?.userKycSubmitted ||
-          onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
-          isPlaidOAuthRedirect
-        ) {
-          onboardingStepHandler(
-            EStepStatus.IN_PROGRESS,
-            userOnboardingVersion?.version,
+  const mergeOnboardingStateHandler = useCallback(
+    async (token: string) => {
+      setIsLoadingUserInfo(true);
+      try {
+        const userOnboardingVersion = await getUserOnboardingVersion(token);
+        if (userOnboardingVersion?.version !== undefined) {
+          setVersion(userOnboardingVersion.version);
+        }
+        const onboardingStatePromise = getUserOnboarding(token).catch(() => null);
+        const onboardingState = await onboardingStatePromise;
+        if (onboardingState) {
+          mergeOnboardingState(onboardingState);
+          updateOnboardingStepData(
             onboardingState.onboardingOperationsMap as OnboardingOperationsMap
           );
-        } else {
-          setIsLoadingUserInfo(false);
+          if (
+            onboardingState.onboardingOperationsMap?.userKycSubmitted ||
+            onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
+            isPlaidOAuthRedirect
+          ) {
+            onboardingStepHandler(
+              EStepStatus.IN_PROGRESS,
+              userOnboardingVersion?.version,
+              onboardingState.onboardingOperationsMap as OnboardingOperationsMap
+            );
+          } else {
+            setIsLoadingUserInfo(false);
+          }
         }
+      } catch (error) {
+        setIsLoadingUserInfo(false);
+        redirectToOnboardingIfUserNotFound();
       }
-    } catch (error) {
-      setIsLoadingUserInfo(false);
-      redirectToOnboardingIfUserNotFound();
-    }
-  };
+    },
+    [
+      isPlaidOAuthRedirect,
+      mergeOnboardingState,
+      onboardingStepHandler,
+      redirectToOnboardingIfUserNotFound,
+      updateOnboardingStepData,
+    ]
+  );
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -560,6 +585,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         isUserBlocked,
         setIsUserBlocked,
 
+        user,
         firstName,
         setFirstName,
         lastName,
@@ -569,13 +595,13 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         email,
         setEmail,
         indexPageIsValid,
+        cacheUser,
 
         phoneVerified,
         setPhoneVerified,
 
         plan,
         setPlan,
-        user,
         setUser,
 
         dateOfBirth,

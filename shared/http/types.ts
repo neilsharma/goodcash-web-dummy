@@ -133,3 +133,16 @@ enum KYCAttemptState {
   ACCEPTED,
   REJECTED,
 }
+
+export enum FundingCardState {
+  OPEN = "OPEN",
+  CLOSED = "CLOSED",
+  DECLINED = "DECLINED",
+  VERIFYING = "VERIFYING",
+}
+
+export interface FundingCard {
+  id: string;
+  state: FundingCardState;
+  setupIntentClientSecret: string;
+}
