@@ -10,6 +10,7 @@ import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import {
   createUser,
+  getLatestKycAttempt,
   getUser,
   getUserOnboarding,
   patchUserOnboarding,
@@ -24,6 +25,7 @@ import { EUserError, parseApiError, userLimitErrors } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 import OnboardingPlaidKycView from "../../container/KycView";
+import { KYCAttemptState } from "../../shared/http/types";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -164,7 +166,13 @@ export default function OnboardingVerifyPage() {
       });
       setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
       const onboardingState = await getUserOnboarding(token).catch(() => null);
-      if (!onboardingState?.onboardingOperationsMap?.userKycSubmitted && targetSept === "KYC") {
+      const kycAttempt = await getLatestKycAttempt();
+
+      if (
+        !onboardingState?.onboardingOperationsMap?.userKycSubmitted &&
+        targetSept === "KYC" &&
+        kycAttempt.state !== KYCAttemptState.ACCEPTED
+      ) {
         return setShowKycView(true);
       } else if (targetSept === "CONTACT_INFO") {
         push(onboardingStepToPageMap.USER_CONTACT_INFO);
