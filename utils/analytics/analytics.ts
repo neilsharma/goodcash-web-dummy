@@ -11,6 +11,7 @@ import { setGtagUserId } from "./gtag-analytics";
 import * as Sentry from "@sentry/nextjs";
 import { AmplitudeAnalyticsTracker } from "./tracker/amplitude.tracker";
 import { FirebaseAnalyticsTracker } from "./tracker/firebase.tracker";
+import Hotjar from "@hotjar/browser";
 
 let firebase: FirebaseAnalyticsTracker;
 let amplitude: AmplitudeAnalyticsTracker;
@@ -39,6 +40,7 @@ export const trackEvent = (log: {
 export const setUserId = (id: string) => {
   firebase?.setUser({ id });
   amplitude?.setUser({ id });
+  Hotjar.identify(id, {});
   Sentry.setUser({ id });
   setGtagUserId(id);
 };

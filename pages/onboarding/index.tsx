@@ -40,6 +40,10 @@ export default function OnboardingIndexPage() {
     trackPage(EScreenEventTitle.ONBOARDING);
   }, []);
 
+  useEffect(() => {
+    setPhoneMask(phone);
+  }, [phone]);
+
   const onContinue = useCallback(async () => {
     const urlWithQuery = navigateWithQuery(
       query,
@@ -134,7 +138,7 @@ export default function OnboardingIndexPage() {
       <Button
         className="mt-12"
         isLoading={isLoading}
-        disabled={!indexPageIsValid}
+        disabled={!stateMask || !indexPageIsValid}
         onClick={onContinue}
       >
         Continue
