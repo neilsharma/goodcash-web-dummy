@@ -23,7 +23,7 @@ export class AmplitudeAnalyticsTracker extends AbstractEventTracker {
       return;
     }
     if (goodcashEnvironment !== "production") {
-      init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY);
+      init(process.env.NEXT_PUBLIC_APMLITUDE_API_KEY, { defaultTracking: true });
       return;
     }
 
