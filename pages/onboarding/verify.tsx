@@ -4,7 +4,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
-import { app, useGlobal } from "@/shared/context/global";
+import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
@@ -47,14 +47,11 @@ export default function OnboardingVerifyPage() {
     lastName,
     email,
     setPhoneVerified,
-    mergeOnboardingState,
     redirectToGenericErrorPage,
     setUser,
     setOnboardingOperationsMap,
     onboardingStepHandler,
-    setVersion,
     version,
-    updateOnboardingStepData,
     mergeOnboardingStateHandler,
   } = useOnboarding();
   const { push, query } = useRouter();

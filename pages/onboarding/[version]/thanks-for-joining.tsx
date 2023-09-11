@@ -1,11 +1,9 @@
 import { useCallback } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { onboardingStepToPageMap } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { useOnboarding } from "@/shared/context/onboarding";
@@ -15,8 +13,6 @@ export default function ThanksForJoining() {
   useConfirmUnload();
   const { setOnboardingStep, onboardingStepHandler } = useOnboarding();
   useTrackPage(EScreenEventTitle.THANKS_FOR_JOINING);
-
-  const { push } = useRouter();
 
   const navigate = useCallback(() => {
     setOnboardingStep("APP_DOWNLOAD");

@@ -7,14 +7,13 @@ import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { EStepStatus } from "../../shared/types";
 
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
 
   useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG);
 
-  const { push, back } = useRouter();
+  const { back } = useRouter();
 
   const tryAgain = useCallback(() => {
     back();

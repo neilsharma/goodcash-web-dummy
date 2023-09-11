@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import LoadingPDFIndicator from "@/components/LoadingPDFIndicator";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -8,7 +7,7 @@ import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { patchUserOnboarding } from "@/shared/http/services/user";
-import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
+import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import {
@@ -24,15 +23,12 @@ import { EStepStatus } from "../../../shared/types";
 export default function OneLastStep() {
   useConfirmUnload();
 
-  const { push } = useRouter();
   const {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
     loanAgreementDocumentUrl,
     setLoanAgreementDocumentUrl,
-    redirectToGenericErrorPage,
-    currentOnboardingStep,
     onboardingStepHandler,
   } = useOnboarding();
 

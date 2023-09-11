@@ -3,7 +3,6 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import CheckBox from "../../../components/CheckBox";
 import {
@@ -30,7 +29,6 @@ export default function OnboardingReadyToJoinPage() {
 
   useTrackPage(EScreenEventTitle.READY_TO_JOIN);
 
-  const { push } = useRouter();
   const [electronicDisclosureCheckbox, setElectronicDisclosureCheckbox] = useState(false);
   const [recurringAuthorizationCheckbox, setRecurringAuthorizationCheckbox] = useState(false);
   const [cardholderAgreementCheckbox, setCardholderAgreementCheckbox] = useState(false);
@@ -61,9 +59,7 @@ export default function OnboardingReadyToJoinPage() {
       } else {
         setDynamicPlanId(defaultPlanId);
       }
-    } catch (error) {
-      console.error("Error fetching monthly subscription plan:", error);
-    }
+    } catch {}
   }, [user?.id, version]);
 
   useEffect(() => {

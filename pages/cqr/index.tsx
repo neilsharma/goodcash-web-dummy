@@ -1,7 +1,6 @@
 import React from "react";
 import { goodcashEnvironment } from "../../shared/config";
 import Image from "next/image";
-import { isAndroid, isIOS } from "react-device-detect";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { appStoreAppUrl, playStoreAppUrl } from "../../shared/constants";

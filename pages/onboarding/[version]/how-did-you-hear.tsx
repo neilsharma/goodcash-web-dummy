@@ -1,12 +1,10 @@
 import Button from "@/components/Button";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import Title from "@/components/Title";
-import { onboardingStepToPageMap } from "@/shared/constants";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
 import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
-import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { trackEvent } from "../../../utils/analytics/analytics";
@@ -27,7 +25,6 @@ export default function OnboardingHowDidYouHearPage() {
     redirectToGenericErrorPage,
     onboardingStepHandler,
   } = useOnboarding();
-  const { push } = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const finish = useCallback(async () => {

@@ -1,5 +1,4 @@
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/Button";
 import CheckBox from "@/components/CheckBox";
 import FormControlText from "@/components/form-control/FormControlText";
@@ -16,7 +15,7 @@ import {
   updateUserAddress,
   updateUserIdentityBasic,
 } from "@/shared/http/services/user";
-import { cardHolderAgreementUrl, onboardingStepToPageMap } from "@/shared/constants";
+import { cardHolderAgreementUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 
@@ -51,7 +50,6 @@ export default function OnboardingContactInfoPage() {
     setState,
     zipCode,
     setZipCode,
-    ssn,
     setSsn,
     agreedToCardHolderAgreement,
     setAgreedToCardHolderAgreement,
@@ -64,7 +62,6 @@ export default function OnboardingContactInfoPage() {
     redirectToGenericErrorPage,
     onboardingStepHandler,
   } = useOnboarding();
-  const { push } = useRouter();
 
   const [dateOfBirthMask, setDateOfBirthMask] = useState("");
   const [ssnMask, setSsnMask] = useState("");

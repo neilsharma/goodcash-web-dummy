@@ -25,7 +25,7 @@ export const OnboardingLayout: FC<{
     if (isUserBlocked) replace("/onboarding/user-is-blocked");
   }, [isUserBlockedPage, isUserBlocked, replace]);
 
-  const progress = useMemo(() => {
+  const _progress = useMemo(() => {
     switch (onboardingStep) {
       case "USER_IDENTITY_COLLECTION":
         return 5;
@@ -76,8 +76,8 @@ export const OnboardingLayout: FC<{
         </p>
         <p className="text-xs text-thinText">
           GoodCash is not a Bank. Banking services are provided by our partner Bank, Member FDIC.
-          The GoodCash Card is issued by our partner bank pursuant to a license from Mastercard® and
-          may be used everywhere Mastercard® cards are accepted.
+          The GoodCash Card is issued by our partner bank pursuant to a license from Mastercard®
+          and may be used everywhere Mastercard® cards are accepted.
         </p>
       </footer>
     </>

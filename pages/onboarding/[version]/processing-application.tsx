@@ -7,7 +7,6 @@ import SubTitle from "@/components/SubTitle";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { longPollAssetStatus, patchUserOnboarding } from "@/shared/http/services/user";
-import { onboardingStepToPageMap } from "@/shared/constants";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
 import { parseApiError } from "@/shared/error";

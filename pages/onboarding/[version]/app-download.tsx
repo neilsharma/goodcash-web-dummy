@@ -6,8 +6,7 @@ import { redirectIfServerSideRendered } from "@/shared/hooks";
 import Image from "next/image";
 import { Check } from "react-feather";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
-import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
-import { useEffect } from "react";
+import { EScreenEventTitle } from "../../../utils/types";
 
 export default function NewCardOnTheWay() {
   useTrackPage(EScreenEventTitle.NEW_CARD_ON_THE_WAY);
