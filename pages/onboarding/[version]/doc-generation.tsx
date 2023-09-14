@@ -6,7 +6,7 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { patchUserOnboarding } from "@/shared/http/services/user";
+import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
 import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
@@ -19,6 +19,7 @@ import {
 import { ELoanAgreementStatus } from "@/shared/http/types";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
+import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/gtag-analytics";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -30,7 +31,32 @@ export default function OneLastStep() {
     loanAgreementDocumentUrl,
     setLoanAgreementDocumentUrl,
     onboardingStepHandler,
+    redirectToGenericErrorPage,
   } = useOnboarding();
+
+  const finish = useCallback(async () => {
+    try {
+      if (!onboardingOperationsMap.onboardingCompleted) {
+        await completeUserOnboarding();
+
+        trackGTagConversion(ConversionEvent.OnboardingCompleted);
+
+        setOnboardingStep("LOAN_AGREEMENT_CREATION");
+        setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
+        patchUserOnboarding({
+          onboardingStep: "LOAN_AGREEMENT_CREATION",
+          onboardingOperationsMap: { onboardingCompleted: true },
+        });
+      }
+    } catch (error) {
+      redirectToGenericErrorPage();
+    }
+  }, [
+    onboardingOperationsMap.onboardingCompleted,
+    setOnboardingStep,
+    setOnboardingOperationsMap,
+    redirectToGenericErrorPage,
+  ]);
 
   const createLoanAgreementHandler = useCallback(async () => {
     try {
@@ -82,11 +108,13 @@ export default function OneLastStep() {
       ]);
       if (status === ELoanAgreementStatus.COMPLETED) {
         setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCompleted: true }));
-        setOnboardingStep("REFERRAL_SOURCE");
+        setOnboardingStep("APP_DOWNLOAD");
         patchUserOnboarding({
-          onboardingStep: "REFERRAL_SOURCE",
+          onboardingStep: "APP_DOWNLOAD",
           onboardingOperationsMap: { loanAgreementCompleted: true },
         });
+
+        await finish();
         onboardingStepHandler(EStepStatus.COMPLETED);
       } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
         throw new Error("Loan Agreement Completion Failed");

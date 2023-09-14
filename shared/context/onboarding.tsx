@@ -239,10 +239,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         status: EStepStatus.NOT_STARTED,
         metadata: {},
       },
-      REFERRAL_SOURCE: {
-        status: EStepStatus.NOT_STARTED,
-        metadata: {},
-      },
       APP_DOWNLOAD: {
         status: EStepStatus.NOT_STARTED,
         metadata: {},
@@ -281,10 +277,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
             onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
               EStepStatus.COMPLETED;
           }
-          if (onboardingData.onboardingCompleted && stepKey === "REFERRAL_SOURCE") {
-            onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
-              EStepStatus.COMPLETED;
-          }
         }
       }
     },
@@ -304,11 +296,15 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const redirectToNextOnboardingStep = useCallback(
-    (step: string, currentVersion: number = version) => {
-      const urlWithQuery = navigateWithQuery(query, `/onboarding/${currentVersion}/${step}`);
-      push(urlWithQuery).finally(() => setIsLoadingUserInfo(false));
+    async (step: string, currentVersion: number = version) => {
+      try {
+        const urlWithQuery = navigateWithQuery(query, `/onboarding/${currentVersion}/${step}`);
+        return await push(nonOnboardingPaths.includes(pathname) ? pathname : urlWithQuery);
+      } finally {
+        return setIsLoadingUserInfo(false);
+      }
     },
-    [push, query, version]
+    [pathname, push, query, version]
   );
 
   const redirectToGenericErrorPage = useCallback(
@@ -345,7 +341,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         { key: "PAYMENT_METHOD_VERIFICATION", completed: onboardingData.loanApplicationApproved },
         { key: "LOAN_APPLICATION_SUBMISSION", completed: onboardingData.loanAgreementCompleted },
         { key: "LOAN_AGREEMENT_CREATION", completed: onboardingData.loanAgreementCompleted },
-        { key: "REFERRAL_SOURCE", completed: onboardingData.onboardingCompleted },
       ];
       for (const stepKey in onboardingStepState) {
         const stepCheck = stepsToComplete.filter((step) => step.key === stepKey);

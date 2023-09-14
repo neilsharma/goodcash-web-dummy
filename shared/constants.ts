@@ -8,7 +8,6 @@ export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
   PAYMENT_METHOD_VERIFICATION: "processing-application",
   LOAN_APPLICATION_SUBMISSION: "ready-to-join",
   LOAN_AGREEMENT_CREATION: "doc-generation",
-  REFERRAL_SOURCE: "how-did-you-hear",
   ONBOARDING_COMPLETION: "application-complete",
   APP_DOWNLOAD: "app-download",
   FUNDING_CARD_LINKING: "connect-debit-card",

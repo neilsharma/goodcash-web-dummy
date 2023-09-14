@@ -78,7 +78,6 @@ export type OnboardingStep =
   | "LOAN_APPLICATION_SUBMISSION"
   | "LOAN_AGREEMENT_CREATION"
   | "ONBOARDING_COMPLETION"
-  | "REFERRAL_SOURCE"
   | "FUNDING_CARD_LINKING"
   | "APP_DOWNLOAD";
 
@@ -146,7 +145,6 @@ export enum OnboardingStepType {
   LOAN_APPLICATION_COMPLETION = "LOAN_APPLICATION_COMPLETION",
   LOAN_AGREEMENT_CREATION = "LOAN_AGREEMENT_CREATION",
   LOAN_AGREEMENT_COMPLETION = "LOAN_AGREEMENT_COMPLETION",
-  REFERRAL_SOURCE = "REFERRAL_SOURCE",
 }
 
 export type PlanFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "THIRTY_DAYS" | "ANNUAL";
@@ -186,7 +184,6 @@ export interface OnboardingSteps {
   FUNDING_CARD_LINKING: Step;
   LOAN_APPLICATION_SUBMISSION: Step;
   LOAN_AGREEMENT_CREATION: Step;
-  REFERRAL_SOURCE: Step;
   APP_DOWNLOAD: Step;
 }
 
@@ -207,7 +204,6 @@ export enum OnboardingStepEnum {
   LOAN_AGREEMENT_CREATION = "loan_agreement_creation",
   LOAN_AGREEMENT_COMPLETION = "loan_agreement_completion",
   ONBOARDING_COMPLETION = "onboarding_completion",
-  REFERRAL_SOURCE = "referral_source",
   APP_DOWNLOAD = "app_download",
 }
 export interface OnboardingProcess {

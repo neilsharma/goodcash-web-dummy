@@ -86,11 +86,11 @@ export default function OnboardingVerifyPage() {
       setPhoneVerified(!!res?.user);
 
       return res?.user;
-    } catch (e: any) {
+    } catch (error: any) {
       setIsLoading(false);
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
 
-      if (e.code === EOtpErrorCode.INVALID_OTP) {
+      if (error.code === EOtpErrorCode.INVALID_OTP) {
         setIsOtpInvalid(true);
       } else {
         redirectToGenericErrorPage();
@@ -113,7 +113,7 @@ export default function OnboardingVerifyPage() {
             "Join our waitlist on goodcash.com to get notified when we open up to new users!"
         );
       }
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED });
+      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
       onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [auth, onboardingStepHandler, query]);

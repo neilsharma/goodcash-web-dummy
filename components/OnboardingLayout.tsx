@@ -38,8 +38,6 @@ export const OnboardingLayout: FC<{
       case "LOAN_AGREEMENT_CREATION":
         return 70;
       case "LOAN_APPLICATION_SUBMISSION":
-        return 80;
-      case "REFERRAL_SOURCE":
         return 90;
       case "APP_DOWNLOAD":
         return 100;
