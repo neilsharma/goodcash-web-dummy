@@ -31,6 +31,7 @@ export default function OnboardingIndexPage() {
     indexPageIsValid,
   } = useOnboarding();
   const [phoneMask, setPhoneMask] = useState("");
+  const [emailMask, setEmailMask] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stateMask, setStateMask] = useState<{ value: string; label: string } | null>(null);
   const [dimBackground, setDimBackground] = useState(false);
@@ -39,10 +40,6 @@ export default function OnboardingIndexPage() {
   useEffect(() => {
     trackPage(EScreenEventTitle.ONBOARDING);
   }, []);
-
-  useEffect(() => {
-    setPhoneMask(phone);
-  }, [phone]);
 
   const onContinue = useCallback(async () => {
     const urlWithQuery = navigateWithQuery(
@@ -113,8 +110,11 @@ export default function OnboardingIndexPage() {
         inputMask="+1 999 999 9999"
       />
       <FormControlText
-        value={email}
-        onChange={(e) => setEmail(e.target.value.trim())}
+        value={emailMask}
+        onChange={(e) => {
+          setEmailMask(e.target.value.trim());
+          setEmail(e.target.value.trim());
+        }}
         type="email"
         label="Email address"
         placeholder="john@example.com"
@@ -138,7 +138,7 @@ export default function OnboardingIndexPage() {
       <Button
         className="mt-12"
         isLoading={isLoading}
-        disabled={!stateMask || !indexPageIsValid}
+        disabled={!stateMask || !indexPageIsValid || !phoneMask || !emailMask}
         onClick={onContinue}
       >
         Continue
