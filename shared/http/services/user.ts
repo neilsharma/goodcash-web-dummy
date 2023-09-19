@@ -130,6 +130,12 @@ export const completeUserOnboarding = async () => {
   return res.data;
 };
 
+export const userOnboardingCompletionStatus = async () => {
+  const res = await http.get(urlPaths.USER_ONBOARDING_STATUS);
+
+  return res.data;
+};
+
 export const getLatestKycAttempt = async () => {
   const res = await http.get<any, AxiosResponse<KYCAttempt>>(urlPaths.KYC_ATTEMPT);
 
@@ -148,6 +154,10 @@ export const getBankLocStatus = async () => {
 };
 
 const completedAssetStatuses = ["APPROVED", "DENIED"] as AssetStatus[];
+const completedOnboardingStatuses = ["COMPLETED", "FAILED"] as OnboardingStepStatus[];
 
 export const longPollAssetStatus = async (timeout = 500, attempts = 240) =>
   longPoll(getAssetStatus, (s) => completedAssetStatuses.includes(s), timeout, attempts, "DENIED");
+
+export const longPollOnboardingCompletionStatus = async (timeout = 500, attempts = 240) =>
+  longPoll(userOnboardingCompletionStatus, (s) => completedOnboardingStatuses.includes(s), timeout, attempts, "FAILED");

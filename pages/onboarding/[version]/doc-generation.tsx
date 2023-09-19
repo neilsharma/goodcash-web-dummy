@@ -6,7 +6,10 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { completeUserOnboarding, patchUserOnboarding } from "@/shared/http/services/user";
+import {
+  longPollOnboardingCompletionStatus,
+  patchUserOnboarding,
+} from "@/shared/http/services/user";
 import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
@@ -34,29 +37,35 @@ export default function OneLastStep() {
     redirectToGenericErrorPage,
   } = useOnboarding();
 
-  const finish = useCallback(async () => {
-    try {
-      if (!onboardingOperationsMap.onboardingCompleted) {
-        await completeUserOnboarding();
+  const finish = useCallback(
+    async (status: "COMPLETED" | "FAILED") => {
+      try {
+        if (status === "COMPLETED") {
+          trackGTagConversion(ConversionEvent.OnboardingCompleted);
 
-        trackGTagConversion(ConversionEvent.OnboardingCompleted);
+          setOnboardingStep("LOAN_AGREEMENT_CREATION");
+          setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
+          patchUserOnboarding({
+            onboardingStep: "LOAN_AGREEMENT_CREATION",
+            onboardingOperationsMap: { onboardingCompleted: true },
+          });
 
-        setOnboardingStep("LOAN_AGREEMENT_CREATION");
-        setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
-        patchUserOnboarding({
-          onboardingStep: "LOAN_AGREEMENT_CREATION",
-          onboardingOperationsMap: { onboardingCompleted: true },
-        });
+          onboardingStepHandler(EStepStatus.COMPLETED);
+        }
+        if (status === "FAILED") {
+          throw new Error("Onboarding completion failed");
+        }
+      } catch (error) {
+        onboardingStepHandler(EStepStatus.FAILED);
       }
-    } catch (error) {
-      redirectToGenericErrorPage();
-    }
-  }, [
-    onboardingOperationsMap.onboardingCompleted,
-    setOnboardingStep,
-    setOnboardingOperationsMap,
-    redirectToGenericErrorPage,
-  ]);
+    },
+    [
+      onboardingOperationsMap.onboardingCompleted,
+      setOnboardingStep,
+      setOnboardingOperationsMap,
+      redirectToGenericErrorPage,
+    ]
+  );
 
   const createLoanAgreementHandler = useCallback(async () => {
     try {
@@ -114,8 +123,8 @@ export default function OneLastStep() {
           onboardingOperationsMap: { loanAgreementCompleted: true },
         });
 
-        await finish();
-        onboardingStepHandler(EStepStatus.COMPLETED);
+        const onboardingStatus = await longPollOnboardingCompletionStatus();
+        await finish(onboardingStatus);
       } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
         throw new Error("Loan Agreement Completion Failed");
       }

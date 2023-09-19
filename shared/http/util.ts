@@ -24,6 +24,7 @@ export const urlPaths = {
   CARD_URL: "/v1/cards/",
   TRANSACTIONS_LIST: "/v1/transactions/list-loc-transactions",
   USER_ONBOARDING_VERSION: "/v1/onboarding",
+  USER_ONBOARDING_STATUS: "/v1/onboarding/complete-onboarding-status",
   USER_ONBOARDING: "/v1/me/onboarding",
   PATCH_USER_ONBOARDING: "/v1/me/onboarding",
   USER_COMPLETE_ONBOARDING: "/v1/me/complete-onboarding",
