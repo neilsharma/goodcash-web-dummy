@@ -49,5 +49,8 @@ jobs:
           git config --global user.name "GitHub Actions"
           git checkout $SOURCE_BRANCH_NAME
           git checkout sandbox
+          git checkout master
+          git branch -d sandbox
+          git checkout -b sandbox
           git merge $SOURCE_BRANCH_NAME
-          git push origin sandbox
+          git push -f origin sandbox
