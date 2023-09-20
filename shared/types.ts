@@ -168,7 +168,7 @@ export enum EStepStatus {
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
 }
-type StandardErrorCode = string; // You might want to define a more specific type for error codes
+export type StandardErrorCode = string; // You might want to define a more specific type for error codes
 
 interface StepMetadata {
   // Define the structure of step metadata if needed

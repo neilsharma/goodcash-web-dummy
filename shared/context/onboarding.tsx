@@ -19,7 +19,6 @@ import {
   EStepStatus,
   EUsaStates,
   OnboardingStep,
-  OnboardingSteps,
   OnboardingStepState,
   RecursivePartial,
   SharedOnboardingState,
@@ -139,7 +138,7 @@ const onboardingContext = createContext<IOnboardingContext>(null as any);
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const { auth } = useGlobal();
 
-  const { push, query, pathname } = useRouter();
+  const { push, query, pathname, asPath } = useRouter();
   const [onboardingOperationsMap, setOnboardingOperationsMap] = useState<OnboardingOperationsMap>({
     userCreated: false,
     userAddressCreated: false,
@@ -483,9 +482,8 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   );
 
   const redirectToOnboardingIfUserNotFound = useCallback(() => {
-    const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
-    return push(nonOnboardingPaths.includes(pathname) ? pathname : urlWithQuery);
-  }, [push, pathname, query]);
+    return push(nonOnboardingPaths.includes(pathname) ? pathname : asPath);
+  }, [pathname, asPath, push]);
 
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
@@ -548,8 +546,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         user.getIdToken().then((token) => {
           mergeOnboardingStateHandler(token);
         });
-      } else {
-        redirectToOnboardingIfUserNotFound();
       }
     });
     return () => unsubscribe();

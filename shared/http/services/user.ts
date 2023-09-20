@@ -160,4 +160,10 @@ export const longPollAssetStatus = async (timeout = 500, attempts = 240) =>
   longPoll(getAssetStatus, (s) => completedAssetStatuses.includes(s), timeout, attempts, "DENIED");
 
 export const longPollOnboardingCompletionStatus = async (timeout = 500, attempts = 240) =>
-  longPoll(userOnboardingCompletionStatus, (s) => completedOnboardingStatuses.includes(s), timeout, attempts, "FAILED");
+  longPoll(
+    userOnboardingCompletionStatus,
+    (s) => completedOnboardingStatuses.includes(s),
+    timeout,
+    attempts,
+    "FAILED"
+  );
