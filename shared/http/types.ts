@@ -144,5 +144,5 @@ export enum FundingCardState {
 export interface FundingCard {
   id: string;
   state: FundingCardState;
-  setupIntentClientSecret: string;
+  paymentIntentClientSecret: string;
 }

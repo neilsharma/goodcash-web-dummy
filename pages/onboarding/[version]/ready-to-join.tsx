@@ -23,6 +23,7 @@ import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { getUserInfoFromCache } from "../../../shared/http/util";
 import { EStepStatus } from "../../../shared/types";
 import { EScreenEventTitle, resolveText } from "../../../utils/types";
+import SubTitle from "../../../components/SubTitle";
 
 export default function OnboardingReadyToJoinPage() {
   useConfirmUnload();
@@ -68,8 +69,8 @@ export default function OnboardingReadyToJoinPage() {
 
   return (
     <OnboardingLayout>
-      <Title className="m-0">Ready to join</Title>
-      <Title className="m-0">GoodCash?</Title>
+      <Title className="m-0">Legal disclosures</Title>
+      <SubTitle>Goodcash is required by law to collect this information</SubTitle>
       {dynamicPlanId != freePlanId ? (
         <div className=" mt-8 h-28 rounded-2xl bg-bgLight text-boldText flex items-center gap-4 p-6">
           <Image

@@ -30,17 +30,18 @@ export default function OnboardingCardVerificationPage({ params }: Props) {
       );
 
       let data: {
-        setupIntentId: string;
+        paymentIntentId: string;
         paymentMethodId: string;
-        setupIntentClientSecret: string;
+        paymentIntentClientSecret: string;
       } | null = null;
 
       if (cardVerificationDataString) data = JSON.parse(cardVerificationDataString);
 
       const cardVerificationPayload = {
-        setupIntentId: params.setup_intent ?? data?.setupIntentId,
+        paymentIntentId: params.setup_intent ?? data?.paymentIntentId,
         paymentMethodId: data?.paymentMethodId as string,
-        setupIntentClientSecret: params.setup_intent_client_secret ?? data?.setupIntentClientSecret,
+        paymentIntentClientSecret:
+          params.setup_intent_client_secret ?? data?.paymentIntentClientSecret,
       };
 
       if (params.redirect_status !== "succeeded") throw new Error("Setup confirmation failed");

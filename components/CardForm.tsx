@@ -110,10 +110,10 @@ function CardForm() {
                 onboardingStepHandler,
               });
             } else if (fundingCard.state === FundingCardState.VERIFYING) {
-              let { setupIntent, error: setupIntentRetrievalError } =
-                await stripe.retrieveSetupIntent(fundingCard.setupIntentClientSecret);
+              let { paymentIntent, error: paymentIntentRetrievalError } =
+                await stripe.retrievePaymentIntent(fundingCard.paymentIntentClientSecret);
 
-              if (setupIntentRetrievalError || !setupIntent)
+              if (paymentIntentRetrievalError || !paymentIntent)
                 throw new Error("Setup intent retrieval failed");
 
               const returnUrl = `${window.location.origin}/onboarding/${version}/confirm-setup-landing`;
@@ -121,30 +121,30 @@ function CardForm() {
               localStorage.setItem(
                 ELocalStorageKeys.CARD_VERIFICATION_DATA,
                 JSON.stringify({
-                  setupIntentId: setupIntent.id,
+                  paymentIntentId: paymentIntent.id,
                   paymentMethodId: paymentMethod.id,
-                  setupIntentClientSecret: fundingCard.setupIntentClientSecret,
+                  paymentIntentClientSecret: fundingCard.paymentIntentClientSecret,
                 })
               );
 
               await cacheUser();
 
-              const { setupIntent: confirmedSetup, error: confirmSetupError } =
-                await stripe.confirmSetup({
-                  clientSecret: fundingCard.setupIntentClientSecret,
+              const { paymentIntent: confirmedPaymentIntent, error: confirmSetupError } =
+                await stripe.confirmPayment({
+                  clientSecret: fundingCard.paymentIntentClientSecret,
                   redirect: "if_required",
                   confirmParams: {
                     return_url: returnUrl,
                   },
                 });
 
-              if (confirmSetupError || confirmedSetup.status !== "succeeded")
+              if (confirmSetupError || confirmedPaymentIntent.status !== "succeeded")
                 throw new Error("Setup confirmation failed");
 
               await verifyFundingCard({
-                setupIntentId: setupIntent.id,
+                paymentIntentId: paymentIntent.id,
                 paymentMethodId: paymentMethod.id,
-                setupIntentClientSecret: fundingCard.setupIntentClientSecret,
+                paymentIntentClientSecret: fundingCard.paymentIntentClientSecret,
               });
 
               onAfterConfirm({
@@ -160,15 +160,15 @@ function CardForm() {
       }
     },
     [
-      cacheUser,
-      version,
-      userPromise,
+      stripe,
       elements,
+      userPromise,
+      userAddress,
       onboardingStepHandler,
       setOnboardingOperationsMap,
       setOnboardingStep,
-      stripe,
-      userAddress,
+      version,
+      cacheUser,
     ]
   );
 
@@ -268,7 +268,7 @@ function CardForm() {
         isLoading={isLoading}
         onClick={handleSubmit}
       >
-        Save debit card
+        Pay with debit card
       </Button>
     </form>
   );

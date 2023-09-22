@@ -137,6 +137,7 @@ export default function OneLastStep() {
     documentSigned,
     setOnboardingOperationsMap,
     setOnboardingStep,
+    finish,
   ]);
 
   useTrackPage(EScreenEventTitle.DOC_GENERATION);

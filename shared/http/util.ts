@@ -108,8 +108,8 @@ export const getUserInfoFromCache = (): CachedUserInfo | null => {
   if (cachedUserInfoJson) {
     try {
       cachedUserInfo = JSON.parse(cachedUserInfoJson);
-    } catch (error) {
-      console.error("Error parsing cached user info JSON:", error);
+    } catch {
+      cachedUserInfo = null;
     }
   }
 

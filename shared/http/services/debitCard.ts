@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import http from "../client";
 import { urlPaths } from "../util";
-import { FundingCard, FundingCardState } from "../types";
+import { FundingCard } from "../types";
 
 type CreateFundingCardResponse = FundingCard;
 
@@ -19,8 +19,8 @@ export const createFundingCard = async (payload: { paymentMethodId: string }) =>
 
 interface VerifyFundingCardPayload {
   paymentMethodId: string;
-  setupIntentId: string;
-  setupIntentClientSecret: string;
+  paymentIntentId: string;
+  paymentIntentClientSecret: string;
 }
 
 export const verifyFundingCard = async (payload: VerifyFundingCardPayload) => {
