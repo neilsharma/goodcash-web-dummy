@@ -5,7 +5,7 @@ import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
-import { useOnboarding } from "@/shared/context/onboarding";
+import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import {
@@ -13,6 +13,7 @@ import {
   getLatestKycAttempt,
   getUser,
   getUserOnboarding,
+  getUserOnboardingVersion,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
@@ -174,7 +175,12 @@ export default function OnboardingVerifyPage() {
       } else if (targetSept === "CONTACT_INFO") {
         push(onboardingStepToPageMap.USER_CONTACT_INFO);
       } else {
-        return onboardingStepHandler(EStepStatus.IN_PROGRESS);
+        const userOnboardingVersion = await getUserOnboardingVersion(token);
+        return onboardingStepHandler(
+          EStepStatus.IN_PROGRESS,
+          userOnboardingVersion?.version,
+          onboardingState?.onboardingOperationsMap as OnboardingOperationsMap
+        );
       }
     }
   }, [

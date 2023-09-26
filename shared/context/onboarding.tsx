@@ -103,7 +103,11 @@ export interface IOnboardingContext {
   redirectToNotEnoughMoneyPage: () => Promise<boolean>;
   userStateCoverageMap: UserStateCoverageMap | null;
   onboardingStepState: object;
-  onboardingStepHandler: (status: EStepStatus) => void;
+  onboardingStepHandler: (
+    status: EStepStatus,
+    version?: number,
+    onboardingData?: OnboardingOperationsMap
+  ) => void;
   currentOnboardingStep: string;
   version: number;
   setVersion: Dispatch<SetStateAction<number>>;
