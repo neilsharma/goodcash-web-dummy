@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
-import { useRouter } from "next/router";
 import OnboardingLayout from "@/components/OnboardingLayout";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
@@ -11,16 +10,17 @@ import {
   patchUserOnboarding,
   submitKyc,
 } from "@/shared/http/services/user";
-import { onboardingStepToPageMap } from "@/shared/constants";
 import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
-import { EScreenEventTitle, ESentryEvents } from "@/utils/types";
+import { EScreenEventTitle } from "@/utils/types";
 import Loader from "@/components/Loader";
 import { EStepStatus } from "../shared/types";
+import { useErrorContext } from "../shared/context/ErrorContext";
+import { OnboardingErrorDefs } from "../shared/constants";
 
 export default function OnboardingPlaidKycView() {
   useConfirmUnload();
-  const { push } = useRouter();
+  const { setErrorCode } = useErrorContext();
   const {
     phone,
     email,
@@ -73,6 +73,7 @@ export default function OnboardingPlaidKycView() {
             });
             setOnboardingOperationsMap((p) => ({ ...p, userKycSubmitted: true }));
           } else if (status === "FAILED") {
+            setErrorCode(OnboardingErrorDefs.PLAID_IDV_FAILED);
             throw new Error(status);
           }
         }
@@ -83,7 +84,7 @@ export default function OnboardingPlaidKycView() {
         });
         setShouldBeClosed(true);
         onboardingStepHandler(EStepStatus.IN_PROGRESS);
-      } catch (e) {
+      } catch (e: any) {
         setShouldBeClosed(true);
         onboardingStepHandler(EStepStatus.FAILED);
       }

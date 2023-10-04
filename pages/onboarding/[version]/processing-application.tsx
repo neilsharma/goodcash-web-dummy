@@ -19,11 +19,14 @@ import {
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
 import { EStepStatus } from "../../../shared/types";
+import { useErrorContext } from "../../../shared/context/ErrorContext";
+import { OnboardingErrorDefs } from "../../../shared/constants";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
 
   const { push } = useRouter();
+  const { setErrorCode } = useErrorContext();
   const {
     setIsUserBlocked,
     onboardingOperationsMap,
@@ -49,6 +52,7 @@ export default function ProcessingApplication() {
             onboardingOperationsMap: { loanApplicationCreated: true },
           });
         } else if (status === ELoanAgreementStatus.CREATION_FAILED) {
+          setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_CREATION_FAILED);
           throw new Error("Loan Application Creation Failed");
         }
       }
@@ -108,7 +112,7 @@ export default function ProcessingApplication() {
       onboardingStepHandler(EStepStatus.COMPLETED);
     } catch (error: any) {
       const errorObject = parseApiError(error);
-
+      setErrorCode(errorObject?.errorCode ?? "");
       if (errorObject?.errorCode === "UNDERWRITING0002") return setIsUserBlocked(true);
 
       onboardingStepHandler(EStepStatus.FAILED);
@@ -120,10 +124,11 @@ export default function ProcessingApplication() {
     setOnboardingStep,
     onboardingStepHandler,
     setOnboardingOperationsMap,
+    setErrorCode,
     setIsUserBlocked,
+    version,
     setPlaid,
     push,
-    version,
   ]);
 
   useTrackPage(EScreenEventTitle.PROCESSING_APPLICATION);

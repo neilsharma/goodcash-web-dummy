@@ -27,6 +27,8 @@ import { KYCFieldState } from "../../../shared/http/types";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import { EStepStatus } from "../../../shared/types";
 import { getUserInfoFromCache } from "../../../shared/http/util";
+import { useErrorContext } from "../../../shared/context/ErrorContext";
+import { OnboardingErrorDefs } from "../../../shared/constants";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -36,6 +38,7 @@ export default function OnboardingConnectBankAccountPage() {
 
   const { push } = useRouter();
   const { auth } = useGlobal();
+  const { setErrorCode } = useErrorContext();
   const {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
@@ -108,11 +111,14 @@ export default function OnboardingConnectBankAccountPage() {
           setOnboardingStep("PAYMENT_METHOD_VERIFICATION");
           onboardingStepHandler(EStepStatus.COMPLETED);
         } else if (status === "FAILED") {
+          setErrorCode(OnboardingErrorDefs.BANK_ACCOUNT_CREATION_FAILED);
           error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
             ? redirectToNotEnoughMoneyPage()
             : redirectToGenericErrorPage();
         }
-      } catch (error) {
+      } catch (error: any) {
+        const parsedError = parseApiError(error);
+        setErrorCode(parsedError?.errorCode ?? "");
         onboardingStepHandler(EStepStatus.FAILED);
       }
     },
@@ -120,6 +126,7 @@ export default function OnboardingConnectBankAccountPage() {
       onboardingStepHandler,
       redirectToGenericErrorPage,
       redirectToNotEnoughMoneyPage,
+      setErrorCode,
       setOnboardingOperationsMap,
       setOnboardingStep,
       setPlaid,
@@ -135,7 +142,7 @@ export default function OnboardingConnectBankAccountPage() {
       }
     } catch (e: any) {
       const errorObject = parseApiError(e);
-
+      setErrorCode(errorObject?.errorCode ?? "");
       if (errorObject?.errorCode === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY) {
         return push("/onboarding/not-enough-money");
       }

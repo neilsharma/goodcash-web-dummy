@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { useErrorContext } from "../../shared/context/ErrorContext";
 
 export default function OnboardingSomethingWrongPage() {
   useConfirmUnload();
@@ -18,6 +19,7 @@ export default function OnboardingSomethingWrongPage() {
   const tryAgain = useCallback(() => {
     back();
   }, [back]);
+  const { errorCode } = useErrorContext();
 
   return (
     <OnboardingLayout>
@@ -34,6 +36,7 @@ export default function OnboardingSomethingWrongPage() {
         <Button onClick={tryAgain}>Try again</Button>
         <Button variant="text">Contact support</Button>
       </div>
+      {errorCode ? <p className="opacity-30 ">ERROR:{errorCode}</p> : null}
     </OnboardingLayout>
   );
 }

@@ -17,10 +17,12 @@ import DebitCardAddressForm from "./DebitCardAddressForm";
 import { FormControlError } from "./form-control/shared";
 import { FundingCardState } from "@/shared/http/types";
 import { goodcashEnvironment } from "@/shared/config";
+import { useErrorContext } from "../shared/context/ErrorContext";
 
 function CardForm() {
   const stripe = useStripe();
   const elements = useElements();
+  const { setErrorCode } = useErrorContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [cvcReady, setCvcReady] = useState(false);
@@ -92,6 +94,7 @@ function CardForm() {
             trackEvent({
               event: ETrackEvent.ADD_FUNDING_CARD_FAILED,
             });
+            setErrorCode(error.code);
             onboardingStepHandler(EStepStatus.FAILED);
           } else {
             if (goodcashEnvironment === "production" && paymentMethod.card?.funding !== "debit") {
@@ -113,8 +116,10 @@ function CardForm() {
               let { paymentIntent, error: paymentIntentRetrievalError } =
                 await stripe.retrievePaymentIntent(fundingCard.paymentIntentClientSecret);
 
-              if (paymentIntentRetrievalError || !paymentIntent)
+              if (paymentIntentRetrievalError || !paymentIntent) {
+                setErrorCode(paymentIntentRetrievalError?.code);
                 throw new Error("Setup intent retrieval failed");
+              }
 
               const returnUrl = `${window.location.origin}/onboarding/${version}/confirm-setup-landing`;
 
@@ -138,8 +143,10 @@ function CardForm() {
                   },
                 });
 
-              if (confirmSetupError || confirmedPaymentIntent.status !== "succeeded")
+              if (confirmSetupError || confirmedPaymentIntent.status !== "succeeded") {
+                setErrorCode(confirmSetupError?.code);
                 throw new Error("Setup confirmation failed");
+              }
 
               await verifyFundingCard({
                 paymentIntentId: paymentIntent.id,
@@ -164,6 +171,7 @@ function CardForm() {
       elements,
       userPromise,
       userAddress,
+      setErrorCode,
       onboardingStepHandler,
       setOnboardingOperationsMap,
       setOnboardingStep,

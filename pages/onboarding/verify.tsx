@@ -27,6 +27,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 import OnboardingPlaidKycView from "../../container/KycView";
 import { KYCAttemptState } from "../../shared/http/types";
+import { useErrorContext } from "../../shared/context/ErrorContext";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -39,6 +40,7 @@ export default function OnboardingVerifyPage() {
 
   useTrackPage(EScreenEventTitle.VERIFY);
 
+  const { setErrorCode } = useErrorContext();
   const { confirmationResult, setConfirmationResult, resetAuth, auth, userSession } = useGlobal();
   const {
     setIsUserBlocked,
@@ -88,6 +90,8 @@ export default function OnboardingVerifyPage() {
 
       return res?.user;
     } catch (error: any) {
+      const errorObject = parseApiError(error);
+      setErrorCode(errorObject?.errorCode ?? "");
       setIsLoading(false);
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
 
@@ -97,7 +101,7 @@ export default function OnboardingVerifyPage() {
         redirectToGenericErrorPage();
       }
     }
-  }, [confirmationResult, code, setPhoneVerified, redirectToGenericErrorPage]);
+  }, [confirmationResult, code, setPhoneVerified, setErrorCode, redirectToGenericErrorPage]);
 
   const userCreationHandler = useCallback(async () => {
     try {
@@ -105,6 +109,7 @@ export default function OnboardingVerifyPage() {
       return await createUser(auth, flowName);
     } catch (error: any) {
       const errorObject = parseApiError(error);
+      setErrorCode(errorObject?.errorCode ?? "");
 
       if (userLimitErrors.includes(errorObject?.errorCode as EUserError)) {
         setIsLoading(false);
@@ -115,9 +120,9 @@ export default function OnboardingVerifyPage() {
         );
       }
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
-      onboardingStepHandler(EStepStatus.FAILED);
+      return errorObject;
     }
-  }, [auth, onboardingStepHandler, query]);
+  }, [auth, query, setErrorCode]);
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();
@@ -125,6 +130,9 @@ export default function OnboardingVerifyPage() {
 
     const token = await user.getIdToken();
     const gcUser = await getUser(token).catch(userCreationHandler);
+    if (gcUser && "errorCode" in gcUser) {
+      return onboardingStepHandler(EStepStatus.FAILED);
+    }
     mergeOnboardingStateHandler(token);
 
     if (gcUser && gcUser.id) {

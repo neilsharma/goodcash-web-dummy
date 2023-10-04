@@ -10,7 +10,7 @@ import {
   longPollOnboardingCompletionStatus,
   patchUserOnboarding,
 } from "@/shared/http/services/user";
-import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
+import { OnboardingErrorDefs, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import {
@@ -23,6 +23,8 @@ import { ELoanAgreementStatus } from "@/shared/http/types";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
 import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/gtag-analytics";
+import { useErrorContext } from "../../../shared/context/ErrorContext";
+import { parseApiError } from "../../../shared/error";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -34,8 +36,8 @@ export default function OneLastStep() {
     loanAgreementDocumentUrl,
     setLoanAgreementDocumentUrl,
     onboardingStepHandler,
-    redirectToGenericErrorPage,
   } = useOnboarding();
+  const { setErrorCode } = useErrorContext();
 
   const finish = useCallback(
     async (status: "COMPLETED" | "FAILED") => {
@@ -59,12 +61,7 @@ export default function OneLastStep() {
         onboardingStepHandler(EStepStatus.FAILED);
       }
     },
-    [
-      onboardingOperationsMap.onboardingCompleted,
-      setOnboardingStep,
-      setOnboardingOperationsMap,
-      redirectToGenericErrorPage,
-    ]
+    [setOnboardingStep, setOnboardingOperationsMap, onboardingStepHandler]
   );
 
   const createLoanAgreementHandler = useCallback(async () => {
@@ -84,16 +81,20 @@ export default function OneLastStep() {
 
           setLoanAgreementDocumentUrl(await getLoanAgreementUrl());
         } else if (status === ELoanAgreementStatus.SIGN_FAILED) {
+          setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_SIGN_FAILED);
           throw new Error("Loan Agreement Creation Failed");
         }
       }
-    } catch (e) {
+    } catch (e: any) {
+      const errorObject = parseApiError(e);
+      setErrorCode(errorObject?.errorCode ?? "");
       onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [
     onboardingOperationsMap.loanAgreementCreated,
     setOnboardingOperationsMap,
     setLoanAgreementDocumentUrl,
+    setErrorCode,
     onboardingStepHandler,
   ]);
 
@@ -126,9 +127,12 @@ export default function OneLastStep() {
         const onboardingStatus = await longPollOnboardingCompletionStatus();
         await finish(onboardingStatus);
       } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
+        setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_COMPLETION_FAILED);
         throw new Error("Loan Agreement Completion Failed");
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorObject = parseApiError(error);
+      setErrorCode(errorObject?.errorCode ?? "");
       onboardingStepHandler(EStepStatus.FAILED);
     }
   }, [
@@ -138,6 +142,7 @@ export default function OneLastStep() {
     setOnboardingOperationsMap,
     setOnboardingStep,
     finish,
+    setErrorCode,
   ]);
 
   useTrackPage(EScreenEventTitle.DOC_GENERATION);

@@ -5,6 +5,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import useTrackerInitializer from "../shared/hooks/useTrackerInitializer";
 import useHotjar from "../shared/hooks/useHotjar";
+import { ErrorProvider } from "../shared/context/ErrorContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   useTrackerInitializer();
@@ -19,9 +20,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <GlobalProvider>
-        <OnboardingProvider>
-          <Component {...pageProps} />
-        </OnboardingProvider>
+        <ErrorProvider>
+          <OnboardingProvider>
+            <Component {...pageProps} />
+          </OnboardingProvider>
+        </ErrorProvider>
       </GlobalProvider>
     </>
   );

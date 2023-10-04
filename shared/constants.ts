@@ -68,3 +68,12 @@ export const OnboardingFlowVersionsMap: Record<number, OnboardingFlowName> = {
   0: OnboardingFlowName.BANK_ACCOUNT_FUNDING,
   1: OnboardingFlowName.DEBIT_CARD_FUNDING,
 };
+
+export const OnboardingErrorDefs = {
+  PLAID_IDV_FAILED: "PI_400",
+  STRIPE_FUNDING_CARD_ERROR: "SFC_400",
+  BANK_ACCOUNT_CREATION_FAILED: "BAC_400",
+  LOAN_AGREEMENT_CREATION_FAILED: "LA_400",
+  LOAN_AGREEMENT_SIGN_FAILED: "LAS_400",
+  LOAN_AGREEMENT_COMPLETION_FAILED: "LAC_400",
+};
