@@ -164,6 +164,7 @@ function CardForm() {
         }
       } catch (error) {
         onboardingStepHandler(EStepStatus.FAILED);
+        setIsLoading(false);
       }
     },
     [
@@ -200,7 +201,6 @@ function CardForm() {
                     "::placeholder": {
                       color: "#aab7c4",
                     },
-                    padding: "0px",
                     fontFamily: "SharpGroteskBook20",
                   },
                   invalid: {

@@ -1,9 +1,5 @@
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
-import Lottie from "react-lottie";
-import * as animationData from "../../../public/lottie/growing-tree.json";
-import OnboardingLayout from "@/components/OnboardingLayout";
-import SubTitle from "@/components/SubTitle";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { longPollAssetStatus, patchUserOnboarding } from "@/shared/http/services/user";
@@ -19,6 +15,7 @@ import {
 } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
 import { EStepStatus } from "../../../shared/types";
+import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/ErrorContext";
 import { OnboardingErrorDefs } from "../../../shared/constants";
 
@@ -138,12 +135,7 @@ export default function ProcessingApplication() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <OnboardingLayout>
-      <Lottie options={{ loop: true, autoplay: true, animationData }} />
-      <SubTitle className="text-center">Processing application...</SubTitle>
-    </OnboardingLayout>
-  );
+  return <ProgressLoader type="PROCESSING_APPLICATION" />;
 }
 
 export const getServerSideProps = redirectIfServerSideRendered;

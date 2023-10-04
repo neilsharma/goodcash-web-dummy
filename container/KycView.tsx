@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
-import OnboardingLayout from "@/components/OnboardingLayout";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { getKycPlaidToken } from "@/shared/http/services/plaid";
@@ -13,10 +12,10 @@ import {
 import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
 import { EScreenEventTitle } from "@/utils/types";
-import Loader from "@/components/Loader";
 import { EStepStatus } from "../shared/types";
 import { useErrorContext } from "../shared/context/ErrorContext";
 import { OnboardingErrorDefs } from "../shared/constants";
+import ProgressLoader from "../components/ProgressLoader";
 
 export default function OnboardingPlaidKycView() {
   useConfirmUnload();
@@ -35,6 +34,8 @@ export default function OnboardingPlaidKycView() {
 
   const [plaidLinkToken, setPlaidLinkToken] = useState("");
   const [shouldBeClosed, setShouldBeClosed] = useState(false);
+  const [animateLoader, setAnimateLoader] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const shouldReopen = useRef(false);
   const isCompleted = useRef(false);
@@ -48,6 +49,7 @@ export default function OnboardingPlaidKycView() {
   const { open, exit, ready } = usePlaidLink({
     token: plaidLinkToken,
     onSuccess: async (_publicToken, metadata) => {
+      setShowLoader(true);
       try {
         isCompleted.current = true;
         shouldReopen.current = false;
@@ -83,7 +85,7 @@ export default function OnboardingPlaidKycView() {
           onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
         });
         setShouldBeClosed(true);
-        onboardingStepHandler(EStepStatus.IN_PROGRESS);
+        showLoaderHandler();
       } catch (e: any) {
         setShouldBeClosed(true);
         onboardingStepHandler(EStepStatus.FAILED);
@@ -93,6 +95,13 @@ export default function OnboardingPlaidKycView() {
       if (!isCompleted.current) shouldReopen.current = true;
     },
   });
+
+  const showLoaderHandler = () => {
+    setAnimateLoader(true);
+    setTimeout(() => {
+      onboardingStepHandler(EStepStatus.IN_PROGRESS);
+    }, 5000);
+  };
 
   useEffect(() => {
     if (shouldBeClosed) exit({ force: true });
@@ -112,12 +121,10 @@ export default function OnboardingPlaidKycView() {
 
     return () => clearInterval(interval);
   }, [open, ready, plaidLinkToken]);
-
-  return (
-    <OnboardingLayout>
-      <Loader className="mt-24" />
-    </OnboardingLayout>
-  );
+  if (showLoader) {
+    return <ProgressLoader type="VERIFYING" animate={animateLoader} />;
+  }
+  return <ProgressLoader type="LOADING" initialValue={50} />;
 }
 
 export const getServerSideProps = redirectIfServerSideRendered;

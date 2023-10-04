@@ -63,7 +63,7 @@ export default function AddCard() {
           </div>
         </div>
       ) : null}
-      <SubTitle className="mb-5">
+      <SubTitle className="my-5">
         Enter the debit card details that you’ll use to pay for your subscription and fund your
         GoodCash spending.
       </SubTitle>

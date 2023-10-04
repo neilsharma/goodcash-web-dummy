@@ -1,3 +1,4 @@
+import { EProgressLoaderText, EProgressLoaderTitle } from "../utils/types";
 import type { OnboardingStep, Plan } from "./types";
 
 export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
@@ -67,6 +68,33 @@ export enum OnboardingFlowName {
 export const OnboardingFlowVersionsMap: Record<number, OnboardingFlowName> = {
   0: OnboardingFlowName.BANK_ACCOUNT_FUNDING,
   1: OnboardingFlowName.DEBIT_CARD_FUNDING,
+};
+
+export const ProgressLoaderDefs = {
+  LOADING: {
+    title: EProgressLoaderTitle.LOADING,
+    text_line_1: EProgressLoaderText.LOADING_LINE_1,
+    text_line_2: EProgressLoaderText.LOADING_LINE_2,
+    duration: 5000,
+  },
+  VERIFYING: {
+    title: EProgressLoaderTitle.VERIFYING,
+    text_line_1: EProgressLoaderText.VERIFYING_LINE_1,
+    text_line_2: EProgressLoaderText.VERIFYING_LINE_2,
+    duration: 5000,
+  },
+  PROCESSING_APPLICATION: {
+    title: EProgressLoaderTitle.PROCESSING_APPLICATION,
+    text_line_1: EProgressLoaderText.PROCESSING_APPLICATION_LINE_1,
+    text_line_2: EProgressLoaderText.PROCESSING_APPLICATION_LINE_2,
+    duration: 10000,
+  },
+  FINALIZING: {
+    title: EProgressLoaderTitle.FINALIZING,
+    text_line_1: EProgressLoaderText.FINALIZING_LINE_1,
+    text_line_2: EProgressLoaderText.FINALIZING_LINE_2,
+    duration: 10000,
+  },
 };
 
 export const OnboardingErrorDefs = {

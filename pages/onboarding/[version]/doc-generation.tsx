@@ -23,6 +23,7 @@ import { ELoanAgreementStatus } from "@/shared/http/types";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
 import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/gtag-analytics";
+import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/ErrorContext";
 import { parseApiError } from "../../../shared/error";
 
@@ -134,6 +135,7 @@ export default function OneLastStep() {
       const errorObject = parseApiError(error);
       setErrorCode(errorObject?.errorCode ?? "");
       onboardingStepHandler(EStepStatus.FAILED);
+      setIsLoading(false);
     }
   }, [
     onboardingOperationsMap.loanAgreementCompleted,
@@ -151,6 +153,10 @@ export default function OneLastStep() {
     createLoanAgreementHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (isLoading) {
+    return <ProgressLoader type="FINALIZING" />;
+  }
 
   return (
     <OnboardingLayout>

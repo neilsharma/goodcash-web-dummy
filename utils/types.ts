@@ -132,3 +132,21 @@ export interface IUserAddress {
   city: string;
   zipCode: string;
 }
+
+export enum EProgressLoaderTitle {
+  LOADING = "Loading...",
+  VERIFYING = "Verifying...",
+  PROCESSING_APPLICATION = "Processing application...",
+  FINALIZING = "Finalizing...",
+}
+
+export enum EProgressLoaderText {
+  LOADING_LINE_1 = "Your GoodCash card's a step away...",
+  LOADING_LINE_2 = "🌱 A few details and we're set!",
+  VERIFYING_LINE_1 = "Your identity is important to us...",
+  VERIFYING_LINE_2 = "🌿 A quick check underway.",
+  PROCESSING_APPLICATION_LINE_1 = "Your application's almost done processing...",
+  PROCESSING_APPLICATION_LINE_2 = "🌳 Please wait, we're almost there!",
+  FINALIZING_LINE_1 = "Well done! You're all set.",
+  FINALIZING_LINE_2 = "🍃 Give us just a few sec to finalize.",
+}

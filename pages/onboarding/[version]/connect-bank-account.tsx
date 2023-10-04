@@ -120,6 +120,7 @@ export default function OnboardingConnectBankAccountPage() {
         const parsedError = parseApiError(error);
         setErrorCode(parsedError?.errorCode ?? "");
         onboardingStepHandler(EStepStatus.FAILED);
+        setIsLoading(false);
       }
     },
     [
@@ -148,6 +149,7 @@ export default function OnboardingConnectBankAccountPage() {
       }
 
       onboardingStepHandler(EStepStatus.FAILED);
+      setIsLoading(false);
     }
   };
 

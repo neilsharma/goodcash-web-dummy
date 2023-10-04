@@ -102,7 +102,10 @@ export const saveUserToCache = async (
 };
 
 export const getUserInfoFromCache = (): CachedUserInfo | null => {
-  const cachedUserInfoJson = localStorage.getItem(ELocalStorageKeys.CACHED_USER_INFO);
+  let cachedUserInfoJson;
+  if (typeof window !== "undefined") {
+    cachedUserInfoJson = localStorage.getItem(ELocalStorageKeys.CACHED_USER_INFO);
+  }
   let cachedUserInfo: CachedUserInfo | null = null;
 
   if (cachedUserInfoJson) {

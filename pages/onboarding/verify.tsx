@@ -27,6 +27,7 @@ import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 import OnboardingPlaidKycView from "../../container/KycView";
 import { KYCAttemptState } from "../../shared/http/types";
+import ProgressLoader from "../../components/ProgressLoader";
 import { useErrorContext } from "../../shared/context/ErrorContext";
 
 export default function OnboardingVerifyPage() {
@@ -219,6 +220,10 @@ export default function OnboardingVerifyPage() {
 
   if (showKycView) {
     return <OnboardingPlaidKycView />;
+  }
+
+  if (isLoading) {
+    return <ProgressLoader type="LOADING" />;
   }
 
   return (
