@@ -7,6 +7,7 @@ import { CachedUserInfo, ETrackEvent } from "../../utils/types";
 import { getUserInfoFromCache, navigateWithQuery } from "../http/util";
 import { trackEvent } from "../../utils/analytics/analytics";
 import { onboardingStepToPageMap } from "../constants";
+import { useErrorContext } from "../context/error";
 
 export const canUseDOM = () =>
   !!(typeof window !== "undefined" && window.document && window.document.createElement);
@@ -40,25 +41,31 @@ export const useServerSideOnboardingGuard = (skipGuard = false) => {
   return indexPageIsValid;
 };
 
-export const useConfirmUnload = () => {
+export const useConfirmUnload = (skip = false) => {
+  const { errorCode } = useErrorContext();
+
   useEffect(() => {
-    const handleBeforeUnload = (e: any) => {
-      e.preventDefault();
-      const currentURL = window.location.href;
-      const keywordsRegex = /connect-bank-account|kyc/;
-      const containsKeyword = keywordsRegex.test(currentURL);
-      if (containsKeyword) {
-        trackEvent({ event: ETrackEvent.USER_CLOSED_BROWSER_TAB, options: { url: currentURL } });
-      }
-      return (e.returnValue = "Are you sure you want to leave?");
-    };
+    if (!skip && !errorCode) {
+      const handleBeforeUnload = (e: any) => {
+        e.preventDefault();
+        const currentURL = window.location.href;
+        const keywordsRegex = /connect-bank-account|kyc/;
+        const containsKeyword = keywordsRegex.test(currentURL);
+        if (containsKeyword) {
+          trackEvent({ event: ETrackEvent.USER_CLOSED_BROWSER_TAB, options: { url: currentURL } });
+        }
+        return (e.returnValue = "Are you sure you want to leave?");
+      };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+      window.addEventListener("beforeunload", handleBeforeUnload);
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    } else {
+      window.onbeforeunload = null;
+    }
+  }, [errorCode, skip]);
 };
 
 export const useConfirmIsOAuthRedirect = () => {

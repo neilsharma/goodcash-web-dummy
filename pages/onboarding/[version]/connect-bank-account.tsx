@@ -3,7 +3,7 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { BankAccountVerificationErrCodes, parseApiError } from "@/shared/error";
+import { extractApiErrorCode } from "@/shared/error";
 import {
   redirectIfServerSideRendered,
   useConfirmIsOAuthRedirect,
@@ -18,7 +18,6 @@ import {
 import { getLatestKycAttempt, patchUserOnboarding } from "@/shared/http/services/user";
 import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { PlaidLinkOnSuccessMetadata, PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
 import { useGlobal } from "../../../shared/context/global";
@@ -27,8 +26,7 @@ import { KYCFieldState } from "../../../shared/http/types";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import { EStepStatus } from "../../../shared/types";
 import { getUserInfoFromCache } from "../../../shared/http/util";
-import { useErrorContext } from "../../../shared/context/ErrorContext";
-import { OnboardingErrorDefs } from "../../../shared/constants";
+import { useErrorContext } from "../../../shared/context/error";
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();
@@ -36,7 +34,6 @@ export default function OnboardingConnectBankAccountPage() {
 
   useTrackPage(EScreenEventTitle.CONNECT_BANK_ACCOUNT);
 
-  const { push } = useRouter();
   const { auth } = useGlobal();
   const { setErrorCode } = useErrorContext();
   const {
@@ -44,8 +41,6 @@ export default function OnboardingConnectBankAccountPage() {
     setOnboardingOperationsMap,
     setOnboardingStep,
     setPlaid,
-    redirectToGenericErrorPage,
-    redirectToNotEnoughMoneyPage,
     cacheUser,
     onboardingStepHandler,
     mergeOnboardingStateHandler,
@@ -111,27 +106,15 @@ export default function OnboardingConnectBankAccountPage() {
           setOnboardingStep("PAYMENT_METHOD_VERIFICATION");
           onboardingStepHandler(EStepStatus.COMPLETED);
         } else if (status === "FAILED") {
-          setErrorCode(OnboardingErrorDefs.BANK_ACCOUNT_CREATION_FAILED);
-          error === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY
-            ? redirectToNotEnoughMoneyPage()
-            : redirectToGenericErrorPage();
+          setErrorCode(error);
         }
-      } catch (error: any) {
-        const parsedError = parseApiError(error);
-        setErrorCode(parsedError?.errorCode ?? "");
+      } catch (error) {
         onboardingStepHandler(EStepStatus.FAILED);
         setIsLoading(false);
+        setErrorCode(extractApiErrorCode(error));
       }
     },
-    [
-      onboardingStepHandler,
-      redirectToGenericErrorPage,
-      redirectToNotEnoughMoneyPage,
-      setErrorCode,
-      setOnboardingOperationsMap,
-      setOnboardingStep,
-      setPlaid,
-    ]
+    [onboardingStepHandler, setErrorCode, setOnboardingOperationsMap, setOnboardingStep, setPlaid]
   );
 
   const onPlaidLinkSuccess = async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
@@ -142,13 +125,8 @@ export default function OnboardingConnectBankAccountPage() {
         await createBankAccountHandler(publicToken, metadata);
       }
     } catch (e: any) {
-      const errorObject = parseApiError(e);
-      setErrorCode(errorObject?.errorCode ?? "");
-      if (errorObject?.errorCode === BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY) {
-        return push("/onboarding/not-enough-money");
-      }
-
       onboardingStepHandler(EStepStatus.FAILED);
+      setErrorCode(extractApiErrorCode(e));
       setIsLoading(false);
     }
   };

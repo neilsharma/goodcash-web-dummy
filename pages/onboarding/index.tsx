@@ -15,13 +15,15 @@ import { EUsaStates } from "../../shared/types";
 import { trackEvent, trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import { navigateWithQuery } from "../../shared/http/util";
+import { useErrorContext } from "@/shared/context/error";
+import { ESupportedErrorCodes } from "@/shared/error";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
+  const { setErrorCode } = useErrorContext();
   const { auth, setConfirmationResult, recaptchaVerifier } = useGlobal();
   const {
     setState,
-    redirectToStateNotSupportedPage,
     userStateCoverageMap,
     setOnboardingStep,
     phone,
@@ -57,7 +59,7 @@ export default function OnboardingIndexPage() {
         event: ETrackEvent.USER_STATE_VALIDATION_FAILED,
         options: { phone, email, state: stateMask },
       });
-      redirectToStateNotSupportedPage();
+      setErrorCode(ESupportedErrorCodes.STATE_NOT_SUPPORTED);
       return;
     }
     setIsLoading(true);
@@ -81,12 +83,12 @@ export default function OnboardingIndexPage() {
     userStateCoverageMap,
     phone,
     email,
-    redirectToStateNotSupportedPage,
     auth,
     recaptchaVerifier,
     setConfirmationResult,
     setOnboardingStep,
     push,
+    setErrorCode,
   ]);
 
   return (

@@ -32,9 +32,7 @@ export const trackEvent = (log: {
 
     amplitude?.logEvent(log.event, eventOptions);
     firebase?.logEvent(trimmedLogEvent, eventOptions);
-  } catch (error) {
-    console.error("Log error", error);
-  }
+  } catch (error) {}
 };
 
 export const setUserId = (id: string) => {
@@ -50,7 +48,14 @@ export const setUserProperties = (properties: UserProperties | FirebaseUserPrope
   amplitude?.setUserProperties(properties as UserProperties);
 };
 
-export const trackPage = (info: `${EScreenEventTitle}`) =>
+export const trackPage = (info: `${EScreenEventTitle}`, error_code?: string) =>
   trackEvent({
     event: `${info} Viewed`,
+    ...(error_code
+      ? {
+          options: {
+            error_code,
+          },
+        }
+      : {}),
   });

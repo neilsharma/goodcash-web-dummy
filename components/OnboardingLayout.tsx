@@ -5,25 +5,27 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { getUserInfoFromCache } from "../shared/http/util";
+import { ESupportedErrorCodes, errorPageMap } from "@/shared/error";
+import { useErrorContext } from "@/shared/context/error";
 
 export const OnboardingLayout: FC<{
   children?: ReactNode;
   skipGuard?: boolean;
   pageTitle?: string;
 }> = ({ children, skipGuard = false, pageTitle = null }) => {
-  const { replace, pathname } = useRouter();
+  const { setErrorCode } = useErrorContext();
+  const { pathname } = useRouter();
   const { onboardingStep, isUserBlocked } = useOnboarding();
   const [_userInfo, setUserInfo] = useState<any>();
   const allowed = useServerSideOnboardingGuard(skipGuard);
 
-  const isUserBlockedPage = useMemo(() => pathname === "/onboarding/user-is-blocked", [pathname]);
+  const isErrorPage = useMemo(() => pathname.startsWith(errorPageMap.onboarding), [pathname]);
 
   useEffect(() => {
     const response = getUserInfoFromCache();
     setUserInfo(response);
-    if (isUserBlockedPage) return;
-    if (isUserBlocked) replace("/onboarding/user-is-blocked");
-  }, [isUserBlockedPage, isUserBlocked, replace]);
+    if (isUserBlocked) setErrorCode(ESupportedErrorCodes.USER_BLOCKED);
+  }, [isUserBlocked, setErrorCode]);
 
   const _progress = useMemo(() => {
     switch (onboardingStep) {
@@ -46,10 +48,10 @@ export const OnboardingLayout: FC<{
 
   const shouldBeHidden = useMemo(() => {
     const isNotAllowed = !allowed && !skipGuard;
-    const userIsBlockedGuard = !isUserBlockedPage && isUserBlocked;
+    const userIsBlockedGuard = !isErrorPage && isUserBlocked;
 
     return isNotAllowed || userIsBlockedGuard;
-  }, [isUserBlockedPage, isUserBlocked, allowed, skipGuard]);
+  }, [isErrorPage, isUserBlocked, allowed, skipGuard]);
 
   return (
     <>

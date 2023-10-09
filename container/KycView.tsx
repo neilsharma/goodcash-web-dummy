@@ -13,7 +13,7 @@ import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
 import { EScreenEventTitle } from "@/utils/types";
 import { EStepStatus } from "../shared/types";
-import { useErrorContext } from "../shared/context/ErrorContext";
+import { useErrorContext } from "../shared/context/error";
 import { OnboardingErrorDefs } from "../shared/constants";
 import ProgressLoader from "../components/ProgressLoader";
 

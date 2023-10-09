@@ -16,6 +16,7 @@ import isEmail from "validator/lib/isEmail";
 import isMobilePhone from "validator/lib/isMobilePhone";
 import { GCUser, UserStateCoverageMap } from "../http/types";
 import {
+  EOtpErrorCode,
   EStepStatus,
   EUsaStates,
   OnboardingStep,
@@ -34,6 +35,8 @@ import { useConfirmIsOAuthRedirect } from "../hooks";
 import useStripePromise from "../hooks/useStripePromise";
 import { Stripe } from "@stripe/stripe-js";
 import { nonOnboardingPaths } from "../../utils/utils";
+import { errorPageMap } from "../error";
+import { useErrorContext } from "./error";
 
 export interface IOnboardingContext {
   cacheUser: () => Promise<void>;
@@ -98,16 +101,9 @@ export interface IOnboardingContext {
   setHowDidYouHearAboutUs: Dispatch<SetStateAction<string>>;
 
   mergeOnboardingState: (state: RecursivePartial<SharedOnboardingState>) => void;
-  redirectToGenericErrorPage: () => Promise<boolean>;
-  redirectToStateNotSupportedPage: () => Promise<boolean>;
-  redirectToNotEnoughMoneyPage: () => Promise<boolean>;
   userStateCoverageMap: UserStateCoverageMap | null;
   onboardingStepState: object;
-  onboardingStepHandler: (
-    status: EStepStatus,
-    version?: number,
-    onboardingData?: OnboardingOperationsMap
-  ) => void;
+  onboardingStepHandler: (status: EStepStatus, props?: OnboardingStepHandlerProps) => void;
   currentOnboardingStep: string;
   version: number;
   setVersion: Dispatch<SetStateAction<number>>;
@@ -143,6 +139,17 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const { auth } = useGlobal();
 
   const { push, query, pathname, asPath } = useRouter();
+
+  const { errorCode } = useErrorContext();
+  useEffect(() => {
+    if (
+      errorCode &&
+      errorCode !== EOtpErrorCode.INVALID_OTP &&
+      !location.pathname.startsWith(errorPageMap.onboarding)
+    )
+      push(errorPageMap.onboarding);
+  }, [errorCode, push]);
+
   const [onboardingOperationsMap, setOnboardingOperationsMap] = useState<OnboardingOperationsMap>({
     userCreated: false,
     userAddressCreated: false,
@@ -310,27 +317,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     [pathname, push, query, version]
   );
 
-  const redirectToGenericErrorPage = useCallback(
-    () => push(`/onboarding/something-went-wrong`),
-    [push]
-  );
-
-  const redirectToStateNotSupportedPage = useCallback(
-    () => push(`/onboarding/state-not-supported`),
-    [push]
-  );
-
-  const redirectToNotEnoughMoneyPage = useCallback(
-    () => push(`/onboarding/${version}/not-enough-money`),
-    [push, version]
-  );
-
   const onboardingStepHandler = useCallback(
-    (
-      status: EStepStatus,
-      currentVersion: number = version,
-      onboardingData: OnboardingOperationsMap = onboardingOperationsMap
-    ) => {
+    (status: EStepStatus, props?: OnboardingStepHandlerProps) => {
+      const { currentVersion = version, onboardingData = onboardingOperationsMap } = props ?? {};
+
       updateTheOnboardingStepMapData(status);
       const stepsToComplete = [
         {
@@ -355,7 +345,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
           continue;
         }
         if (status === EStepStatus.FAILED) {
-          return redirectToGenericErrorPage();
+          return;
         }
         const value = onboardingStepState[stepKey as keyof typeof onboardingStepState];
         if (value.status === "NOT_STARTED" || value.status === "IN_PROGRESS") {
@@ -363,6 +353,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
           onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
             EStepStatus.IN_PROGRESS;
           setCurrentOnboardingStep(stepKey);
+
           redirectToNextOnboardingStep(
             onboardingStepToPageMap[firstNotStartedStep as OnboardingStep],
             currentVersion
@@ -376,7 +367,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       // eslint-disable-next-line react-hooks/exhaustive-deps
       JSON.stringify(onboardingOperationsMap),
       onboardingStepState,
-      redirectToGenericErrorPage,
       redirectToNextOnboardingStep,
       updateTheOnboardingStepMapData,
       version,
@@ -520,11 +510,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
             onboardingState.onboardingOperationsMap?.userTaxInfoIsSet ||
             isPlaidOAuthRedirect
           ) {
-            onboardingStepHandler(
-              EStepStatus.IN_PROGRESS,
-              userOnboardingVersion?.version,
-              onboardingState.onboardingOperationsMap as OnboardingOperationsMap
-            );
+            onboardingStepHandler(EStepStatus.IN_PROGRESS, {
+              currentVersion: userOnboardingVersion?.version,
+              onboardingData: onboardingState.onboardingOperationsMap as OnboardingOperationsMap,
+            });
           } else {
             setIsLoadingUserInfo(false);
           }
@@ -634,9 +623,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         setHowDidYouHearAboutUs,
 
         mergeOnboardingState,
-        redirectToGenericErrorPage,
-        redirectToStateNotSupportedPage,
-        redirectToNotEnoughMoneyPage,
         userStateCoverageMap,
         onboardingStepState,
         onboardingStepHandler,
@@ -653,5 +639,10 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     </onboardingContext.Provider>
   );
 };
+
+interface OnboardingStepHandlerProps {
+  currentVersion?: number;
+  onboardingData?: OnboardingOperationsMap;
+}
 
 export const useOnboarding = () => useContext(onboardingContext);

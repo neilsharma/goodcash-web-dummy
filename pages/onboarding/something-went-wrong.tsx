@@ -4,39 +4,45 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
-import { EScreenEventTitle } from "../../utils/types";
-import useTrackPage from "../../shared/hooks/useTrackPage";
-import { useErrorContext } from "../../shared/context/ErrorContext";
+import { useCallback, useEffect } from "react";
+import { useGetTrackPage } from "../../shared/hooks/useTrackPage";
+import { useErrorContext } from "../../shared/context/error";
 
 export default function OnboardingSomethingWrongPage() {
-  useConfirmUnload();
+  const { setErrorCode, errorCode, errorData } = useErrorContext();
 
-  useTrackPage(EScreenEventTitle.SOMETHING_WENT_WRONG);
+  useConfirmUnload(errorData.skipConfirmUnload);
+
+  const trackPage = useGetTrackPage();
+  useEffect(
+    () => trackPage(errorData.screenEventTitle, errorCode || undefined),
+    [trackPage, errorData.screenEventTitle, errorCode]
+  );
 
   const { back } = useRouter();
-
   const tryAgain = useCallback(() => {
-    back();
-  }, [back]);
-  const { errorCode } = useErrorContext();
+    setErrorCode(null);
+    (errorData.tryAgainCallFunction || back)();
+  }, [setErrorCode, back, errorData.tryAgainCallFunction]);
 
   return (
     <OnboardingLayout>
-      <Title>Something went wrong</Title>
-      <SubTitle className="my-4">
-        Sorry, looks like something went wrong during your application process.
-      </SubTitle>
-      <SubTitle className="my-4">
-        Feel free to try again, and if the issue persists, please contact our support team and we’ll
-        get this resolved right away.
-      </SubTitle>
+      <Title>{errorData.title}</Title>
+      <SubTitle className="my-4">{errorData.subTitle1}</SubTitle>
+      <SubTitle className="my-4">{errorData.subTittle2}</SubTitle>
 
       <div className="flex gap-4 my-12">
-        <Button onClick={tryAgain}>Try again</Button>
-        <Button variant="text">Contact support</Button>
+        {errorData.tryAgainEnabled ? (
+          <Button onClick={tryAgain}>{errorData.tryAgainText}</Button>
+        ) : null}
+        {errorData.contactSupportEnabled ? (
+          <a href="mailto:support@goodcash.com" className="w-full">
+            <Button variant="text">Contact support</Button>
+          </a>
+        ) : null}
       </div>
-      {errorCode ? <p className="opacity-30 ">ERROR:{errorCode}</p> : null}
+
+      {errorCode ? <p className="opacity-30 ">ERROR: {errorCode}</p> : null}
     </OnboardingLayout>
   );
 }

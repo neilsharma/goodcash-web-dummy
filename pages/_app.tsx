@@ -5,7 +5,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import useTrackerInitializer from "../shared/hooks/useTrackerInitializer";
 import useHotjar from "../shared/hooks/useHotjar";
-import { ErrorProvider } from "../shared/context/ErrorContext";
+import { ErrorProvider } from "../shared/context/error";
 
 export default function App({ Component, pageProps }: AppProps) {
   useTrackerInitializer();

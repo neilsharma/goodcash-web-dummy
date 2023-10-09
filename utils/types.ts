@@ -18,7 +18,7 @@ export enum EScreenEventTitle {
   PLAN = "Plan",
   VERIFY = "Verify Phone Number",
   USER_ID_BLOCKED = "User Id Blocked",
-  SOMETHING_WENT_WRONG = "Something Went Wrong",
+  GENERIC_ERROR = "Generic Error",
   NOT_ENOUGH_MONEY = "Insufficient Bank Account Balance",
   HOW_DID_YOU_HEAR = "How Did You Hear",
   PROCESSING_APPLICATION = "Processing Application",
@@ -33,6 +33,10 @@ export enum EScreenEventTitle {
   THANKS_FOR_JOINING = "Thanks For Joining",
   NEW_CARD_ON_THE_WAY = "New Card On The Way",
   CARD_VERIFICATION = "Card Verification",
+  FUNDING_CARD_BALANCE_CHECK_FAILED = "Funding Card Balance Check Failed",
+  FUNDING_CARD_INVALID_STATE = "Funding Card Validation Failed",
+  FUNDING_CARD_DECLINED = "Funding Card Declined",
+  FUNDING_CARD_CREATION_FAILED = "Funding Card Creation Failed",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;

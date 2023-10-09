@@ -18,9 +18,12 @@ import {
 import { cardHolderAgreementUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
+import { useErrorContext } from "@/shared/context/error";
+import { extractApiErrorCode } from "@/shared/error";
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
+  const { setErrorCode } = useErrorContext();
   let inputRef = useRef<HTMLInputElement | null>(null);
 
   useTrackPage(EScreenEventTitle.CONTACT_INFO);
@@ -59,7 +62,6 @@ export default function OnboardingContactInfoPage() {
     setAgreedToTermsOfService,
     is18YearsOld,
     contactInfoPageIsValid,
-    redirectToGenericErrorPage,
     onboardingStepHandler,
   } = useOnboarding();
 
@@ -116,7 +118,7 @@ export default function OnboardingContactInfoPage() {
       setOnboardingStep("BANK_ACCOUNT_LINKING");
       onboardingStepHandler(EStepStatus.COMPLETED);
     } catch (e) {
-      redirectToGenericErrorPage();
+      setErrorCode(extractApiErrorCode(e));
     }
   }, [
     contactInfoPageIsValid,
@@ -139,7 +141,7 @@ export default function OnboardingContactInfoPage() {
     agreedToCardHolderAgreement,
     agreedToAutopay,
     agreedToTermsOfService,
-    redirectToGenericErrorPage,
+    setErrorCode,
   ]);
 
   useEffect(() => {

@@ -22,13 +22,13 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/router";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
-import { EUserError, parseApiError, userLimitErrors } from "../../shared/error";
+import { ESupportedErrorCodes, extractApiErrorCode, userLimitErrors } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 import OnboardingPlaidKycView from "../../container/KycView";
 import { KYCAttemptState } from "../../shared/http/types";
 import ProgressLoader from "../../components/ProgressLoader";
-import { useErrorContext } from "../../shared/context/ErrorContext";
+import { useErrorContext } from "../../shared/context/error";
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload();
@@ -51,7 +51,6 @@ export default function OnboardingVerifyPage() {
     lastName,
     email,
     setPhoneVerified,
-    redirectToGenericErrorPage,
     setUser,
     setOnboardingOperationsMap,
     onboardingStepHandler,
@@ -91,28 +90,25 @@ export default function OnboardingVerifyPage() {
 
       return res?.user;
     } catch (error: any) {
-      const errorObject = parseApiError(error);
-      setErrorCode(errorObject?.errorCode ?? "");
+      setErrorCode(extractApiErrorCode(error));
       setIsLoading(false);
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
 
       if (error.code === EOtpErrorCode.INVALID_OTP) {
         setIsOtpInvalid(true);
-      } else {
-        redirectToGenericErrorPage();
       }
     }
-  }, [confirmationResult, code, setPhoneVerified, setErrorCode, redirectToGenericErrorPage]);
+  }, [confirmationResult, code, setPhoneVerified, setErrorCode]);
 
   const userCreationHandler = useCallback(async () => {
     try {
       const { flowName } = query;
       return await createUser(auth, flowName);
     } catch (error: any) {
-      const errorObject = parseApiError(error);
-      setErrorCode(errorObject?.errorCode ?? "");
+      const errorCode = extractApiErrorCode(error);
+      setErrorCode(errorCode);
 
-      if (userLimitErrors.includes(errorObject?.errorCode as EUserError)) {
+      if (userLimitErrors.includes(errorCode)) {
         setIsLoading(false);
         return alert(
           "We've currently reached our maximum number of beta users " +
@@ -121,7 +117,7 @@ export default function OnboardingVerifyPage() {
         );
       }
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
-      return errorObject;
+      return errorCode;
     }
   }, [auth, query, setErrorCode]);
 
@@ -151,7 +147,7 @@ export default function OnboardingVerifyPage() {
         case "BLOCKED":
           return setIsUserBlocked(true);
         case "DELETED":
-          return redirectToGenericErrorPage();
+          return setErrorCode(ESupportedErrorCodes.GENERIC);
 
         case "LIVE":
           return onboardingStepHandler(EStepStatus.COMPLETED);
@@ -185,11 +181,10 @@ export default function OnboardingVerifyPage() {
         push(onboardingStepToPageMap.USER_CONTACT_INFO);
       } else {
         const userOnboardingVersion = await getUserOnboardingVersion(token);
-        return onboardingStepHandler(
-          EStepStatus.IN_PROGRESS,
-          userOnboardingVersion?.version,
-          onboardingState?.onboardingOperationsMap as OnboardingOperationsMap
-        );
+        return onboardingStepHandler(EStepStatus.IN_PROGRESS, {
+          currentVersion: userOnboardingVersion?.version,
+          onboardingData: onboardingState?.onboardingOperationsMap as OnboardingOperationsMap,
+        });
       }
     }
   }, [
@@ -206,10 +201,10 @@ export default function OnboardingVerifyPage() {
     email,
     setOnboardingOperationsMap,
     setIsUserBlocked,
-    redirectToGenericErrorPage,
     push,
     version,
     onboardingStepHandler,
+    setErrorCode,
   ]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {

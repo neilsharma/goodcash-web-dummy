@@ -78,7 +78,7 @@ export const GlobalProvider: FC<{ children?: ReactNode }> = ({ children }) => {
       setUserSession(newUserSession);
     };
 
-    getAndSetUserSession().catch(console.error);
+    getAndSetUserSession().catch(() => {});
   }, []);
 
   const [confirmationResult, setConfirmationResult] = useState<null | ConfirmationResult>(null);

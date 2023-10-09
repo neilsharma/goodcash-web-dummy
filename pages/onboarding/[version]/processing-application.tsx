@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from "react";
-import { useRouter } from "next/router";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { longPollAssetStatus, patchUserOnboarding } from "@/shared/http/services/user";
 import { failUnderwriting, underwrite } from "@/shared/http/services/underwriting";
 import { isLocalhost } from "@/shared/config";
-import { parseApiError } from "@/shared/error";
+import { BankAccountVerificationErrCodes, extractApiErrorCode } from "@/shared/error";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import {
@@ -16,13 +15,12 @@ import {
 import { ELoanAgreementStatus } from "@/shared/http/types";
 import { EStepStatus } from "../../../shared/types";
 import ProgressLoader from "../../../components/ProgressLoader";
-import { useErrorContext } from "../../../shared/context/ErrorContext";
+import { useErrorContext } from "../../../shared/context/error";
 import { OnboardingErrorDefs } from "../../../shared/constants";
 
 export default function ProcessingApplication() {
   useConfirmUnload();
 
-  const { push } = useRouter();
   const { setErrorCode } = useErrorContext();
   const {
     setIsUserBlocked,
@@ -91,7 +89,7 @@ export default function ProcessingApplication() {
 
             localStorage.removeItem(ELocalStorageKeys.LINK_TOKEN);
 
-            return push(`/onboarding/${version}/not-enough-money`);
+            return setErrorCode(BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY);
         }
       }
 
@@ -107,12 +105,9 @@ export default function ProcessingApplication() {
 
       setOnboardingStep("LOAN_APPLICATION_SUBMISSION");
       onboardingStepHandler(EStepStatus.COMPLETED);
-    } catch (error: any) {
-      const errorObject = parseApiError(error);
-      setErrorCode(errorObject?.errorCode ?? "");
-      if (errorObject?.errorCode === "UNDERWRITING0002") return setIsUserBlocked(true);
-
+    } catch (error) {
       onboardingStepHandler(EStepStatus.FAILED);
+      setErrorCode(extractApiErrorCode(error));
     }
   }, [
     onboardingOperationsMap.loanApplicationCreated,
@@ -125,7 +120,6 @@ export default function ProcessingApplication() {
     setIsUserBlocked,
     version,
     setPlaid,
-    push,
   ]);
 
   useTrackPage(EScreenEventTitle.PROCESSING_APPLICATION);

@@ -17,7 +17,8 @@ import DebitCardAddressForm from "./DebitCardAddressForm";
 import { FormControlError } from "./form-control/shared";
 import { FundingCardState } from "@/shared/http/types";
 import { goodcashEnvironment } from "@/shared/config";
-import { useErrorContext } from "../shared/context/ErrorContext";
+import { useErrorContext } from "../shared/context/error";
+import { extractApiErrorCode } from "@/shared/error";
 
 function CardForm() {
   const stripe = useStripe();
@@ -118,7 +119,7 @@ function CardForm() {
 
               if (paymentIntentRetrievalError || !paymentIntent) {
                 setErrorCode(paymentIntentRetrievalError?.code);
-                throw new Error("Setup intent retrieval failed");
+                return;
               }
 
               const returnUrl = `${window.location.origin}/onboarding/${version}/confirm-setup-landing`;
@@ -134,19 +135,11 @@ function CardForm() {
 
               await cacheUser();
 
-              const { paymentIntent: confirmedPaymentIntent, error: confirmSetupError } =
-                await stripe.confirmPayment({
-                  clientSecret: fundingCard.paymentIntentClientSecret,
-                  redirect: "if_required",
-                  confirmParams: {
-                    return_url: returnUrl,
-                  },
-                });
-
-              if (confirmSetupError || confirmedPaymentIntent.status !== "succeeded") {
-                setErrorCode(confirmSetupError?.code);
-                throw new Error("Setup confirmation failed");
-              }
+              await stripe.confirmPayment({
+                clientSecret: fundingCard.paymentIntentClientSecret,
+                redirect: "if_required",
+                confirmParams: { return_url: returnUrl },
+              });
 
               await verifyFundingCard({
                 paymentIntentId: paymentIntent.id,
@@ -165,6 +158,7 @@ function CardForm() {
       } catch (error) {
         onboardingStepHandler(EStepStatus.FAILED);
         setIsLoading(false);
+        setErrorCode(extractApiErrorCode(error));
       }
     },
     [

@@ -24,8 +24,8 @@ import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
 import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/gtag-analytics";
 import ProgressLoader from "../../../components/ProgressLoader";
-import { useErrorContext } from "../../../shared/context/ErrorContext";
-import { parseApiError } from "../../../shared/error";
+import { useErrorContext } from "../../../shared/context/error";
+import { extractApiErrorCode } from "../../../shared/error";
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -86,10 +86,9 @@ export default function OneLastStep() {
           throw new Error("Loan Agreement Creation Failed");
         }
       }
-    } catch (e: any) {
-      const errorObject = parseApiError(e);
-      setErrorCode(errorObject?.errorCode ?? "");
+    } catch (e) {
       onboardingStepHandler(EStepStatus.FAILED);
+      setErrorCode(extractApiErrorCode(e));
     }
   }, [
     onboardingOperationsMap.loanAgreementCreated,
@@ -131,11 +130,10 @@ export default function OneLastStep() {
         setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_COMPLETION_FAILED);
         throw new Error("Loan Agreement Completion Failed");
       }
-    } catch (error: any) {
-      const errorObject = parseApiError(error);
-      setErrorCode(errorObject?.errorCode ?? "");
+    } catch (error) {
       onboardingStepHandler(EStepStatus.FAILED);
       setIsLoading(false);
+      setErrorCode(extractApiErrorCode(error));
     }
   }, [
     onboardingOperationsMap.loanAgreementCompleted,
