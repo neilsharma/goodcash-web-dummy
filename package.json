@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "yarn pull-env && NEXT_PUBLIC_DOMAIN='http://localhost:3000' next dev -p 3001",
+    "sandbox": "yarn pull-env && next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

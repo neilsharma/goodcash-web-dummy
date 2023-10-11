@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
-import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import { useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { getKycPlaidToken } from "@/shared/http/services/plaid";
 import {
@@ -126,5 +126,3 @@ export default function OnboardingPlaidKycView() {
   }
   return <ProgressLoader type="LOADING" initialValue={50} />;
 }
-
-export const getServerSideProps = redirectIfServerSideRendered;

@@ -11,7 +11,7 @@ export const parseApiError = (error: AxiosError<{ message?: string }>) => {
 };
 
 export const extractApiErrorCode = (error: unknown) => {
-  const errorCode =
+  const errorCode: string =
     error instanceof AxiosError
       ? parseApiError(error as AxiosError<{ message?: string }>)?.errorCode
       : (error as any)?.code;
@@ -51,7 +51,7 @@ export enum BankAccountVerificationErrCodes {
 
 export enum EUserError {
   MAX_USERS = "USER0001",
-  MAS_LIVE_USERS = "USER0002",
+  MAX_LIVE_USERS = "USER0002",
   FUNDING_CARD_GLOBAL_LIMIT_REACHED = "USER0005",
 }
 
@@ -63,7 +63,7 @@ export enum EFundingCardError {
 
 export const userLimitErrors = [
   EUserError.MAX_USERS,
-  EUserError.MAS_LIVE_USERS,
+  EUserError.MAX_LIVE_USERS,
   EUserError.FUNDING_CARD_GLOBAL_LIMIT_REACHED,
 ];
 

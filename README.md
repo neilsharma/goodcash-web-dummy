@@ -5,12 +5,17 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, run the development server:
 
 ```bash
-npm run dev
+yarn run dev
 # or
 yarn dev
-# or
-pnpm dev
 ```
+
+or you can directly connect the web app with sandbox server by running this command
+
+```bash
+yarn sandbox
+```
+
 ## Environment Variables
 
 This project utilizes the Vercel CLI to conveniently pull environment variables from the Vercel hosting environment.

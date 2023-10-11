@@ -49,7 +49,7 @@ export const useConfirmUnload = (skip = false) => {
       const handleBeforeUnload = (e: any) => {
         e.preventDefault();
         const currentURL = window.location.href;
-        const keywordsRegex = /connect-bank-account|kyc/;
+        const keywordsRegex = /connect-bank-account|kyc|connect-debit-card/;
         const containsKeyword = keywordsRegex.test(currentURL);
         if (containsKeyword) {
           trackEvent({ event: ETrackEvent.USER_CLOSED_BROWSER_TAB, options: { url: currentURL } });

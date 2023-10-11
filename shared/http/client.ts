@@ -2,7 +2,6 @@ import axios from "axios";
 import { domain } from "../config";
 import { getComputedAuth, getComputedUserSession } from "../context/global";
 import { getUserInfoFromCache, urlPaths } from "./util";
-import { CachedUserInfo, ELocalStorageKeys } from "../../utils/types";
 
 export const http = axios.create({
   baseURL: domain,
