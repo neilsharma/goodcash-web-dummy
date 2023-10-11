@@ -53,8 +53,8 @@ export const urlPaths = {
 export const longPoll = async <R>(
   cb: () => Promise<R>,
   check: (response: R) => boolean,
-  timeout = 500,
-  attempts = 0,
+  timeout = 1000,
+  attempts = 110,
   fallback?: R
 ): Promise<R> => {
   let attemptsTried = 0;
@@ -67,18 +67,25 @@ export const longPoll = async <R>(
 
         attemptsTried++;
 
-        if (!expectedResponse)
-          return attempts > 0 && attemptsTried >= attempts
-            ? resolve(fallback!)
-            : setTimeout(startPolling, timeout);
+        if (!expectedResponse) {
+          if (attempts > 0 && attemptsTried >= attempts) return resolve(fallback!);
 
-        return resolve(response);
+          if (attemptsTried > 100) {
+            timeout = (attemptsTried - 100) * 1000;
+          }
+          setTimeout(startPolling, timeout);
+        } else {
+          return resolve(response);
+        }
       } catch {
         attemptsTried++;
 
-        attempts > 0 && attemptsTried >= attempts
-          ? resolve(fallback!)
-          : setTimeout(startPolling, timeout);
+        if (attempts > 0 && attemptsTried >= attempts) return resolve(fallback!);
+
+        if (attemptsTried > 100) {
+          timeout = (attemptsTried - 100) * 1000;
+        }
+        setTimeout(startPolling, timeout);
       }
     };
 

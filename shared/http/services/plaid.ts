@@ -48,12 +48,12 @@ export const failBankAccountCreation = async (payload: FailBankAccountCreation) 
 export const longPollBankCreation = async (
   expectedStatuses: OnboardingStepStatus[] = ["COMPLETED", "FAILED"],
   fallback = { status: "FAILED" as OnboardingStepStatus, error: null },
-  timeout = 500
+  timeout = 1000
 ) =>
   longPoll(
     fetchBankAccountCreationStatus,
     ({ status }) => expectedStatuses.includes(status),
     timeout,
-    0,
+    110,
     fallback
   );

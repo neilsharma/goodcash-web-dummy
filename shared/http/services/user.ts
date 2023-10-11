@@ -86,13 +86,13 @@ export const fetchKycSubmissionStatus = async () => {
 export const longPollKycSubmissionStatus = async (
   expectedStatuses: OnboardingStepStatus[] = ["COMPLETED", "FAILED"],
   fallback = "FAILED" as OnboardingStepStatus,
-  timeout = 500
+  timeout = 1000
 ) =>
   longPoll(
     fetchKycSubmissionStatus,
     (status) => expectedStatuses.includes(status),
     timeout,
-    0,
+    110,
     fallback
   );
 
@@ -156,10 +156,10 @@ export const getBankLocStatus = async () => {
 const completedAssetStatuses = ["APPROVED", "DENIED"] as AssetStatus[];
 const completedOnboardingStatuses = ["COMPLETED", "FAILED"] as OnboardingStepStatus[];
 
-export const longPollAssetStatus = async (timeout = 500, attempts = 240) =>
+export const longPollAssetStatus = async (timeout = 1000, attempts = 110) =>
   longPoll(getAssetStatus, (s) => completedAssetStatuses.includes(s), timeout, attempts, "DENIED");
 
-export const longPollOnboardingCompletionStatus = async (timeout = 500, attempts = 240) =>
+export const longPollOnboardingCompletionStatus = async (timeout = 1000, attempts = 110) =>
   longPoll(
     userOnboardingCompletionStatus,
     (s) => completedOnboardingStatuses.includes(s),

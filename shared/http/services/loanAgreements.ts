@@ -26,7 +26,7 @@ export const longPollLongAgreementStatus = async (
     () => getLoanAgreement().then((r) => r.status),
     (status) => expectedStatuses.includes(status),
     timeout,
-    0,
+    110,
     fallback
   );
 
