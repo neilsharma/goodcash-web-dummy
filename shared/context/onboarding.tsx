@@ -138,7 +138,7 @@ const onboardingContext = createContext<IOnboardingContext>(null as any);
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const { auth } = useGlobal();
 
-  const { push, query, pathname, asPath } = useRouter();
+  const { push, query, pathname } = useRouter();
 
   const { errorCode } = useErrorContext();
   useEffect(() => {
@@ -353,7 +353,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
           onboardingStepState[stepKey as keyof typeof onboardingStepState].status =
             EStepStatus.IN_PROGRESS;
           setCurrentOnboardingStep(stepKey);
-
           redirectToNextOnboardingStep(
             onboardingStepToPageMap[firstNotStartedStep as OnboardingStep],
             currentVersion
@@ -475,10 +474,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
     ]
   );
 
-  const redirectToOnboardingIfUserNotFound = useCallback(() => {
-    return push(nonOnboardingPaths.includes(pathname) ? pathname : asPath);
-  }, [pathname, asPath, push]);
-
   const isPlaidOAuthRedirect = useConfirmIsOAuthRedirect();
 
   useEffect(() => {
@@ -520,16 +515,9 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         }
       } catch (error) {
         setIsLoadingUserInfo(false);
-        redirectToOnboardingIfUserNotFound();
       }
     },
-    [
-      isPlaidOAuthRedirect,
-      mergeOnboardingState,
-      onboardingStepHandler,
-      redirectToOnboardingIfUserNotFound,
-      updateOnboardingStepData,
-    ]
+    [isPlaidOAuthRedirect, mergeOnboardingState, onboardingStepHandler, updateOnboardingStepData]
   );
 
   useEffect(() => {

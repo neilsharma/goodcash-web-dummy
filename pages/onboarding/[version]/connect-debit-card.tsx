@@ -15,9 +15,8 @@ import { resolveText } from "../../../utils/types";
 
 export default function AddCard() {
   useConfirmUnload();
-  const { stripe } = useOnboarding();
   const [dynamicPlanId, setDynamicPlanId] = useState(defaultPlanId);
-  const { user } = useOnboarding();
+  const { user, stripe } = useOnboarding();
 
   const fetchDynamicSubscriptionFlag = useCallback(async () => {
     try {

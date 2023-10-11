@@ -17,6 +17,10 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>GoodCash</title>
         <meta name="description" content="GoodCash Card - Build credit history safely" />
         <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta http-equiv="expires" content="0" />
+        <meta http-equiv="pragma" content="no-cache" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <GlobalProvider>

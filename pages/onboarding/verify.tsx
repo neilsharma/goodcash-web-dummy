@@ -130,7 +130,7 @@ export default function OnboardingVerifyPage() {
     if (gcUser && "errorCode" in gcUser) {
       return onboardingStepHandler(EStepStatus.FAILED);
     }
-    mergeOnboardingStateHandler(token);
+    await mergeOnboardingStateHandler(token);
 
     if (gcUser && gcUser.id) {
       setUser(gcUser);
