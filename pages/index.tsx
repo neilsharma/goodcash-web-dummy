@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { useOnboarding } from "../shared/context/onboarding";
 import Loader from "../components/Loader";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const { isLoadingUserInfo } = useOnboarding();
-  const { query } = useRouter();
+  const params = useSearchParams();
+  const flowName = params?.get("flowName");
   if (isLoadingUserInfo) {
     return (
       <main>
@@ -15,7 +16,7 @@ export default function Home() {
   }
   return (
     <main>
-      <Link href={query.flowName ? `/onboarding/?flowName=${query.flowName}` : "/onboarding"}>
+      <Link href={flowName ? `/onboarding/?flowName=${flowName}` : "/onboarding"}>
         to onboarding
       </Link>
     </main>

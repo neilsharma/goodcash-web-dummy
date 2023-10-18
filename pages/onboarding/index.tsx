@@ -8,7 +8,6 @@ import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
 import { EUsaStates } from "../../shared/types";
@@ -17,6 +16,7 @@ import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
 import { navigateWithQuery } from "../../shared/http/util";
 import { useErrorContext } from "@/shared/context/error";
 import { ESupportedErrorCodes } from "@/shared/error";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
@@ -37,7 +37,9 @@ export default function OnboardingIndexPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [stateMask, setStateMask] = useState<{ value: string; label: string } | null>(null);
   const [dimBackground, setDimBackground] = useState(false);
-  const { push, query } = useRouter();
+  const { push } = useRouter();
+  const params = useSearchParams();
+  const flowName = params?.get("flowName");
 
   useEffect(() => {
     trackPage(EScreenEventTitle.ONBOARDING);
@@ -45,7 +47,7 @@ export default function OnboardingIndexPage() {
 
   const onContinue = useCallback(async () => {
     const urlWithQuery = navigateWithQuery(
-      query,
+      flowName ?? "",
       onboardingStepToPageMap.USER_IDENTITY_VERIFICATION
     );
     const stateValue = stateMask?.value;
@@ -77,7 +79,7 @@ export default function OnboardingIndexPage() {
       setDimBackground(false);
     }
   }, [
-    query,
+    flowName,
     stateMask,
     indexPageIsValid,
     userStateCoverageMap,

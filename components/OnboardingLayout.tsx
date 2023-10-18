@@ -2,11 +2,11 @@ import { useOnboarding } from "@/shared/context/onboarding";
 import { useServerSideOnboardingGuard } from "@/shared/hooks";
 import Head from "next/head";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { getUserInfoFromCache } from "../shared/http/util";
 import { ESupportedErrorCodes, errorPageMap } from "@/shared/error";
 import { useErrorContext } from "@/shared/context/error";
+import { usePathname } from "next/navigation";
 
 export const OnboardingLayout: FC<{
   children?: ReactNode;
@@ -14,12 +14,12 @@ export const OnboardingLayout: FC<{
   pageTitle?: string;
 }> = ({ children, skipGuard = false, pageTitle = null }) => {
   const { setErrorCode } = useErrorContext();
-  const { pathname } = useRouter();
+  const pathname = usePathname();
   const { onboardingStep, isUserBlocked } = useOnboarding();
   const [_userInfo, setUserInfo] = useState<any>();
   const allowed = useServerSideOnboardingGuard(skipGuard);
 
-  const isErrorPage = useMemo(() => pathname.startsWith(errorPageMap.onboarding), [pathname]);
+  const isErrorPage = useMemo(() => pathname?.startsWith(errorPageMap.onboarding), [pathname]);
 
   useEffect(() => {
     const response = getUserInfoFromCache();

@@ -1,6 +1,6 @@
-"use-client";
+"use client";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../context/onboarding";
 import { CachedUserInfo, ETrackEvent } from "../../utils/types";
@@ -8,6 +8,7 @@ import { getUserInfoFromCache, navigateWithQuery } from "../http/util";
 import { trackEvent } from "../../utils/analytics/analytics";
 import { onboardingStepToPageMap } from "../constants";
 import { useErrorContext } from "../context/error";
+import { useSearchParams } from "next/navigation";
 
 export const canUseDOM = () =>
   !!(typeof window !== "undefined" && window.document && window.document.createElement);
@@ -27,13 +28,18 @@ export const redirectIfServerSideRendered = (to = "/onboarding") => {
 
 export const useServerSideOnboardingGuard = (skipGuard = false) => {
   const { indexPageIsValid } = useOnboarding();
-  const { push, query } = useRouter();
+  const { push } = useRouter();
+  const params = useSearchParams();
   const cachedUserInfo = useRef<CachedUserInfo | null>(null);
-  const urlWithQuery = navigateWithQuery(query, onboardingStepToPageMap.USER_IDENTITY_COLLECTION);
   useEffect(() => {
+    const flowName = params?.get("flowName");
+    const urlWithQuery = navigateWithQuery(
+      flowName ?? "",
+      onboardingStepToPageMap.USER_IDENTITY_COLLECTION
+    );
     cachedUserInfo.current = getUserInfoFromCache();
     if (!indexPageIsValid && !skipGuard && !cachedUserInfo.current) push(urlWithQuery);
-  }, [indexPageIsValid, skipGuard, push, urlWithQuery]);
+  }, [indexPageIsValid, skipGuard, push, params]);
 
   if (cachedUserInfo.current) {
     return true;

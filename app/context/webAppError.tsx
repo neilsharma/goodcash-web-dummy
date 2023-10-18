@@ -15,7 +15,7 @@ import {
   SupportedErrorCodes,
   defaultErrorData,
   errorCodesToErrorPayloadMap,
-} from "../error";
+} from "@/shared/error";
 
 export interface IErrorContext {
   errorCode: SupportedErrorCodes | undefined | null;
@@ -23,9 +23,9 @@ export interface IErrorContext {
   errorData: ErrorData;
 }
 
-const errorContext = createContext<IErrorContext>(null as any);
+const webAppErrorContext = createContext<IErrorContext>(null as any);
 
-export const ErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
+export const WebAppErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const [errorCode, setErrorCode] = useState<SupportedErrorCodes | undefined | null>(null);
   const errorData = useMemo<ErrorData>(
     () => ({
@@ -38,7 +38,7 @@ export const ErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   );
 
   return (
-    <errorContext.Provider
+    <webAppErrorContext.Provider
       value={{
         errorCode,
         setErrorCode,
@@ -46,8 +46,8 @@ export const ErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
       }}
     >
       {children}
-    </errorContext.Provider>
+    </webAppErrorContext.Provider>
   );
 };
 
-export const useErrorContext = () => useContext(errorContext);
+export const useWebAppErrorContext = () => useContext(webAppErrorContext);

@@ -19,7 +19,7 @@ import {
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import {
@@ -62,7 +62,9 @@ export default function OnboardingVerifyPage() {
     version,
     mergeOnboardingStateHandler,
   } = useOnboarding();
-  const { push, query } = useRouter();
+  const { push } = useRouter();
+  const params = useSearchParams();
+  const flowName = params?.get("flowName");
 
   const [code, setCode] = useState("");
   const [codeMask, setCodeMask] = useState("");
@@ -107,8 +109,7 @@ export default function OnboardingVerifyPage() {
 
   const userCreationHandler = useCallback(async (): Promise<GCUser | string | null> => {
     try {
-      const { flowName } = query;
-      return await createUser(auth, flowName);
+      return await createUser(auth, flowName ?? "");
     } catch (error: any) {
       const errorCode = extractApiErrorCode(error);
       setErrorCode(errorCode);
@@ -125,7 +126,7 @@ export default function OnboardingVerifyPage() {
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
       return errorCode;
     }
-  }, [auth, query, setErrorCode]);
+  }, [auth, flowName, setErrorCode]);
 
   const onContinue = useCallback(async () => {
     const user = await confirmPhone();

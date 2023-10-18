@@ -1,9 +1,10 @@
-import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { fbPixelId, goodcashEnvironment } from "../config";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const useFbPixel = () => {
-  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const fbPixelRef = useRef<typeof import("node_modules/react-facebook-pixel/types/index") | null>(
     null
   );
@@ -17,7 +18,7 @@ const useFbPixel = () => {
           fbPixelRef.current = ReactPixel;
         });
     }
-  }, [router.events]);
+  }, [pathname, searchParams]);
   return [fbPixelRef.current?.trackCustom];
 };
 

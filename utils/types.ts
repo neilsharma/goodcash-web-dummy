@@ -37,6 +37,10 @@ export enum EScreenEventTitle {
   FUNDING_CARD_INVALID_STATE = "Funding Card Validation Failed",
   FUNDING_CARD_DECLINED = "Funding Card Declined",
   FUNDING_CARD_CREATION_FAILED = "Funding Card Creation Failed",
+  WEB_APP_LOGIN = "Web App Login",
+  WEB_APP_VERIFY = "Web App Verify",
+  WEB_APP_HOME = "Web App Home",
+  USER_VERIFICATION_FAILED = "User Varification Failed",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;

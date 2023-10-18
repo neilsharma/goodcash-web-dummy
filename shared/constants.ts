@@ -14,6 +14,12 @@ export const onboardingStepToPageMap: Record<OnboardingStep, string> = {
   FUNDING_CARD_LINKING: "connect-debit-card",
 };
 
+export const webAppRoutes = {
+  LOGIN: "login",
+  VERIFY: "verify",
+  HOME: "home",
+};
+
 /** This should be replaced with plans from Db in the future */
 export const hardcodedPlans = {
   1: {

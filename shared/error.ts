@@ -77,6 +77,8 @@ export interface ErrorData {
   tryAgainText: string;
   contactSupportEnabled: boolean;
   skipConfirmUnload: boolean;
+  secondaryButtonText?: string;
+  secondaryButtonFunction?: () => any;
 }
 
 export const defaultErrorData: ErrorData = {
@@ -97,6 +99,20 @@ const userBlockedError: Partial<ErrorData> = {
   tryAgainEnabled: false,
 };
 
+const invalidCredentialsOrUserNotSignedUpError: Partial<ErrorData> = {
+  title: "Account Not Found",
+  subTitle1: "It seems you haven't signed up yet.",
+  subTittle2: "Please create an account to access this service.",
+  screenEventTitle: EScreenEventTitle.USER_VERIFICATION_FAILED,
+  tryAgainEnabled: true,
+  tryAgainText: "Try Again",
+  tryAgainCallFunction: () => {},
+  contactSupportEnabled: false,
+  skipConfirmUnload: false,
+  secondaryButtonText: "Sign up",
+  secondaryButtonFunction: () => "onboarding",
+};
+
 export enum ESupportedErrorCodes {
   GENERIC = "GENERIC",
   USER_BLOCKED = "USER_BLOCKED",
@@ -107,6 +123,7 @@ export enum ESupportedErrorCodes {
   FUNDING_CARD_DECLINED = EFundingCardError.FUNDING_CARD_DECLINED,
   GENERIC_FUNDING_CARD_ERROR = "GENERIC_FUNDING_CARD_ERROR",
   STATE_NOT_SUPPORTED = "STATE_NOT_SUPPORTED",
+  USER_NOT_LIVE = "USER_NOT_LIVE",
 }
 
 export type SupportedErrorCodes = ESupportedErrorCodes | (string & {});
@@ -115,6 +132,7 @@ export const errorCodesToErrorPayloadMap: Record<SupportedErrorCodes, Partial<Er
   [ESupportedErrorCodes.GENERIC]: defaultErrorData,
   [ESupportedErrorCodes.USER_BLOCKED]: userBlockedError,
   [ESupportedErrorCodes.ASSET_CHECK_FAILED]: userBlockedError,
+  [ESupportedErrorCodes.USER_NOT_LIVE]: invalidCredentialsOrUserNotSignedUpError,
   [ESupportedErrorCodes.NOT_ENOUGH_MONEY]: {
     title: "Your bank account is not eligible because average balance was too low.",
     subTitle1: "Unfortunately, you do not meet our eligibility requirement at the moment.",

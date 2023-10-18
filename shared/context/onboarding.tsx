@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import {
   createContext,
   Dispatch,
@@ -37,6 +36,7 @@ import { Stripe } from "@stripe/stripe-js";
 import { nonOnboardingPaths } from "../../utils/utils";
 import { errorPageMap } from "../error";
 import { useErrorContext } from "./error";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 export interface IOnboardingContext {
   cacheUser: () => Promise<void>;
@@ -138,7 +138,10 @@ const onboardingContext = createContext<IOnboardingContext>(null as any);
 export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const { auth } = useGlobal();
 
-  const { push, query, pathname } = useRouter();
+  const { push } = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const flowName = params?.get("flowName");
 
   const { errorCode } = useErrorContext();
   useEffect(() => {
@@ -308,13 +311,22 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
   const redirectToNextOnboardingStep = useCallback(
     async (step: string, currentVersion: number = version) => {
       try {
-        const urlWithQuery = navigateWithQuery(query, `/onboarding/${currentVersion}/${step}`);
-        return await push(nonOnboardingPaths.includes(pathname) ? pathname : urlWithQuery);
+        const urlWithQuery = navigateWithQuery(
+          flowName ?? "",
+          `/onboarding/${currentVersion}/${step}`
+        );
+        return await push(
+          pathname
+            ? nonOnboardingPaths.includes(pathname)
+              ? pathname
+              : urlWithQuery
+            : urlWithQuery
+        );
       } finally {
         return setIsLoadingUserInfo(false);
       }
     },
-    [pathname, push, query, version]
+    [pathname, push, flowName, version]
   );
 
   const onboardingStepHandler = useCallback(

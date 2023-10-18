@@ -3,7 +3,7 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { useGetTrackPage } from "../../shared/hooks/useTrackPage";
 import { useErrorContext } from "../../shared/context/error";

@@ -1,5 +1,4 @@
 import { CachedUserInfo, ELocalStorageKeys } from "@/utils/types";
-import { ParsedUrlQuery } from "querystring";
 import { Auth } from "firebase/auth";
 
 export const urlPaths = {
@@ -129,10 +128,7 @@ export const getUserInfoFromCache = (): CachedUserInfo | null => {
 export const popUserInfoFromCache = () =>
   localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);
 
-export const navigateWithQuery = (query: ParsedUrlQuery, baseUrl: string) => {
-  const queryString = Object.keys(query)
-    .map((key) => `${key}=${query[key]}`)
-    .join("&");
-  const urlWithQuery = `${baseUrl}?${queryString}`;
+export const navigateWithQuery = (query: string, baseUrl: string) => {
+  const urlWithQuery = `${baseUrl}?flowName=${query}`;
   return urlWithQuery;
 };

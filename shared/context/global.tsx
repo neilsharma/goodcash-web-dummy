@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { Auth, ConfirmationResult } from "firebase/auth";
 import {
