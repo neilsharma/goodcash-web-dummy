@@ -1,6 +1,6 @@
 "use client";
+
 import Button from "@/components/Button";
-import WebAppLayout from "@/components/WebAppLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
@@ -11,14 +11,12 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
-import { ESupportedErrorCodes, extractApiErrorCode } from "@/shared/error";
 import { trackEvent, trackPage } from "@/utils/analytics/analytics";
 import { useWebAppErrorContext } from "@/app/context/webAppError";
 import { useWebAppContext } from "../context/webApp";
 import { webAppRoutes } from "../../shared/constants";
 import { verifyState, verifyReducer } from "../../shared/reducers/verify";
 import { getUser } from "../../shared/http/services/user";
-import { useErrorBoundary } from "react-error-boundary";
 
 export default function VerifyPage() {
   let inputRef = useRef<HTMLInputElement | null>(null);
@@ -27,11 +25,10 @@ export default function VerifyPage() {
     trackPage(EScreenEventTitle.WEB_APP_VERIFY);
   }, []);
 
-  const { setErrorCode } = useWebAppErrorContext();
+  const { setError } = useWebAppErrorContext();
   const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
   const { phone } = useWebAppContext();
   const { push } = useRouter();
-  const { showBoundary } = useErrorBoundary();
 
   const [state, dispatch] = useReducer(verifyReducer, verifyState);
 
@@ -60,15 +57,16 @@ export default function VerifyPage() {
 
       return res?.user;
     } catch (error: any) {
-      setErrorCode(extractApiErrorCode(error));
       setIsLoading(false);
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
 
       if (error.code === EOtpErrorCode.INVALID_OTP) {
         dispatch({ type: "isOtpInvalid", payload: true });
       }
+
+      setError(error);
     }
-  }, [confirmationResult, state.code, setErrorCode]);
+  }, [confirmationResult, state.code, setError]);
 
   const onContinue = useCallback(async () => {
     try {
@@ -82,10 +80,9 @@ export default function VerifyPage() {
         push(webAppRoutes.HOME);
       }
     } catch (error) {
-      setErrorCode(ESupportedErrorCodes.USER_NOT_LIVE);
-      showBoundary(ESupportedErrorCodes.USER_NOT_LIVE);
+      setError(error);
     }
-  }, [confirmPhone, push, setErrorCode, showBoundary]);
+  }, [confirmPhone, push, setError]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" || event.key === "Done") {
@@ -94,7 +91,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <WebAppLayout>
+    <>
       <Title>Verify your phone number</Title>
       <SubTitle>A text message with a verification code has been sent to {phone}.</SubTitle>
 
@@ -126,6 +123,6 @@ export default function VerifyPage() {
           Resend code{seconds !== 0 ? ` in 0:${seconds.toString().padStart(2, "0")}` : ""}
         </Button>
       </div>
-    </WebAppLayout>
+    </>
   );
 }

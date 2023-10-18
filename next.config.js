@@ -4,8 +4,7 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const nextConfig = {
   reactStrictMode: false,
   experimental: {
-    legacyBrowsers: false,
-    outputFileTracingIgnores: ["**canvas**"],
+    outputFileTracingExcludes: { "**/*": ["**canvas**"] },
   },
   async rewrites() {
     return [

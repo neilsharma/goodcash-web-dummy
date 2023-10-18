@@ -11,7 +11,6 @@ import { trackPage } from "@/utils/analytics/analytics";
 import { EScreenEventTitle } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { useWebAppContext } from "../context/webApp";
-import WebAppLayout from "@/components/WebAppLayout";
 
 export default function LoginPage() {
   const { setConfirmationResult, resetAuth } = useGlobal();
@@ -43,7 +42,7 @@ export default function LoginPage() {
   }, [resetAuth, phone, setConfirmationResult, push]);
 
   return (
-    <WebAppLayout>
+    <>
       {dimBackground && <div className="fixed top-0 left-0 h-[100vh] w-[100vw] bg-black/70 z-10" />}
       <Title>Welcome to GoodCash</Title>
       <SubTitle>
@@ -80,6 +79,6 @@ export default function LoginPage() {
           Privacy Policy
         </a>
       </p>
-    </WebAppLayout>
+    </>
   );
 }

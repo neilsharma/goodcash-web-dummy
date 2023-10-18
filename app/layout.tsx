@@ -4,6 +4,7 @@ import { GlobalProvider } from "@/shared/context/global";
 import "@/styles/globals.css";
 import { WebAppProvider } from "./context/webApp";
 import { GoogleAnalyticsTracking } from "@/utils/analytics/GoogleAnalytics";
+import WebAppLayout from "@/components/WebAppLayout";
 
 export const metadata: Metadata = {
   title: "GoodCash App",
@@ -23,9 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <GoogleAnalyticsTracking />
         <GlobalProvider>
-          <WebAppErrorProvider>
-            <WebAppProvider>{children}</WebAppProvider>
-          </WebAppErrorProvider>
+          <WebAppLayout>
+            <WebAppErrorProvider>
+              <WebAppProvider>{children}</WebAppProvider>
+            </WebAppErrorProvider>
+          </WebAppLayout>
         </GlobalProvider>
       </body>
     </html>

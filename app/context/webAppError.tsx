@@ -1,51 +1,26 @@
 "use client";
 
-import {
-  Dispatch,
-  FC,
-  ReactNode,
-  SetStateAction,
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
-import {
-  ErrorData,
-  SupportedErrorCodes,
-  defaultErrorData,
-  errorCodesToErrorPayloadMap,
-} from "@/shared/error";
+import { Dispatch, FC, ReactNode, createContext, useContext, useState } from "react";
+import ErrorPage from "../error";
 
 export interface IErrorContext {
-  errorCode: SupportedErrorCodes | undefined | null;
-  setErrorCode: Dispatch<SetStateAction<SupportedErrorCodes | undefined | null>>;
-  errorData: ErrorData;
+  error: unknown | null;
+  setError: Dispatch<unknown | null>;
 }
 
 const webAppErrorContext = createContext<IErrorContext>(null as any);
 
 export const WebAppErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
-  const [errorCode, setErrorCode] = useState<SupportedErrorCodes | undefined | null>(null);
-  const errorData = useMemo<ErrorData>(
-    () => ({
-      ...defaultErrorData,
-      ...(errorCode
-        ? (errorCodesToErrorPayloadMap as Record<string, Partial<ErrorData>>)[errorCode] || {}
-        : {}),
-    }),
-    [errorCode]
-  );
+  const [error, setError] = useState<IErrorContext["error"]>(null);
 
   return (
     <webAppErrorContext.Provider
       value={{
-        errorCode,
-        setErrorCode,
-        errorData,
+        error,
+        setError,
       }}
     >
-      {children}
+      {error ? <ErrorPage error={error as Error} reset={() => setError(null)} /> : children}
     </webAppErrorContext.Provider>
   );
 };
