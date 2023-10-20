@@ -1,4 +1,4 @@
-export type GCUserState = "LIVE" | "DELETED" | "ONBOARDING" | "BLOCKED";
+import type { GCUserState } from "@/utils/types";
 
 export interface GCUser {
   id: string;

@@ -1,5 +1,7 @@
 import { UserSession } from "@/shared/http/types";
 import { getGtagSessionData } from "./analytics/gtag-analytics";
+import { GCUserState } from "./types";
+import { ESupportedErrorCodes } from "@/shared/error";
 
 function convertFbclidToFbc(fbclid: string): string {
   const domainIndex = 1; // Assuming the cookie is defined on 'facebook.com'
@@ -119,3 +121,24 @@ async function getUserSession(): Promise<UserSession | null> {
 export const nonOnboardingPaths = ["/cqr", "/close-account"];
 
 export { getUserSession };
+
+export const checkUserState = (state: GCUserState) => {
+  let errorCode: ESupportedErrorCodes | null = null;
+  let shouldSignOut = false;
+
+  switch (state) {
+    case GCUserState.ONBOARDING:
+      errorCode = ESupportedErrorCodes.USER_ONBOARDING_INCOMPLETE;
+      break;
+    case GCUserState.BLOCKED:
+      errorCode = ESupportedErrorCodes.USER_BLOCKED;
+      shouldSignOut = true;
+      break;
+    case GCUserState.DELETED:
+      errorCode = ESupportedErrorCodes.USER_DELETED;
+      shouldSignOut = true;
+      break;
+  }
+
+  return { errorCode, shouldSignOut };
+};

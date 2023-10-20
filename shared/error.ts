@@ -78,7 +78,7 @@ export interface ErrorData {
   contactSupportEnabled: boolean;
   skipConfirmUnload: boolean;
   secondaryButtonText?: string;
-  secondaryButtonFunction?: () => any;
+  secondaryButtonLink?: string;
 }
 
 export const defaultErrorData: ErrorData = {
@@ -99,6 +99,23 @@ const userBlockedError: Partial<ErrorData> = {
   tryAgainEnabled: false,
 };
 
+const userIncompleteOnboardingError: Partial<ErrorData> = {
+  subTittle2:
+    "Your account isn't active. Please finish the card application to activate your account and then log in.",
+  screenEventTitle: EScreenEventTitle.USER_ONBOARDING_INCOMPLETE,
+  tryAgainEnabled: false,
+  contactSupportEnabled: false,
+  secondaryButtonText: "Sign up",
+  secondaryButtonLink: "/onboarding",
+};
+
+const userDeletedError: Partial<ErrorData> = {
+  subTittle2: "Your account has been closed. Please contact support for more information.",
+  screenEventTitle: EScreenEventTitle.USER_ID_DELETED,
+  tryAgainEnabled: false,
+  contactSupportEnabled: true,
+};
+
 const invalidCredentialsOrUserNotSignedUpError: Partial<ErrorData> = {
   title: "Account Not Found",
   subTitle1: "It seems you haven't signed up yet.",
@@ -110,7 +127,7 @@ const invalidCredentialsOrUserNotSignedUpError: Partial<ErrorData> = {
   contactSupportEnabled: false,
   skipConfirmUnload: false,
   secondaryButtonText: "Sign up",
-  secondaryButtonFunction: () => "onboarding",
+  secondaryButtonLink: "/onboarding",
 };
 
 export enum ESupportedErrorCodes {
@@ -124,13 +141,17 @@ export enum ESupportedErrorCodes {
   GENERIC_FUNDING_CARD_ERROR = "GENERIC_FUNDING_CARD_ERROR",
   STATE_NOT_SUPPORTED = "STATE_NOT_SUPPORTED",
   USER_NOT_LIVE = "USER_NOT_LIVE",
+  USER_DELETED = "USER_DELETED",
+  USER_ONBOARDING_INCOMPLETE = "USER_ONBOARDING_INCOMPLETE",
 }
 
 export type SupportedErrorCodes = ESupportedErrorCodes | (string & {});
 
 export const errorCodesToErrorPayloadMap: Record<SupportedErrorCodes, Partial<ErrorData>> = {
   [ESupportedErrorCodes.GENERIC]: defaultErrorData,
+  [ESupportedErrorCodes.USER_ONBOARDING_INCOMPLETE]: userIncompleteOnboardingError,
   [ESupportedErrorCodes.USER_BLOCKED]: userBlockedError,
+  [ESupportedErrorCodes.USER_DELETED]: userDeletedError,
   [ESupportedErrorCodes.ASSET_CHECK_FAILED]: userBlockedError,
   [ESupportedErrorCodes.USER_NOT_LIVE]: invalidCredentialsOrUserNotSignedUpError,
   [ESupportedErrorCodes.NOT_ENOUGH_MONEY]: {

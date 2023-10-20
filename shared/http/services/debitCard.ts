@@ -1,21 +1,8 @@
-import { AxiosResponse } from "axios";
-import http from "../client";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { urlPaths } from "../util";
 import { FundingCard } from "../types";
 
 type CreateFundingCardResponse = FundingCard;
-
-export const createFundingCard = async (payload: { paymentMethodId: string }) => {
-  const res = await http.post<any, AxiosResponse<CreateFundingCardResponse>>(
-    `${urlPaths.CREATE_FUNDING_CARD}`,
-    { paymentMethodId: payload.paymentMethodId },
-    {
-      timeout: 50_000,
-    }
-  );
-
-  return res.data;
-};
 
 interface VerifyFundingCardPayload {
   paymentMethodId: string;
@@ -23,14 +10,31 @@ interface VerifyFundingCardPayload {
   paymentIntentClientSecret: string;
 }
 
-export const verifyFundingCard = async (payload: VerifyFundingCardPayload) => {
-  const res = await http.post<any, AxiosResponse<void>>(
-    `${urlPaths.VERIFY_FUNDING_CARD}`,
-    payload,
-    {
-      timeout: 50_000,
-    }
-  );
+export class DebitFundingCardHttpService {
+  constructor(private http: AxiosInstance) {}
+  public createFundingCard = async (payload: { paymentMethodId: string }) => {
+    const res = await this.http.post<any, AxiosResponse<CreateFundingCardResponse>>(
+      `${urlPaths.CREATE_FUNDING_CARD}`,
+      { paymentMethodId: payload.paymentMethodId },
+      {
+        timeout: 50_000,
+      }
+    );
 
-  return res.data;
-};
+    return res.data;
+  };
+
+  public verifyFundingCard = async (payload: VerifyFundingCardPayload) => {
+    const res = await this.http.post<any, AxiosResponse<void>>(
+      `${urlPaths.VERIFY_FUNDING_CARD}`,
+      payload,
+      {
+        timeout: 50_000,
+      }
+    );
+
+    return res.data;
+  };
+}
+
+export default DebitFundingCardHttpService;

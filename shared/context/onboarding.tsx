@@ -24,10 +24,10 @@ import {
   SharedOnboardingState,
 } from "../types";
 import { init } from "../feature";
-import { getUserStateCoverageMap } from "../http/services/loanAgreements";
+import { LoanAgreementsHttpService } from "../http/services/loanAgreements";
 import { getUserInfoFromCache, navigateWithQuery, saveUserToCache } from "../http/util";
 import { onboardingStepToPageMap } from "../constants";
-import { getUserOnboarding, getUserOnboardingVersion } from "../http/services/user";
+import { UserHttpService } from "../http/services/user";
 import { app, useGlobal } from "./global";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useConfirmIsOAuthRedirect } from "../hooks";
@@ -37,6 +37,10 @@ import { nonOnboardingPaths } from "../../utils/utils";
 import { errorPageMap } from "../error";
 import { useErrorContext } from "./error";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import pagesRouterHttpClient from "../http/clients/pages-router";
+
+const { getUserOnboarding, getUserOnboardingVersion } = new UserHttpService(pagesRouterHttpClient);
+const { getUserStateCoverageMap } = new LoanAgreementsHttpService(pagesRouterHttpClient);
 
 export interface IOnboardingContext {
   cacheUser: () => Promise<void>;

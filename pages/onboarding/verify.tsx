@@ -8,14 +8,7 @@ import { useGlobal } from "@/shared/context/global";
 import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import {
-  createUser,
-  getLatestKycAttempt,
-  getUser,
-  getUserOnboarding,
-  getUserOnboardingVersion,
-  patchUserOnboarding,
-} from "@/shared/http/services/user";
+import { UserHttpService } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
@@ -34,9 +27,19 @@ import OnboardingPlaidKycView from "../../container/KycView";
 import { GCUser, KYCAttemptState } from "../../shared/http/types";
 import ProgressLoader from "../../components/ProgressLoader";
 import { useErrorContext } from "../../shared/context/error";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const {
+  createUser,
+  getLatestKycAttempt,
+  getUser,
+  getUserOnboarding,
+  getUserOnboardingVersion,
+  patchUserOnboarding,
+} = new UserHttpService(pagesRouterHttpClient);
 
 export default function OnboardingVerifyPage() {
-  useConfirmUnload();
+  useConfirmUnload(true);
 
   useEffect(() => {
     localStorage.removeItem(ELocalStorageKeys.CACHED_USER_INFO);

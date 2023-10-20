@@ -1,16 +1,26 @@
-import type { AxiosResponse } from "axios";
-import http from "../client";
+import type { AxiosInstance, AxiosResponse } from "axios";
+
 import { UnderwritingResponse } from "../types";
 import { urlPaths } from "../util";
 
-export const underwrite = async () => {
-  const res = await http.post<any, AxiosResponse<UnderwritingResponse>>(urlPaths.UNDERWRITING);
+export class UnderwritingHttpService {
+  constructor(private http: AxiosInstance) {}
 
-  return res.data;
-};
+  public underwrite = async () => {
+    const res = await this.http.post<any, AxiosResponse<UnderwritingResponse>>(
+      urlPaths.UNDERWRITING
+    );
 
-export const failUnderwriting = async () => {
-  const res = await http.post<any, AxiosResponse<UnderwritingResponse>>(urlPaths.UNDERWRITING_FAIL);
+    return res.data;
+  };
 
-  return res.data;
-};
+  public failUnderwriting = async () => {
+    const res = await this.http.post<any, AxiosResponse<UnderwritingResponse>>(
+      urlPaths.UNDERWRITING_FAIL
+    );
+
+    return res.data;
+  };
+}
+
+export default UnderwritingHttpService;

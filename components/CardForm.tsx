@@ -6,19 +6,25 @@ import {
   CardCvcElement,
   CardExpiryElement,
 } from "@stripe/react-stripe-js";
-import { createFundingCard, verifyFundingCard } from "../shared/http/services/debitCard";
+import { DebitFundingCardHttpService } from "../shared/http/services/debitCard";
 import { IOnboardingContext, useOnboarding } from "../shared/context/onboarding";
 import { EStepStatus } from "../shared/types";
 import { trackEvent } from "../utils/analytics/analytics";
 import { ELocalStorageKeys, ETrackEvent, IUserAddress } from "../utils/types";
 import Button from "./Button";
-import { getUser, patchUserOnboarding } from "../shared/http/services/user";
+import { UserHttpService } from "../shared/http/services/user";
 import DebitCardAddressForm from "./DebitCardAddressForm";
 import { FormControlError } from "./form-control/shared";
 import { FundingCardState } from "@/shared/http/types";
 import { goodcashEnvironment } from "@/shared/config";
 import { useErrorContext } from "../shared/context/error";
 import { extractApiErrorCode } from "@/shared/error";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const { getUser, patchUserOnboarding } = new UserHttpService(pagesRouterHttpClient);
+const { createFundingCard, verifyFundingCard } = new DebitFundingCardHttpService(
+  pagesRouterHttpClient
+);
 
 function CardForm() {
   const stripe = useStripe();

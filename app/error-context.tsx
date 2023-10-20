@@ -1,28 +1,28 @@
 "use client";
 
 import { Dispatch, FC, ReactNode, createContext, useContext, useState } from "react";
-import ErrorPage from "../error";
+import ErrorPage from "./error";
 
 export interface IErrorContext {
   error: unknown | null;
   setError: Dispatch<unknown | null>;
 }
 
-const webAppErrorContext = createContext<IErrorContext>(null as any);
+const errorContext = createContext<IErrorContext>(null as any);
 
-export const WebAppErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
+export const ErrorProvider: FC<{ children?: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<IErrorContext["error"]>(null);
 
   return (
-    <webAppErrorContext.Provider
+    <errorContext.Provider
       value={{
         error,
         setError,
       }}
     >
       {error ? <ErrorPage error={error as Error} reset={() => setError(null)} /> : children}
-    </webAppErrorContext.Provider>
+    </errorContext.Provider>
   );
 };
 
-export const useWebAppErrorContext = () => useContext(webAppErrorContext);
+export const useErrorContext = () => useContext(errorContext);

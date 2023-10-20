@@ -40,7 +40,9 @@ export enum EScreenEventTitle {
   WEB_APP_LOGIN = "Web App Login",
   WEB_APP_VERIFY = "Web App Verify",
   WEB_APP_HOME = "Web App Home",
-  USER_VERIFICATION_FAILED = "User Varification Failed",
+  USER_VERIFICATION_FAILED = "User Verification Failed",
+  USER_ONBOARDING_INCOMPLETE = "User Onboarding Is Incomplete",
+  USER_ID_DELETED = "User is Deleted",
 }
 
 export type ScreenTrackEvent = `${EScreenEventTitle} Viewed`;

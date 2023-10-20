@@ -9,13 +9,8 @@ import {
   useConfirmIsOAuthRedirect,
   useConfirmUnload,
 } from "@/shared/hooks";
-import {
-  createBankAccount,
-  failBankAccountCreation,
-  getPlaidToken,
-  longPollBankCreation,
-} from "@/shared/http/services/plaid";
-import { getLatestKycAttempt, patchUserOnboarding } from "@/shared/http/services/user";
+import { PlaidHttpService } from "@/shared/http/services/plaid";
+import { UserHttpService } from "@/shared/http/services/user";
 import { ConversionEvent, trackGTagConversion } from "@/utils/analytics/gtag-analytics";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
@@ -27,6 +22,11 @@ import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import { EStepStatus } from "../../../shared/types";
 import { getUserInfoFromCache } from "../../../shared/http/util";
 import { useErrorContext } from "../../../shared/context/error";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const { createBankAccount, failBankAccountCreation, getPlaidToken, longPollBankCreation } =
+  new PlaidHttpService(pagesRouterHttpClient);
+const { getLatestKycAttempt, patchUserOnboarding } = new UserHttpService(pagesRouterHttpClient);
 
 export default function OnboardingConnectBankAccountPage() {
   useConfirmUnload();

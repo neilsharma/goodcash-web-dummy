@@ -1,8 +1,6 @@
 import { Metadata } from "next";
-import { WebAppErrorProvider } from "@/app/context/webAppError";
-import { GlobalProvider } from "@/shared/context/global";
+import { ErrorProvider } from "./error-context";
 import "@/styles/globals.css";
-import { WebAppProvider } from "./context/webApp";
 import { GoogleAnalyticsTracking } from "@/utils/analytics/GoogleAnalytics";
 import WebAppLayout from "@/components/WebAppLayout";
 
@@ -23,13 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className="fixed left-2/4 bottom-[16.5rem] sm:bottom-72 -translate-x-1/2 z-20"
         />
         <GoogleAnalyticsTracking />
-        <GlobalProvider>
-          <WebAppLayout>
-            <WebAppErrorProvider>
-              <WebAppProvider>{children}</WebAppProvider>
-            </WebAppErrorProvider>
-          </WebAppLayout>
-        </GlobalProvider>
+        <WebAppLayout>
+          <ErrorProvider>{children}</ErrorProvider>
+        </WebAppLayout>
       </body>
     </html>
   );

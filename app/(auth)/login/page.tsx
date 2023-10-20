@@ -4,17 +4,15 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { privacyPolicyUrl, termsOfServiceUrl, webAppRoutes } from "@/shared/constants";
-import { useGlobal } from "@/shared/context/global";
-import { signInWithPhoneNumber } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
 import { trackPage } from "@/utils/analytics/analytics";
 import { EScreenEventTitle } from "@/utils/types";
 import { useRouter } from "next/navigation";
-import { useWebAppContext } from "../context/webApp";
+import { useAuth } from "../auth-context";
+import { signInWithPhoneNumber } from "firebase/auth";
 
 export default function LoginPage() {
-  const { setConfirmationResult, resetAuth } = useGlobal();
-  const { setPhone, phone } = useWebAppContext();
+  const { phone, setPhone, setConfirmationResult, auth, recaptchaVerifier } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dimBackground, setDimBackground] = useState(false);
@@ -27,19 +25,18 @@ export default function LoginPage() {
   const onContinue = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [auth, recaptchaVerifier] = resetAuth();
       setDimBackground(true);
       const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
       recaptchaVerifier?.clear();
+      setConfirmationResult(res);
       setDimBackground(false);
 
-      setConfirmationResult(res);
       push(webAppRoutes.VERIFY);
     } catch (e) {
       setIsLoading(false);
       setDimBackground(false);
     }
-  }, [resetAuth, phone, setConfirmationResult, push]);
+  }, [setConfirmationResult, push, phone, auth, recaptchaVerifier]);
 
   return (
     <>

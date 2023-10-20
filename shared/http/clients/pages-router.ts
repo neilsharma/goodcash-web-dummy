@@ -1,9 +1,9 @@
 import axios from "axios";
-import { domain } from "../config";
-import { getComputedAuth, getComputedUserSession } from "../context/global";
-import { getUserInfoFromCache, urlPaths } from "./util";
+import { domain } from "../../config";
+import { getComputedAuth, getComputedUserSession } from "../../context/global";
+import { getUserInfoFromCache, urlPaths } from "../util";
 
-export const http = axios.create({
+export const pagesRouterHttpClient = axios.create({
   baseURL: domain,
   timeout: 30_000,
 });
@@ -12,7 +12,7 @@ export const http = axios.create({
 const unauthorizedRequests = [urlPaths.USER_ME_CREATE, urlPaths.LOAN_AGREEMENTS_COVERAGE];
 
 // Intercept requests and add authentication headers if necessary
-http.interceptors.request.use(async (config) => {
+pagesRouterHttpClient.interceptors.request.use(async (config) => {
   const analyticsHeaderValue = getAnalyticsHeaderValue();
   if (analyticsHeaderValue) {
     config.headers["goodcash-analytics"] = analyticsHeaderValue;
@@ -53,4 +53,4 @@ function getAnalyticsHeaderValue(): string | undefined {
   return userSession ? encodeURIComponent(JSON.stringify(userSession)) : undefined;
 }
 
-export default http;
+export default pagesRouterHttpClient;

@@ -6,19 +6,11 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import {
-  longPollOnboardingCompletionStatus,
-  patchUserOnboarding,
-} from "@/shared/http/services/user";
+import { UserHttpService } from "@/shared/http/services/user";
 import { OnboardingErrorDefs, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
-import {
-  longPollLongAgreementStatus,
-  completeLoanAgreement,
-  createLoanAgreement,
-  getLoanAgreementUrl,
-} from "@/shared/http/services/loanAgreements";
+import { LoanAgreementsHttpService } from "@/shared/http/services/loanAgreements";
 import { ELoanAgreementStatus } from "@/shared/http/types";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
@@ -26,6 +18,17 @@ import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/g
 import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/error";
 import { extractApiErrorCode } from "../../../shared/error";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const { longPollOnboardingCompletionStatus, patchUserOnboarding } = new UserHttpService(
+  pagesRouterHttpClient
+);
+const {
+  longPollLongAgreementStatus,
+  completeLoanAgreement,
+  createLoanAgreement,
+  getLoanAgreementUrl,
+} = new LoanAgreementsHttpService(pagesRouterHttpClient);
 
 export default function OneLastStep() {
   useConfirmUnload();

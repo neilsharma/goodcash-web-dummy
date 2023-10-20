@@ -4,30 +4,34 @@ import Button from "@/components/Button";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
-import { useGlobal } from "@/shared/context/global";
 import { EOtpErrorCode } from "@/shared/types";
-import { EScreenEventTitle, ETrackEvent, GCUserState } from "@/utils/types";
-import { signInWithPhoneNumber } from "firebase/auth";
+import { EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import { trackEvent, trackPage } from "@/utils/analytics/analytics";
-import { useWebAppErrorContext } from "@/app/context/webAppError";
-import { useWebAppContext } from "../context/webApp";
-import { webAppRoutes } from "../../shared/constants";
-import { verifyState, verifyReducer } from "../../shared/reducers/verify";
-import { getUser } from "../../shared/http/services/user";
+import { useErrorContext } from "@/app/error-context";
+import { verifyState, verifyReducer } from "../../../shared/reducers/verify";
+import { useAuth } from "../auth-context";
+import { signInWithPhoneNumber } from "firebase/auth";
+import { UserHttpService } from "@/shared/http/services/user";
+import appRouterClientSideHttpClient from "@/shared/http/clients/app-router/client-side";
+import { checkUserState } from "@/utils/utils";
+import { webAppRoutes } from "@/shared/constants";
+import { TOKEN_KEY } from "@/app/constants";
+
+const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
 
 export default function VerifyPage() {
+  const { auth, phone, setConfirmationResult, recaptchaVerifier, confirmationResult } = useAuth();
   let inputRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     trackPage(EScreenEventTitle.WEB_APP_VERIFY);
   }, []);
 
-  const { setError } = useWebAppErrorContext();
-  const { confirmationResult, setConfirmationResult, resetAuth } = useGlobal();
-  const { phone } = useWebAppContext();
+  const { setError } = useErrorContext();
   const { push } = useRouter();
 
   const [state, dispatch] = useReducer(verifyReducer, verifyState);
@@ -36,18 +40,19 @@ export default function VerifyPage() {
     autoStart: true,
     expiryTimestamp: new Date(Date.now() + 30000),
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  const resentCode = useCallback(async () => {
-    const [auth, recaptchaVerifier] = resetAuth();
-
-    await recaptchaVerifier?.render();
+  const resendCode = useCallback(async () => {
+    await recaptchaVerifier!.render();
     const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
     recaptchaVerifier?.clear();
 
     setConfirmationResult(res);
+  }, [auth, phone, recaptchaVerifier, setConfirmationResult]);
+
+  const resendCodeHandler = useCallback(async () => {
+    await resendCode();
     restart(new Date(Date.now() + 30000), true);
-  }, [resetAuth, phone, setConfirmationResult, restart]);
+  }, [resendCode, restart]);
 
   const confirmPhone = useCallback(async () => {
     try {
@@ -72,13 +77,26 @@ export default function VerifyPage() {
     try {
       const user = await confirmPhone();
       if (!user) return;
-
       const token = await user.getIdToken();
-      const gcUser = await getUser(token);
 
-      if (gcUser?.state === GCUserState.LIVE) {
-        push(webAppRoutes.HOME);
+      await fetch("/api/login", { method: "POST", headers: { [TOKEN_KEY]: token } });
+
+      const gcUser = await getUser();
+
+      if (!gcUser) throw new Error();
+
+      const { errorCode, shouldSignOut } = checkUserState(gcUser.state);
+
+      if (errorCode) {
+        const error: Error & { code?: string } = new Error();
+        error.code = errorCode;
+
+        if (shouldSignOut) await fetch("/api/logout", { method: "POST" });
+
+        throw error;
       }
+
+      return push(webAppRoutes.HOME);
     } catch (error) {
       setError(error);
     }
@@ -119,7 +137,7 @@ export default function VerifyPage() {
         <Button onClick={onContinue} isLoading={isLoading}>
           Continue
         </Button>
-        <Button disabled={seconds !== 0} variant="text" onClick={resentCode}>
+        <Button disabled={seconds !== 0} variant="text" onClick={resendCodeHandler}>
           Resend code{seconds !== 0 ? ` in 0:${seconds.toString().padStart(2, "0")}` : ""}
         </Button>
       </div>

@@ -4,12 +4,15 @@ import { useConfirmUnload } from "@/shared/hooks";
 import { ELocalStorageKeys, EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import Loader from "@/components/Loader";
-import { verifyFundingCard } from "@/shared/http/services/debitCard";
+import { DebitFundingCardHttpService } from "@/shared/http/services/debitCard";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EStepStatus } from "@/shared/types";
 import { onAfterConfirm } from "@/components/CardForm";
 import { getUserInfoFromCache } from "@/shared/http/util";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const { verifyFundingCard } = new DebitFundingCardHttpService(pagesRouterHttpClient);
 
 export default function OnboardingCardVerificationPage({ params }: Props) {
   useConfirmUnload();

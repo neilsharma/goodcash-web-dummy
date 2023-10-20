@@ -12,6 +12,8 @@ import {
   errorCodesToErrorPayloadMap,
   extractApiErrorCode,
 } from "@/shared/error";
+import { webAppRoutes } from "../shared/constants";
+import { useRouter } from "next/navigation";
 
 interface ErrorPageProps {
   error?: Error & { digest?: string };
@@ -20,6 +22,7 @@ interface ErrorPageProps {
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   const trackPage = useGetTrackPage();
+  const { push } = useRouter();
 
   const errorCode = useMemo(() => extractApiErrorCode(error), [error]);
   const errorData = useMemo<ErrorData>(
@@ -40,7 +43,10 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
   const tryAgain = useCallback(() => {
     reset();
-  }, [reset]);
+    if (window.location.href.includes("verify")) {
+      push(webAppRoutes.LOGIN);
+    }
+  }, [push, reset]);
 
   return (
     <>
@@ -57,8 +63,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             <Button variant="text">Contact support</Button>
           </a>
         ) : null}
-        {errorData.secondaryButtonText && errorData.secondaryButtonFunction ? (
-          <a href={errorData.secondaryButtonFunction()} className="w-full">
+        {errorData.secondaryButtonText && errorData.secondaryButtonLink ? (
+          <a href={errorData.secondaryButtonLink} className="w-full">
             <Button variant="text">{errorData.secondaryButtonText}</Button>
           </a>
         ) : null}

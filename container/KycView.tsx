@@ -2,13 +2,8 @@ import { useRef, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
-import { getKycPlaidToken } from "@/shared/http/services/plaid";
-import {
-  fillKYCIdentity,
-  longPollKycSubmissionStatus,
-  patchUserOnboarding,
-  submitKyc,
-} from "@/shared/http/services/user";
+import { PlaidHttpService } from "@/shared/http/services/plaid";
+import { UserHttpService } from "@/shared/http/services/user";
 import { goodcashEnvironment } from "@/shared/config";
 import useTrackPage from "@/shared/hooks/useTrackPage";
 import { EScreenEventTitle } from "@/utils/types";
@@ -16,6 +11,11 @@ import { EStepStatus } from "../shared/types";
 import { useErrorContext } from "../shared/context/error";
 import { OnboardingErrorDefs } from "../shared/constants";
 import ProgressLoader from "../components/ProgressLoader";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+
+const { fillKYCIdentity, longPollKycSubmissionStatus, patchUserOnboarding, submitKyc } =
+  new UserHttpService(pagesRouterHttpClient);
+const { getKycPlaidToken } = new PlaidHttpService(pagesRouterHttpClient);
 
 export default function OnboardingPlaidKycView() {
   useConfirmUnload();
