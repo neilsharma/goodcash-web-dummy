@@ -14,7 +14,12 @@ const nextConfig = {
       },
     ];
   },
-  sentry: {
+};
+
+const isProd = process.env.NEXT_PUBLIC_GOODCASH_ENVIRONMENT === "production";
+
+if (isProd)
+  nextConfig.sentry = {
     // For all available options, see:
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -32,8 +37,7 @@ const nextConfig = {
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
-  },
-};
+  };
 
 const userSentryWebpackPluginOptions = {
   // For all available options, see:
@@ -47,4 +51,4 @@ const userSentryWebpackPluginOptions = {
   project: "web-production",
 };
 
-module.exports = withSentryConfig(nextConfig, userSentryWebpackPluginOptions);
+module.exports = isProd ? withSentryConfig(nextConfig, userSentryWebpackPluginOptions) : nextConfig;
