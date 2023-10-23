@@ -144,5 +144,35 @@ export enum FundingCardState {
 export interface FundingCard {
   id: string;
   state: FundingCardState;
-  paymentIntentClientSecret: string;
+  last4: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: any;
+  declineReason?: any;
+  expiryMonth: string;
+  expiryYear: string;
+  brand: string;
+  type: string;
+}
+
+export interface LocCard {
+  id: string;
+  gcUserId: string;
+  state: string;
+  lineOfCreditId: string;
+  activated: boolean;
+  last4?: string;
+  lithicCardToken?: string;
+  expirationMonth: string;
+  expirationYear: string;
+  cardEmbodiment: string;
+  walletProvisioning: any[];
+  createdAt: string;
+}
+
+export interface Balance {
+  totalLimit: number;
+  availableLimit: number;
+  pendingBalance: number;
+  outstandingBalance: number;
 }

@@ -4,6 +4,8 @@ import { checkUserState } from "@/utils/utils";
 import { redirect } from "next/navigation";
 import { DashboardProvider } from "./dashboard-context";
 import { ESupportedErrorCodes } from "@/shared/error";
+import { NavHeader } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 const { getUser } = new UserHttpService(appRouterServerSideHttpClient);
 
@@ -20,7 +22,17 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
     if (errorCode) throw errorCode;
 
-    return <DashboardProvider gcUser={gcUser}>{children}</DashboardProvider>;
+    return (
+      <DashboardProvider gcUser={gcUser}>
+        <div className="flex" style={{ minHeight: "100vh" }}>
+          <NavHeader />
+          <div className="flex flex-col mx-auto justify-between">
+            <main className="px-6 my-8">{children}</main>
+            <Footer />
+          </div>
+        </div>
+      </DashboardProvider>
+    );
   } catch {
     return redirect("/login");
   }

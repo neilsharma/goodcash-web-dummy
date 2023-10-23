@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { ErrorProvider } from "./error-context";
 import "@/styles/globals.css";
 import { GoogleAnalyticsTracking } from "@/utils/analytics/GoogleAnalytics";
-import WebAppLayout from "@/components/WebAppLayout";
 
 export const metadata: Metadata = {
   title: "GoodCash App",
@@ -20,10 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="recaptcha-container"
           className="fixed left-2/4 bottom-[16.5rem] sm:bottom-72 -translate-x-1/2 z-20"
         />
+        <div id="modal" />
         <GoogleAnalyticsTracking />
-        <WebAppLayout>
-          <ErrorProvider>{children}</ErrorProvider>
-        </WebAppLayout>
+        <ErrorProvider>{children}</ErrorProvider>
       </body>
     </html>
   );

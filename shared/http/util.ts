@@ -36,7 +36,7 @@ export const urlPaths = {
   LOAN_AGREEMENTS_APPLICATION_APPROVE: "/v1/loan-agreements/applications/approve",
   LOAN_AGREEMENTS_COMPLETE: "/v1/loan-agreements/complete",
   BANK_LOC_STATUS: "/v1/bank-account/status",
-  CREATE_FUNDING_CARD: "/v1/funding-card",
+  FUNDING_CARD: "/v1/funding-card",
   VERIFY_FUNDING_CARD: "/v1/funding-card/verify",
 } as const;
 
