@@ -1,5 +1,14 @@
 import type { Config } from "tailwindcss";
 
+function withOpacity(variableName: string): any {
+  return ({ opacityValue }: { opacityValue: string }) => {
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgba(var(${variableName}))`;
+  };
+}
+
 export default {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -8,6 +17,18 @@ export default {
   ],
   theme: {
     extend: {
+      textColor: {
+        text: withOpacity("--text"),
+        boldText: withOpacity("--boldText"),
+        thinText: withOpacity("--thinText"),
+        error: withOpacity("--error"),
+      },
+      backgroundColor: {
+        primary: withOpacity("--primary"),
+        bgPrimary: withOpacity("--bgPrimary"),
+        bgLight: withOpacity("--bgLight"),
+        error: withOpacity("--error"),
+      },
       colors: {
         primary: "#296B4A",
         bgPrimary: "#F1F4EA",
@@ -18,10 +39,16 @@ export default {
         bgLight: "#E4EFC9",
       },
       fontFamily: {
+        base: ["var(--font-base)"],
+        headingOne: ["var(--font-headingOne)"],
+        headingTwo: ["var(--font-headingTwo)"],
+        headingThree: ["var(--font-headingThree)"],
+        "text-main": ["var(--font-text-main)"],
+        "text-sub": ["var(--font-text-sub)"],
         kansasNew: ["KansasNew-Regular"],
         kansasNewMedium: ["KansasNew-Medium"],
         kansasNewSemiBold: ["KansasNew-SemiBold"],
-        kansasNewBold: ["KansasNew-Bold"],
+        base2: ["KansasNew-Bold"],
         sharpGroteskBook: ["SharpGrotesk-Book"],
         sharpGroteskMedium: ["SharpGrotesk-Medium"],
       },

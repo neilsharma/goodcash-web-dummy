@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --primary: #296b4a;
+    --bgPrimary: #f1f4ea;
+    --text: #333836;
+    --boldText: #0f100f;
+    --thinText: #565d59;
+    --error: #ce0d35;
+    --bgLight: #e4efc9;
+  }
+  .theme-goodcash {
+    --primary: 107, 104, 41;
+    --bgPrimary: 244, 244, 234;
+    --text: 56, 56, 51;
+    --boldText: 16, 16, 15;
+    --thinText: 93, 93, 86;
+    --error: 206, 13, 53;
+    --bgLight: 239, 238, 201;
+    --font-base: "KansasNew-Regular";
+    --font-headingOne: "KansasNew-Bold";
+    --font-headingTwo: "KansasNew-SemiBold";
+    --font-headingThree: "KansasNew-Medium";
+    --font-text-main: "SharpGrotesk-Book";
+    --font-text-sub: "SharpGrotesk-Medium";
+  }
+  .theme-partner {
+    --primary: 241, 5, 80;
+    --bgPrimary: 231, 142, 187;
+    --text: 57, 51, 55;
+    --boldText: 15, 16, 15;
+    --thinText: 93, 86, 93;
+    --error: 206, 13, 53;
+    --bgLight: 239, 201, 230;
+  }
+}
+
 html,
 body {
   max-width: 100vw;
