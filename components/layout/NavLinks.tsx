@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import tailwindConfig from "@/tailwind.config";
 import Dollar from "../icons/Dollar";
 import CreditCard from "../icons/CreditCard";
-import { Gear } from "../icons/Gear";
+import Profile from "../icons/Profile";
 
 const colors = tailwindConfig.theme.extend.colors;
 
@@ -32,18 +32,18 @@ export const NavLinks = () => {
 
 const routes = [
   {
-    name: "home",
+    name: "Home",
     icon: Dollar,
     path: "/home",
   },
   {
-    name: "transactions",
+    name: "Transactions",
     icon: CreditCard,
     path: "/transactions",
   },
   {
-    name: "settings",
-    icon: Gear,
-    path: "/settings",
+    name: "Account",
+    icon: Profile,
+    path: "/account",
   },
 ];

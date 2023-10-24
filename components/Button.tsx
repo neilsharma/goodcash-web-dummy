@@ -1,3 +1,5 @@
+"use client";
+
 import type { ButtonHTMLAttributes, DetailedHTMLProps, FC } from "react";
 import { twMerge } from "tailwind-merge";
 import Loader from "./Loader";

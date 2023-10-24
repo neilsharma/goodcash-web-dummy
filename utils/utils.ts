@@ -1,4 +1,4 @@
-import { UserSession } from "@/shared/http/types";
+import { GCUser, UserSession } from "@/shared/http/types";
 import { getGtagSessionData } from "./analytics/gtag-analytics";
 import { GCUserState } from "./types";
 import { ESupportedErrorCodes } from "@/shared/error";
@@ -141,4 +141,45 @@ export const checkUserState = (state: GCUserState) => {
   }
 
   return { errorCode, shouldSignOut };
+};
+
+export const parseUserAddress = (userInfo: GCUser | null) => {
+  const fullAddress = `${userInfo?.contactInfo?.addressLine1 || ""} ${
+    userInfo?.contactInfo?.addressLine2 || ""
+  } ${userInfo?.contactInfo?.addressLine3 || ""} ${userInfo?.contactInfo?.city || ""} ${
+    userInfo?.contactInfo?.state || ""
+  } ${userInfo?.contactInfo?.zip || ""}`
+    .trim()
+    .replace(/ +/g, " ");
+  return fullAddress;
+};
+
+export const formatFullName = (user: GCUser | null) => {
+  if (!user?.contactInfo) return;
+  const { firstName, lastName } = user?.contactInfo;
+  // Ensure both first and last names are provided
+  if (!firstName && !lastName) {
+    return "Unknown";
+  }
+
+  // Capitalize the first letter of the first name
+  const formattedFirstName = firstName
+    ? firstName.charAt(0).toUpperCase() + firstName.slice(1)
+    : "";
+
+  // Capitalize the first letter of the last name
+  const formattedLastName = lastName ? lastName.charAt(0).toUpperCase() + lastName.slice(1) : "";
+
+  // Concatenate the formatted names with a space in between
+  return `${formattedFirstName} ${formattedLastName}`.trim();
+};
+
+export const formatUSPhoneNumber = (phoneNumber: string): string => {
+  const cleaned = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
+
+  if (cleaned.length === 11) {
+    return `(${cleaned.substring(1, 4)}) ${cleaned.substring(4, 7)}-${cleaned.substring(7)}`;
+  }
+
+  return phoneNumber; // Return the original input if not in the correct format
 };

@@ -19,6 +19,7 @@ import appRouterClientSideHttpClient from "@/shared/http/clients/app-router/clie
 import { checkUserState } from "@/utils/utils";
 import { webAppRoutes } from "@/shared/constants";
 import { TOKEN_KEY } from "@/app/constants";
+import { userLogoutHandler } from "../../utils";
 
 const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
 
@@ -91,7 +92,7 @@ export default function VerifyPage() {
         const error: Error & { code?: string } = new Error();
         error.code = errorCode;
 
-        if (shouldSignOut) await fetch("/api/logout", { method: "POST" });
+        if (shouldSignOut) await userLogoutHandler();
 
         throw error;
       }
