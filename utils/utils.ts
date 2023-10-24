@@ -1,4 +1,5 @@
-import { GCUser, UserSession } from "@/shared/http/types";
+import { GCUser, ITransaction, ITransactions } from "../shared/http/types";
+import { UserSession } from "@/shared/http/types";
 import { getGtagSessionData } from "./analytics/gtag-analytics";
 import { GCUserState } from "./types";
 import { ESupportedErrorCodes } from "@/shared/error";
@@ -122,6 +123,12 @@ export const nonOnboardingPaths = ["/cqr", "/close-account"];
 
 export { getUserSession };
 
+export const transactionListSectionHandler = (inputDate: string) => {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(
+    new Date(`${inputDate}`)
+  );
+};
+
 export const checkUserState = (state: GCUserState) => {
   let errorCode: ESupportedErrorCodes | null = null;
   let shouldSignOut = false;
@@ -141,6 +148,27 @@ export const checkUserState = (state: GCUserState) => {
   }
 
   return { errorCode, shouldSignOut };
+};
+
+export const groupTransactionsByDay = (transactions: ITransactions) => {
+  const transactionSection: Record<string, Array<ITransaction>> = {};
+  transactions.forEach((transaction) => {
+    const date = new Date(transaction.createdAt);
+    const day = date.toISOString().split("T")[0];
+
+    if (!transactionSection[day]) {
+      transactionSection[day] = [];
+    }
+
+    transactionSection[day].push(transaction);
+  });
+  return transactionSection;
+};
+
+export const handleScroll = async (event: React.UIEvent<HTMLDivElement>) => {
+  const element = event.currentTarget;
+  const isAtEnd = element.scrollHeight - element.scrollTop <= element.clientHeight;
+  return isAtEnd;
 };
 
 export const parseUserAddress = (userInfo: GCUser | null) => {

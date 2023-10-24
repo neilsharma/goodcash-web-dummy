@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { ErrorProvider } from "./error-context";
 import "@/styles/globals.css";
 import { GoogleAnalyticsTracking } from "@/utils/analytics/GoogleAnalytics";
+import { ErrorProvider } from "./error-context";
 
 export const metadata: Metadata = {
   title: "GoodCash App",

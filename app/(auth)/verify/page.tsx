@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import { trackEvent, trackPage } from "@/utils/analytics/analytics";
-import { useErrorContext } from "@/app/error-context";
 import { verifyState, verifyReducer } from "../../../shared/reducers/verify";
 import { useAuth } from "../auth-context";
 import { signInWithPhoneNumber } from "firebase/auth";
@@ -19,7 +18,8 @@ import appRouterClientSideHttpClient from "@/shared/http/clients/app-router/clie
 import { checkUserState } from "@/utils/utils";
 import { webAppRoutes } from "@/shared/constants";
 import { TOKEN_KEY } from "@/app/constants";
-import { userLogoutHandler } from "../../utils";
+import { useErrorContext } from "../../error-context";
+import { userLogoutHandler } from "@/app/utils";
 
 const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
 
@@ -98,7 +98,7 @@ export default function VerifyPage() {
       }
 
       return push(webAppRoutes.HOME);
-    } catch (error) {
+    } catch (error: any) {
       setError(error);
     }
   }, [confirmPhone, push, setError]);

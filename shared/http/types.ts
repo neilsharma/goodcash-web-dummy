@@ -176,3 +176,44 @@ export interface Balance {
   pendingBalance: number;
   outstandingBalance: number;
 }
+
+export interface LocCard {
+  id: string;
+  gcUserId: string;
+  state: string;
+  lineOfCreditId: string;
+  activated: boolean;
+  last4?: string;
+  lithicCardToken?: string;
+  expirationMonth: string;
+  expirationYear: string;
+  cardEmbodiment: string;
+  walletProvisioning: any[];
+  createdAt: string;
+}
+
+export interface Balance {
+  totalLimit: number;
+  availableLimit: number;
+  pendingBalance: number;
+  outstandingBalance: number;
+}
+export enum Currency {
+  USD = "USD",
+}
+
+export type ITransactionType = "CARD" | "REFUND" | "SUBSCRIPTION";
+export interface ITransaction {
+  id: string;
+  type: ITransactionType;
+  entityId: string;
+  state?: string;
+  amount: number | string;
+  currentAmount?: number | string;
+  settledAmount?: number | string | null;
+  currency: Currency;
+  createdAt: Date | string;
+  description: string;
+  gcUserId: string;
+}
+export type ITransactions = Array<ITransaction>;
