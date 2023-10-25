@@ -29,12 +29,7 @@ const Account = async () => {
           <h1 className=" font-sharpGroteskBook text-thinText text-sm">Mailing Address</h1>
           <p className=" my-1 font-sharpGroteskMedium text-md">{parseUserAddress(user)}</p>
         </div>
-        <div className="my-2 border-b border-b-black/10">
-          <h1 className=" font-sharpGroteskBook text-thinText text-sm">Phone Number</h1>
-          <p className=" my-1 font-sharpGroteskMedium text-md">
-            {formatUSPhoneNumber(user?.contactInfo?.phone ?? "")}
-          </p>
-        </div>
+        <div className="my-2 border-b border-b-black/10"></div>
         <div className="w-max my-2">
           <a
             href="mailto:support@goodcash.com"
