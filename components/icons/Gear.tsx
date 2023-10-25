@@ -31,3 +31,5 @@ export const Gear: FC<IconProps> = ({ iconColor = "black", ...props }) => (
     </g>
   </svg>
 );
+
+export default Gear;

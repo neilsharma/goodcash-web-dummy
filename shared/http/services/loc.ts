@@ -23,7 +23,27 @@ export class LOCHttpService {
   };
 
   public getCards = async () => {
-    const res = await this.http.get<any, AxiosResponse<LocCard[]>>(`${urlPaths.CARD_URL}`);
+    const res = await this.http.get<any, AxiosResponse<LocCard[]>>(urlPaths.CARD_URL);
+
+    return res.data;
+  };
+
+  public getCardLink = async (payload: { cardId: string }) => {
+    const res = await this.http.get<any, AxiosResponse<string>>(
+      `${urlPaths.CARD_URL}/${payload.cardId}/card_ui_link`
+    );
+
+    return res.data;
+  };
+
+  public freezeAllCards = async (payload: { locId: string }) => {
+    const res = await this.http.post(urlPaths.FREEZE_CARD.replace(":locId", payload.locId));
+
+    return res.data;
+  };
+
+  public unfreezeAllCards = async (payload: { locId: string }) => {
+    const res = await this.http.post(urlPaths.UNFREEZE_CARD.replace(":locId", payload.locId));
 
     return res.data;
   };

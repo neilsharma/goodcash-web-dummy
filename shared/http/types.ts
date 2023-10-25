@@ -155,10 +155,18 @@ export interface FundingCard {
   type: string;
 }
 
+export enum CardState {
+  CLOSED = "CLOSED",
+  OPEN = "OPEN",
+  PAUSED = "PAUSED",
+  PENDING_ACTIVATION = "PENDING_ACTIVATION",
+  PENDING_FULFILLMENT = "PENDING_FULFILLMENT",
+}
+
 export interface LocCard {
   id: string;
   gcUserId: string;
-  state: string;
+  state: CardState;
   lineOfCreditId: string;
   activated: boolean;
   last4?: string;
@@ -175,21 +183,6 @@ export interface Balance {
   availableLimit: number;
   pendingBalance: number;
   outstandingBalance: number;
-}
-
-export interface LocCard {
-  id: string;
-  gcUserId: string;
-  state: string;
-  lineOfCreditId: string;
-  activated: boolean;
-  last4?: string;
-  lithicCardToken?: string;
-  expirationMonth: string;
-  expirationYear: string;
-  cardEmbodiment: string;
-  walletProvisioning: any[];
-  createdAt: string;
 }
 
 export interface Balance {

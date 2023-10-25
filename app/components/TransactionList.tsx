@@ -27,11 +27,9 @@ const TransactionList = () => {
   }, [transactions]);
 
   useEffect(() => {
-    (async function () {
-      setIsLoading(true);
-      await getTransactions();
-      setIsLoading(false);
-    })();
+    setIsLoading(true);
+    getTransactions().finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const transactionsSectionHandler = useCallback(() => {

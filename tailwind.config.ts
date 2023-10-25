@@ -37,6 +37,7 @@ export default {
         thinText: "#565D59",
         error: "#CE0D35",
         bgLight: "#E4EFC9",
+        darkGreen: "#0E2519",
       },
       fontFamily: {
         base: ["var(--font-base)"],
