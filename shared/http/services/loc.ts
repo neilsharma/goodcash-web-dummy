@@ -30,7 +30,7 @@ export class LOCHttpService {
 
   public getCardLink = async (payload: { cardId: string }) => {
     const res = await this.http.get<any, AxiosResponse<string>>(
-      `${urlPaths.CARD_URL}/${payload.cardId}/card_ui_link`
+      `${urlPaths.CARD_URL}/${payload.cardId}/card_ui_link?css=web`
     );
 
     return res.data;
