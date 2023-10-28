@@ -123,10 +123,16 @@ export const nonOnboardingPaths = ["/cqr", "/close-account"];
 
 export { getUserSession };
 
-export const transactionListSectionHandler = (inputDate: string) => {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(
-    new Date(`${inputDate}`)
-  );
+export const formatDate = (dateString: string, includeYear: boolean = false) => {
+  const date = new Date(dateString);
+
+  const dateFormatOptions: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: includeYear ? undefined : "numeric",
+    year: includeYear ? "numeric" : undefined,
+  };
+
+  return new Intl.DateTimeFormat("en-US", dateFormatOptions).format(date);
 };
 
 export const checkUserState = (state: GCUserState) => {

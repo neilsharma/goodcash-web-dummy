@@ -6,6 +6,7 @@ import tailwindConfig from "@/tailwind.config";
 import Dollar from "../icons/Dollar";
 import CreditCard from "../icons/CreditCard";
 import Profile from "../icons/Profile";
+import Statements from "../icons/Statements";
 import Cart from "../icons/Cart";
 
 const colors = tailwindConfig.theme.extend.colors;
@@ -51,5 +52,10 @@ const routes = [
     name: "Account",
     icon: Profile,
     path: "/account",
+  },
+  {
+    name: "Statements",
+    icon: Statements,
+    path: "/statements",
   },
 ];

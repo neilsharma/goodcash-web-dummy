@@ -4,11 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { TransactionHttpService } from "../../shared/http/services/transactions";
 import { ITransaction, ITransactions } from "../../shared/http/types";
 import TransactionListItem from "./TransactionListItem";
-import {
-  groupTransactionsByDay,
-  handleScroll,
-  transactionListSectionHandler,
-} from "../../utils/utils";
+import { groupTransactionsByDay, handleScroll, formatDate } from "../../utils/utils";
 import appRouterClientSideHttpClient from "../../shared/http/clients/app-router/client-side";
 import Loader from "../../components/Loader";
 
@@ -61,7 +57,7 @@ const TransactionList = () => {
           <ul className="divide-y divide-gray-200">
             {Object.keys(groupedTransactions).map((day) => (
               <div key={day}>
-                <h2 className="text-gray-500 my-4">{transactionListSectionHandler(day)}</h2>
+                <h2 className="text-gray-500 my-4">{formatDate(day)}</h2>
                 {groupedTransactions[day].map((transaction) => (
                   <TransactionListItem key={transaction.id} transaction={transaction} />
                 ))}

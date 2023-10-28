@@ -210,3 +210,10 @@ export interface ITransaction {
   gcUserId: string;
 }
 export type ITransactions = Array<ITransaction>;
+export type IStatements = Array<IStatement>;
+
+export interface IStatement {
+  id: string;
+  name?: string;
+  date: string;
+}

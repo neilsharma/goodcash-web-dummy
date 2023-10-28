@@ -40,6 +40,8 @@ export const urlPaths = {
   BANK_LOC_STATUS: "/v1/bank-account/status",
   FUNDING_CARD: "/v1/funding-card",
   VERIFY_FUNDING_CARD: "/v1/funding-card/verify",
+  STATEMENTS: "/v1/statements",
+  STATEMENT: "/v1/statements/:id",
 } as const;
 
 /**
