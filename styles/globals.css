@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --primary: #296b4a;
-    --bgPrimary: #f1f4ea;
-    --text: #333836;
-    --boldText: #0f100f;
-    --thinText: #565d59;
-    --error: #ce0d35;
-    --bgLight: #e4efc9;
+    --primary: 41, 107, 74;
+    --bgPrimary: 241, 244, 234;
+    --text: 51, 56, 54;
+    --boldText: 15, 16, 15;
+    --thinText: 86, 93, 89;
+    --error: 206, 13, 53;
+    --bgLight: 228, 239, 201;
   }
   .theme-goodcash {
     --primary: 107, 104, 41;
