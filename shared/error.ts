@@ -132,6 +132,7 @@ const invalidCredentialsOrUserNotSignedUpError: Partial<ErrorData> = {
 
 export enum ESupportedErrorCodes {
   GENERIC = "GENERIC",
+  ONBOARDING_DISABLED = "ONBOARDING_DISABLED",
   USER_BLOCKED = "USER_BLOCKED",
   ASSET_CHECK_FAILED = BankAccountVerificationErrCodes.ASSET_CHECK_FAILED,
   NOT_ENOUGH_MONEY = BankAccountVerificationErrCodes.NOT_ENOUGH_MONEY,
@@ -196,5 +197,14 @@ export const errorCodesToErrorPayloadMap: Record<SupportedErrorCodes, Partial<Er
     tryAgainCallFunction: () => (location.href = waitListUrl),
     skipConfirmUnload: true,
     screenEventTitle: EScreenEventTitle.UNSUPPORTED_STATE,
+  },
+  [ESupportedErrorCodes.ONBOARDING_DISABLED]: {
+    title: "We've reached our max number of beta users",
+    subTitle1: "Unfortunately, New card applications are temporarily on hold.",
+    subTittle2: "Join our waitlist on goodcash.com to get notified when we open up to new users!",
+    tryAgainText: "Join waitlist",
+    tryAgainCallFunction: () => (location.href = waitListUrl),
+    contactSupportEnabled: false,
+    screenEventTitle: EScreenEventTitle.ONBOARDING_DISABLED,
   },
 };

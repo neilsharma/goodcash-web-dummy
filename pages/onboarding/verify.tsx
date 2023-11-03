@@ -8,6 +8,7 @@ import { useGlobal } from "@/shared/context/global";
 import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
 import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
+import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
 import { UserHttpService } from "@/shared/http/services/user";
 import { EOtpErrorCode, EStepStatus } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
@@ -15,6 +16,9 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
+import ProgressLoader from "../../components/ProgressLoader";
+import OnboardingPlaidKycView from "../../container/KycView";
+import { useErrorContext } from "../../shared/context/error";
 import {
   ESupportedErrorCodes,
   EUserError,
@@ -22,12 +26,8 @@ import {
   userLimitErrors,
 } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
-import OnboardingPlaidKycView from "../../container/KycView";
 import { GCUser, KYCAttemptState } from "../../shared/http/types";
-import ProgressLoader from "../../components/ProgressLoader";
-import { useErrorContext } from "../../shared/context/error";
-import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
+import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
 
 const {
   createUser,
@@ -115,16 +115,13 @@ export default function OnboardingVerifyPage() {
       return await createUser(auth, flowName ?? "");
     } catch (error: any) {
       const errorCode = extractApiErrorCode(error);
-      setErrorCode(errorCode);
 
       if (userLimitErrors.includes(errorCode as EUserError)) {
         setIsLoading(false);
-        alert(
-          "We've currently reached our maximum number of beta users " +
-            "and are closing registration temporarily. " +
-            "Join our waitlist on goodcash.com to get notified when we open up to new users!"
-        );
+        setErrorCode(ESupportedErrorCodes.ONBOARDING_DISABLED);
         return null;
+      } else {
+        setErrorCode(errorCode);
       }
       trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
       return errorCode;
