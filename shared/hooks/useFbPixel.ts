@@ -14,7 +14,7 @@ const useFbPixel = () => {
       import("react-facebook-pixel")
         .then((x) => x.default)
         .then((ReactPixel) => {
-          ReactPixel.init(fbPixelId); // facebookPixelId
+          ReactPixel.init(fbPixelId);
           fbPixelRef.current = ReactPixel;
         });
     }

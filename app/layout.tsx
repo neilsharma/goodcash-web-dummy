@@ -10,11 +10,13 @@ export const metadata: Metadata = {
   icons: "/favicon.ico",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head />
-      <body className="theme-goodcash">
+      <body>
         <div
           id="recaptcha-container"
           className="fixed left-2/4 bottom-[16.5rem] sm:bottom-72 -translate-x-1/2 z-20"

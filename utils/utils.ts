@@ -5,10 +5,8 @@ import { GCUserState } from "./types";
 import { ESupportedErrorCodes } from "@/shared/error";
 
 function convertFbclidToFbc(fbclid: string): string {
-  const domainIndex = 1; // Assuming the cookie is defined on 'facebook.com'
-  const creationTime = Date.now(); // Using the current timestamp
-
-  // Generate the fbc value in the format: fb.version.subdomainIndex.creationTime.fbclid
+  const domainIndex = 1;
+  const creationTime = Date.now();
   const fbc = `fb.${domainIndex}.${creationTime}.${fbclid}`;
 
   return fbc;
@@ -44,13 +42,13 @@ function getFbSession(): {
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
     if (cookie.startsWith("fbclid=")) {
-      cookieFbclid = cookie.substring(7); // Remove 'fbclid=' prefix
+      cookieFbclid = cookie.substring(7);
     }
     if (cookie.startsWith("_fbc=")) {
-      cookieFbc = cookie.substring(5); // Remove '_fbc=' prefix
+      cookieFbc = cookie.substring(5);
     }
     if (cookie.startsWith("_fbp=")) {
-      cookieFbp = cookie.substring(5); // Remove '_fbp=' prefix
+      cookieFbp = cookie.substring(5);
     }
   }
 
@@ -87,7 +85,7 @@ function getGclid(): string {
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
     if (cookie.startsWith("gclid=")) {
-      const gclidCookie = cookie.substring(6); // Remove 'gclid=' prefix
+      const gclidCookie = cookie.substring(6);
       return gclidCookie;
     }
   }
@@ -191,29 +189,25 @@ export const parseUserAddress = (userInfo: GCUser | null) => {
 export const formatFullName = (user: GCUser | null) => {
   if (!user?.contactInfo) return;
   const { firstName, lastName } = user?.contactInfo;
-  // Ensure both first and last names are provided
+
   if (!firstName && !lastName) {
     return "Unknown";
   }
 
-  // Capitalize the first letter of the first name
   const formattedFirstName = firstName
     ? firstName.charAt(0).toUpperCase() + firstName.slice(1)
     : "";
 
-  // Capitalize the first letter of the last name
   const formattedLastName = lastName ? lastName.charAt(0).toUpperCase() + lastName.slice(1) : "";
 
-  // Concatenate the formatted names with a space in between
   return `${formattedFirstName} ${formattedLastName}`.trim();
 };
 
 export const formatUSPhoneNumber = (phoneNumber: string): string => {
-  const cleaned = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
-
+  const cleaned = phoneNumber.replace(/\D/g, "");
   if (cleaned.length === 11) {
     return `(${cleaned.substring(1, 4)}) ${cleaned.substring(4, 7)}-${cleaned.substring(7)}`;
   }
 
-  return phoneNumber; // Return the original input if not in the correct format
+  return phoneNumber;
 };

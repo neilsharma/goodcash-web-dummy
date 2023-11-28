@@ -45,7 +45,7 @@ export interface FailBankAccountCreation {
   error: {
     error_type: string;
     error_code: string;
-    error_message: string; // developer friendly error message
+    error_message: string;
     display_message: string;
   } | null;
   metadata: {
@@ -53,7 +53,6 @@ export interface FailBankAccountCreation {
       name: string;
       institution_id: string;
     };
-    // see possible values for status at https://plaid.com/docs/link/web/#link-web-onexit-status
     status: null | string;
     link_session_id: string;
     request_id: string;

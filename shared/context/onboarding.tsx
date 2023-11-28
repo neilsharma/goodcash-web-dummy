@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   createContext,
   Dispatch,
@@ -377,9 +378,7 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       JSON.stringify(onboardingOperationsMap),
       onboardingStepState,
       redirectToNextOnboardingStep,
@@ -546,7 +545,6 @@ export const OnboardingProvider: FC<{ children?: ReactNode }> = ({ children }) =
       }
     });
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

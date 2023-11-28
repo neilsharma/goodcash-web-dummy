@@ -8,19 +8,16 @@ export const pagesRouterHttpClient = axios.create({
   timeout: 30_000,
 });
 
-// List of URL paths that do not require authentication for making requests
 const unauthorizedRequests = [urlPaths.USER_ME_CREATE, urlPaths.LOAN_AGREEMENTS_COVERAGE];
 
-// Intercept requests and add authentication headers if necessary
 pagesRouterHttpClient.interceptors.request.use(async (config) => {
   const analyticsHeaderValue = getAnalyticsHeaderValue();
   if (analyticsHeaderValue) {
     config.headers["goodcash-analytics"] = analyticsHeaderValue;
   }
 
-  // Check if the request URL matches any of the unauthorized paths
   if (unauthorizedRequests.some((path) => config.url?.endsWith(path))) {
-    return config; // Skip authentication for unauthorized requests
+    return config;
   }
 
   const controller = new AbortController();
@@ -34,17 +31,14 @@ pagesRouterHttpClient.interceptors.request.use(async (config) => {
     cachedAuthToken = cachedUserInfo.auth_token;
   }
 
-  // If there is no authenticated user or token, abort the request
   if ((!auth?.currentUser || !token) && !cachedAuthToken) {
     controller.abort();
   }
 
-  // Add the authentication token to the request headers
   config.headers = config.headers ?? {};
   config.headers["goodcash-authorization"] ??= token;
   config.headers["goodcash-authorization"] ??= cachedAuthToken;
 
-  // Include the signal from the AbortController in the request configuration
   return { ...config, signal: controller.signal };
 });
 

@@ -168,11 +168,9 @@ export enum EStepStatus {
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
 }
-export type StandardErrorCode = string; // You might want to define a more specific type for error codes
+export type StandardErrorCode = string;
 
-interface StepMetadata {
-  // Define the structure of step metadata if needed
-}
+interface StepMetadata {}
 
 export interface Step {
   status: String;
@@ -190,7 +188,7 @@ export interface OnboardingSteps {
 export interface OnboardingStepState<T = any> {
   [key: string]: {
     status: EStepStatus;
-    metadata: Record<string, T>; // You can replace 'any' with a more specific type if needed
+    metadata: Record<string, T>;
   };
 }
 

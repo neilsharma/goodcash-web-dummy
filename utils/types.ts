@@ -1,14 +1,12 @@
 import { PlanFrequency } from "../shared/types";
 
 export enum ETrackEvent {
-  // Existing events
   USER_LOGGED_IN_SUCCESSFULLY = "User Logged In",
   USER_LOGGED_IN_FAILED = "User Log In Failed",
   USER_HEARD_ABOUT_US = "User Heard About Us Clicked",
   USER_STATE_VALIDATION_FAILED = "User State Validation Failed",
   USER_CLOSED_BROWSER_TAB = "User Closed Browser Tab",
 
-  //card events
   ADD_FUNDING_CARD_SUCCESS = "Add Funding Card Success",
   ADD_FUNDING_CARD_FAILED = "Add Funding Card Failed",
 }
