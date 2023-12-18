@@ -65,7 +65,6 @@ export default function LoginPage() {
       >
         Continue
       </Button>
-
       <p className="font-sharpGroteskBook text-thinText text-sm my-6">
         By continuing, you agree to GoodCash’s{" "}
         <a href={termsOfServiceUrl} rel="noreferrer" target="_blank">
