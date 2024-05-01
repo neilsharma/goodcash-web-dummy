@@ -4,7 +4,6 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
 import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
-import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
 import { useCallback, useEffect, useState } from "react";
@@ -13,20 +12,19 @@ import { EUsaStates } from "../../shared/types";
 import { trackPage } from "../../utils/analytics/analytics";
 import { EScreenEventTitle } from "../../utils/types";
 import { navigateWithQuery } from "../../shared/http/util";
-import { useErrorContext } from "@/shared/context/error";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function OnboardingIndexPage() {
   useConfirmUnload();
-  const { setErrorCode } = useErrorContext();
-  const { auth, setConfirmationResult, recaptchaVerifier } = useGlobal();
+  // const { setErrorCode } = useErrorContext();
+  // const { auth, setConfirmationResult, recaptchaVerifier } = useGlobal();
   const {
     setState,
     userStateCoverageMap,
     setOnboardingStep,
-    phone,
+    // phone,
     setPhone,
-    email,
+    // email,
     setEmail,
     indexPageIsValid,
   } = useOnboarding();

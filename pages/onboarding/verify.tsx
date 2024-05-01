@@ -51,18 +51,18 @@ export default function OnboardingVerifyPage() {
   const { setErrorCode } = useErrorContext();
   const { confirmationResult, setConfirmationResult, resetAuth, auth, userSession } = useGlobal();
   const {
-    setIsUserBlocked,
+    // setIsUserBlocked,
     setOnboardingStep,
     phone,
-    firstName,
-    lastName,
-    email,
+    // firstName,
+    // lastName,
+    // email,
     setPhoneVerified,
-    setUser,
-    setOnboardingOperationsMap,
-    onboardingStepHandler,
+    // setUser,
+    // setOnboardingOperationsMap,
+    // onboardingStepHandler,
     version,
-    mergeOnboardingStateHandler,
+    // mergeOnboardingStateHandler,
   } = useOnboarding();
   const { push } = useRouter();
   const params = useSearchParams();
