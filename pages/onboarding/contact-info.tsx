@@ -9,16 +9,14 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { EStepStatus, EUsaStates, EUsaStatesLookup } from "@/shared/types";
 import FormControlSelect from "@/components/form-control/FormControlSelect";
-import { UserHttpService } from "@/shared/http/services/user";
 import { cardHolderAgreementUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../utils/types";
 import useTrackPage from "../../shared/hooks/useTrackPage";
 import { useErrorContext } from "@/shared/context/error";
 import { extractApiErrorCode } from "@/shared/error";
-import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
 
-const { patchUserOnboarding, updateTaxInfo, updateUserAddress, updateUserIdentityBasic } =
-  new UserHttpService(pagesRouterHttpClient);
+// const { patchUserOnboarding, updateTaxInfo, updateUserAddress, updateUserIdentityBasic } =
+//   new UserHttpService(pagesRouterHttpClient);
 
 export default function OnboardingContactInfoPage() {
   useConfirmUnload();
@@ -37,9 +35,9 @@ export default function OnboardingContactInfoPage() {
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    firstName,
-    lastName,
-    email,
+    // firstName,
+    // lastName,
+    // email,
     dateOfBirth,
     setDateOfBirth,
     legalAddress,

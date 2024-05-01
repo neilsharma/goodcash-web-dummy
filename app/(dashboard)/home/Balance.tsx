@@ -1,13 +1,10 @@
 import Loader from "@/components/Loader";
-import appRouterServerSideHttpClient from "@/shared/http/clients/app-router/server-side";
-import LOCHttpService from "@/shared/http/services/loc";
 import { Suspense } from "react";
 import { SpendPowerModal } from "./SpendPowerModal";
-import DebitFundingCardHttpService from "@/shared/http/services/debitCard";
 import { FundingCard, FundingCardState } from "@/shared/http/types";
 
-const { getCards, getLocBalance } = new LOCHttpService(appRouterServerSideHttpClient);
-const { getFundingCard } = new DebitFundingCardHttpService(appRouterServerSideHttpClient);
+// const { getCards, getLocBalance } = new LOCHttpService(appRouterServerSideHttpClient);
+// const { getFundingCard } = new DebitFundingCardHttpService(appRouterServerSideHttpClient);
 
 const moneyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 

@@ -1,10 +1,8 @@
-import LOCHttpService from "@/shared/http/services/loc";
 import { Card } from "./Card";
-import appRouterServerSideHttpClient from "@/shared/http/clients/app-router/server-side";
 import { CardControls } from "./CardControls";
 import { LocCard, CardState } from "@/shared/http/types";
 
-const { getCards } = new LOCHttpService(appRouterServerSideHttpClient);
+// const { getCards } = new LOCHttpService(appRouterServerSideHttpClient);
 
 export default async function CreditCardPage() {
   // const [card] = await getCards();

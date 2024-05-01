@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../auth-context";
 
 export default function LoginPage() {
-  const { phone, setPhone, setConfirmationResult, auth, recaptchaVerifier } = useAuth();
+  const { phone, setPhone } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dimBackground, setDimBackground] = useState(false);
@@ -29,13 +29,12 @@ export default function LoginPage() {
       // recaptchaVerifier?.clear();
       // setConfirmationResult(res);
       // setDimBackground(false);
-      console.log("pushing next route");
       push(webAppRoutes.VERIFY);
     } catch (e) {
       setIsLoading(false);
       setDimBackground(false);
     }
-  }, [setConfirmationResult, push, phone, auth, recaptchaVerifier]);
+  }, [push]);
 
   return (
     <>

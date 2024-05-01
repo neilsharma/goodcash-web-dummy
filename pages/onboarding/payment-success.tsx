@@ -4,12 +4,11 @@ import Image from "next/image";
 import Title from "../../components/Title";
 import Button from "../../components/Button";
 import { useState } from "react";
-import { useOnboarding } from "../../shared/context/onboarding";
 
 export default function PaymentSuccessPage() {
   useConfirmUnload();
   const [isLoading, setIsLoading] = useState(false);
-  const { onboardingStepHandler } = useOnboarding();
+  // const { onboardingStepHandler } = useOnboarding();
 
   return (
     <OnboardingLayout>

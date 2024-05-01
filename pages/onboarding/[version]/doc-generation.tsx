@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "@/components/Button";
 import LoadingPDFIndicator from "@/components/LoadingPDFIndicator";
 import OnboardingLayout from "@/components/OnboardingLayout";
@@ -6,27 +6,24 @@ import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { UserHttpService } from "@/shared/http/services/user";
 import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
-import { LoanAgreementsHttpService } from "@/shared/http/services/loanAgreements";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
 import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/error";
 import { extractApiErrorCode } from "../../../shared/error";
-import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
 
-const { longPollOnboardingCompletionStatus, patchUserOnboarding } = new UserHttpService(
-  pagesRouterHttpClient
-);
-const {
-  longPollLongAgreementStatus,
-  completeLoanAgreement,
-  createLoanAgreement,
-  getLoanAgreementUrl,
-} = new LoanAgreementsHttpService(pagesRouterHttpClient);
+// const { longPollOnboardingCompletionStatus, patchUserOnboarding } = new UserHttpService(
+//   pagesRouterHttpClient
+// );
+// const {
+// longPollLongAgreementStatus,
+// completeLoanAgreement,
+// createLoanAgreement,
+// getLoanAgreementUrl,
+// } = new LoanAgreementsHttpService(pagesRouterHttpClient);
 
 export default function OneLastStep() {
   useConfirmUnload();
@@ -36,7 +33,7 @@ export default function OneLastStep() {
     setOnboardingOperationsMap,
     setOnboardingStep,
     loanAgreementDocumentUrl,
-    setLoanAgreementDocumentUrl,
+    // setLoanAgreementDocumentUrl,
     onboardingStepHandler,
   } = useOnboarding();
   const { setErrorCode } = useErrorContext();
@@ -67,7 +64,6 @@ export default function OneLastStep() {
   );
 
   const createLoanAgreementHandler = useCallback(async () => {
-    console.log("createLoanAggreementHandler called");
     try {
       if (!onboardingOperationsMap.loanAgreementCreated) {
         // await createLoanAgreement();
@@ -100,14 +96,13 @@ export default function OneLastStep() {
     onboardingStepHandler,
   ]);
 
-  const documentSigned = useMemo(
-    () => onboardingOperationsMap.loanAgreementCreated && !!loanAgreementDocumentUrl,
-    [onboardingOperationsMap, loanAgreementDocumentUrl]
-  );
+  // const documentSigned = useMemo(
+  //   () => onboardingOperationsMap.loanAgreementCreated && !!loanAgreementDocumentUrl,
+  //   [onboardingOperationsMap, loanAgreementDocumentUrl]
+  // );
 
   const [isLoading, setIsLoading] = useState(false);
   const completeLoanAgreementHandler = useCallback(async () => {
-    console.log("completeLoanAgreementHandler called");
     setIsLoading(true);
     try {
       // if (onboardingOperationsMap.loanAgreementCompleted)
@@ -129,9 +124,7 @@ export default function OneLastStep() {
 
       // const onboardingStatus = await longPollOnboardingCompletionStatus();
       // await finish("onboardingStatus");
-      console.log("calling finish");
       await finish("COMPLETED");
-      console.log("finished");
       // } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
       //   setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_COMPLETION_FAILED);
       //   throw new Error("Loan Agreement Completion Failed");
@@ -142,9 +135,9 @@ export default function OneLastStep() {
       setErrorCode(extractApiErrorCode(error));
     }
   }, [
-    onboardingOperationsMap.loanAgreementCompleted,
+    // onboardingOperationsMap.loanAgreementCompleted,
     onboardingStepHandler,
-    documentSigned,
+    // documentSigned,
     setOnboardingOperationsMap,
     setOnboardingStep,
     finish,

@@ -1,16 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { TransactionHttpService } from "../../shared/http/services/transactions";
 import { Currency, ITransaction, ITransactions } from "../../shared/http/types";
 import TransactionListItem from "./TransactionListItem";
 import { groupTransactionsByDay, handleScroll, formatDate } from "../../utils/utils";
-import appRouterClientSideHttpClient from "../../shared/http/clients/app-router/client-side";
 import Loader from "../../components/Loader";
 
-const { listTransactions } = new TransactionHttpService(appRouterClientSideHttpClient);
+// const { listTransactions } = new TransactionHttpService(appRouterClientSideHttpClient);
 const TransactionList = () => {
-  const perPage = 10;
+  // const perPage = 10;
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<ITransactions>([]);
   const [groupedTransactions, setGroupedTransactions] = useState<

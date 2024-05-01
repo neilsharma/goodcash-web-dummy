@@ -1,8 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import { UserHttpService } from "@/shared/http/services/user";
-import { UnderwritingHttpService } from "@/shared/http/services/underwriting";
 import { extractApiErrorCode } from "@/shared/error";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
@@ -12,29 +10,27 @@ import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/error";
 import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
 
-const { longPollAssetStatus, patchUserOnboarding } = new UserHttpService(pagesRouterHttpClient);
-const { failUnderwriting, underwrite } = new UnderwritingHttpService(pagesRouterHttpClient);
-const { approveApplication, longPollLongAgreementStatus, createLoanApplication } =
-  new LoanAgreementsHttpService(pagesRouterHttpClient);
+// const { longPollAssetStatus, patchUserOnboarding } = new UserHttpService(pagesRouterHttpClient);
+// const { failUnderwriting, underwrite } = new UnderwritingHttpService(pagesRouterHttpClient);
+// const { approveApplication, longPollLongAgreementStatus, createLoanApplication } =
+new LoanAgreementsHttpService(pagesRouterHttpClient);
 
 export default function ProcessingApplication() {
   useConfirmUnload();
 
   const { setErrorCode } = useErrorContext();
   const {
-    setIsUserBlocked,
+    // setIsUserBlocked,
     onboardingOperationsMap,
     setOnboardingOperationsMap,
     setOnboardingStep,
-    setPlaid,
+    // setPlaid,
     onboardingStepHandler,
-    version,
+    // version,
   } = useOnboarding();
 
   const processApplication = useCallback(async () => {
-    setTimeout(() => {
-      console.log("Delayed for 3 seconds.");
-    }, 3000);
+    await setTimeout(() => {}, 3000);
     try {
       if (!onboardingOperationsMap.loanApplicationCreated) {
         // await createLoanApplication();

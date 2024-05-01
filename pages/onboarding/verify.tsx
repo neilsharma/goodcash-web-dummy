@@ -6,36 +6,24 @@ import FormControlText from "@/components/form-control/FormControlText";
 import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
-import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
-import { UserHttpService } from "@/shared/http/services/user";
-import { EOtpErrorCode } from "@/shared/types";
-import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
+import { ELocalStorageKeys, EScreenEventTitle } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import ProgressLoader from "../../components/ProgressLoader";
 import OnboardingPlaidKycView from "../../container/KycView";
-import { useErrorContext } from "../../shared/context/error";
-import {
-  ESupportedErrorCodes,
-  EUserError,
-  extractApiErrorCode,
-  userLimitErrors,
-} from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { GCUser } from "../../shared/http/types";
-import { trackEvent } from "../../utils/analytics/analytics";
 import { onboardingStepToPageMap } from "@/shared/constants";
 
-const {
-  createUser,
-  getLatestKycAttempt,
-  getUser,
-  getUserOnboarding,
-  getUserOnboardingVersion,
-  patchUserOnboarding,
-} = new UserHttpService(pagesRouterHttpClient);
+// const {
+// createUser,
+// getLatestKycAttempt,
+// getUser,
+// getUserOnboarding,
+// getUserOnboardingVersion,
+// patchUserOnboarding,
+// } = new UserHttpService(pagesRouterHttpClient);
 
 export default function OnboardingVerifyPage() {
   useConfirmUnload(true);
@@ -48,8 +36,8 @@ export default function OnboardingVerifyPage() {
 
   useTrackPage(EScreenEventTitle.VERIFY);
 
-  const { setErrorCode } = useErrorContext();
-  const { confirmationResult, setConfirmationResult, resetAuth, auth, userSession } = useGlobal();
+  // const { setErrorCode } = useErrorContext();
+  const { setConfirmationResult, resetAuth } = useGlobal();
   const {
     // setIsUserBlocked,
     setOnboardingStep,
@@ -57,7 +45,7 @@ export default function OnboardingVerifyPage() {
     // firstName,
     // lastName,
     // email,
-    setPhoneVerified,
+    // setPhoneVerified,
     // setUser,
     // setOnboardingOperationsMap,
     // onboardingStepHandler,
@@ -65,18 +53,18 @@ export default function OnboardingVerifyPage() {
     // mergeOnboardingStateHandler,
   } = useOnboarding();
   const { push } = useRouter();
-  const params = useSearchParams();
-  const flowName = params?.get("flowName");
+  // const params = useSearchParams();
+  // const flowName = params?.get("flowName");
 
-  const [code, setCode] = useState("");
+  // const [setCode] = useState("");
   const [codeMask, setCodeMask] = useState("");
   const [isOtpInvalid, setIsOtpInvalid] = useState(false);
-  const [showKycView, setShowKycView] = useState(false);
+  const [showKycView] = useState(false);
   const { seconds, restart } = useTimer({
     autoStart: true,
     expiryTimestamp: new Date(Date.now() + 30000),
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   const resentCode = useCallback(async () => {
     const [auth, recaptchaVerifier] = resetAuth();
@@ -89,47 +77,45 @@ export default function OnboardingVerifyPage() {
     restart(new Date(Date.now() + 30000), true);
   }, [resetAuth, phone, setConfirmationResult, restart]);
 
-  const confirmPhone = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  // const confirmPhone = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true);
 
-      const res = await confirmationResult?.confirm(code);
+  //     const res = await confirmationResult?.confirm(code);
 
-      setPhoneVerified(!!res?.user);
+  //     setPhoneVerified(!!res?.user);
 
-      return res?.user;
-    } catch (error: any) {
-      setErrorCode(extractApiErrorCode(error));
-      setIsLoading(false);
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
+  //     return res?.user;
+  //   } catch (error: any) {
+  //     setErrorCode(extractApiErrorCode(error));
+  //     setIsLoading(false);
+  //     trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
 
-      if (error.code === EOtpErrorCode.INVALID_OTP) {
-        setIsOtpInvalid(true);
-      }
-    }
-  }, [confirmationResult, code, setPhoneVerified, setErrorCode]);
+  //     if (error.code === EOtpErrorCode.INVALID_OTP) {
+  //       setIsOtpInvalid(true);
+  //     }
+  //   }
+  // }, [confirmationResult, code, setPhoneVerified, setErrorCode]);
 
-  const userCreationHandler = useCallback(async (): Promise<GCUser | string | null> => {
-    try {
-      return await createUser(auth, flowName ?? "");
-    } catch (error: any) {
-      const errorCode = extractApiErrorCode(error);
+  // const userCreationHandler = useCallback(async (): Promise<GCUser | string | null> => {
+  //   try {
+  //     return await createUser(auth, flowName ?? "");
+  //   } catch (error: any) {
+  //     const errorCode = extractApiErrorCode(error);
 
-      if (userLimitErrors.includes(errorCode as EUserError)) {
-        setIsLoading(false);
-        setErrorCode(ESupportedErrorCodes.ONBOARDING_DISABLED);
-        return null;
-      } else {
-        setErrorCode(errorCode);
-      }
-      trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
-      return errorCode;
-    }
-  }, [auth, flowName, setErrorCode]);
+  //     if (userLimitErrors.includes(errorCode as EUserError)) {
+  //       setIsLoading(false);
+  //       setErrorCode(ESupportedErrorCodes.ONBOARDING_DISABLED);
+  //       return null;
+  //     } else {
+  //       setErrorCode(errorCode);
+  //     }
+  //     trackEvent({ event: ETrackEvent.USER_LOGGED_IN_FAILED, options: { error } });
+  //     return errorCode;
+  //   }
+  // }, [auth, flowName, setErrorCode]);
 
   const onContinue = useCallback(async () => {
-    console.log("onContinue is called when verifying");
-    console.log("version", version);
     // const user = await confirmPhone();
     // if (!user) return;
 
@@ -242,7 +228,7 @@ export default function OnboardingVerifyPage() {
         onChange={(e) => {
           setIsOtpInvalid(false);
           setCodeMask(e.target.value);
-          setCode(e.target.value.replace(/\_/g, ""));
+          // setCode(e.target.value.replace(/\_/g, ""));
         }}
         placeholder="------"
         maskChar={null}

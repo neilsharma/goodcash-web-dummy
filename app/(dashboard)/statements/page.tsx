@@ -2,13 +2,11 @@ import { DownloadCloud } from "react-feather";
 import config from "@/tailwind.config";
 import { formatDate } from "../../../utils/utils";
 import { IStatement } from "@/shared/http/types";
-import appRouterServerSideHttpClient from "@/shared/http/clients/app-router/server-side";
-import StatementsHttpService from "@/shared/http/services/statements";
 
 const colors = config.theme.extend.colors;
 
 // const { listStatements, getUriForStatementDownload } = new StatementsHttpService(
-const { getUriForStatementDownload } = new StatementsHttpService(appRouterServerSideHttpClient);
+// const { getUriForStatementDownload } = new StatementsHttpService(appRouterServerSideHttpClient);
 const Statements = async () => {
   // const statements = await listStatements();
   const statement1: IStatement = {

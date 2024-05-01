@@ -13,12 +13,10 @@ import { trackEvent, trackPage } from "@/utils/analytics/analytics";
 import { verifyState, verifyReducer } from "../../../shared/reducers/verify";
 import { useAuth } from "../auth-context";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { UserHttpService } from "@/shared/http/services/user";
-import appRouterClientSideHttpClient from "@/shared/http/clients/app-router/client-side";
 import { webAppRoutes } from "@/shared/constants";
 import { useErrorContext } from "../../error-context";
 
-const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
+// const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
 
 export default function VerifyPage() {
   const { auth, phone, setConfirmationResult, recaptchaVerifier, confirmationResult } = useAuth();
@@ -94,7 +92,6 @@ export default function VerifyPage() {
       // throw error;
       // }
 
-      console.log("pushing to home");
       return push(webAppRoutes.HOME);
     } catch (error: any) {
       setError(error);
