@@ -1,11 +1,32 @@
-import appRouterServerSideHttpClient from "../../../shared/http/clients/app-router/server-side";
-import UserHttpService from "../../../shared/http/services/user";
+import { GCUser } from "@/shared/http/types";
 import { formatFullName, formatUSPhoneNumber, parseUserAddress } from "../../../utils/utils";
 import LogoutButton from "./LogoutButton";
+import { GCUserState } from "@/utils/types";
 
-const { getUser } = new UserHttpService(appRouterServerSideHttpClient);
+// const { getUser } = new UserHttpService(appRouterServerSideHttpClient);
 const Account = async () => {
-  const user = await getUser();
+  // const user = await getUser();
+  const user: GCUser = {
+    id: "user123",
+    state: GCUserState.LIVE,
+    firebaseUid: "firebaseUser123",
+    lithicAccount: "lithicAccount456",
+    createdAt: new Date("2023-04-01T00:00:00Z"),
+    updatedAt: new Date("2023-04-02T00:00:00Z"),
+    contactInfo: {
+      phone: "1234567890",
+      email: "user@example.com",
+      addressLine1: "123 Main St",
+      addressLine2: "Apt 4B",
+      addressLine3: null,
+      city: "Anytown",
+      state: "CA",
+      zip: "12345",
+      country: "USA",
+      firstName: "John",
+      lastName: "Doe",
+    },
+  };
 
   return (
     <div className="flex flex-col gap-4 items-center">

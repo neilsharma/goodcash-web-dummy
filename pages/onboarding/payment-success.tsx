@@ -3,7 +3,6 @@ import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import Image from "next/image";
 import Title from "../../components/Title";
 import Button from "../../components/Button";
-import { EStepStatus } from "../../shared/types";
 import { useState } from "react";
 import { useOnboarding } from "../../shared/context/onboarding";
 
@@ -21,7 +20,7 @@ export default function PaymentSuccessPage() {
           isLoading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            onboardingStepHandler(EStepStatus.IN_PROGRESS);
+            // onboardingStepHandler(EStepStatus.IN_PROGRESS);
           }}
         >
           Continue

@@ -15,11 +15,8 @@ import { useAuth } from "../auth-context";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { UserHttpService } from "@/shared/http/services/user";
 import appRouterClientSideHttpClient from "@/shared/http/clients/app-router/client-side";
-import { checkUserState } from "@/utils/utils";
 import { webAppRoutes } from "@/shared/constants";
-import { TOKEN_KEY } from "@/app/constants";
 import { useErrorContext } from "../../error-context";
-import { userLogoutHandler } from "@/app/utils";
 
 const { getUser } = new UserHttpService(appRouterClientSideHttpClient);
 
@@ -76,27 +73,28 @@ export default function VerifyPage() {
 
   const onContinue = useCallback(async () => {
     try {
-      const user = await confirmPhone();
-      if (!user) return;
-      const token = await user.getIdToken();
+      // const user = await confirmPhone();
+      // if (!user) return;
+      // const token = await user.getIdToken();
 
-      await fetch("/api/login", { method: "POST", headers: { [TOKEN_KEY]: token } });
+      // await fetch("/api/login", { method: "POST", headers: { [TOKEN_KEY]: token } });
 
-      const gcUser = await getUser();
+      // const gcUser = await getUser();
 
-      if (!gcUser) throw new Error();
+      // if (!gcUser) throw new Error();
 
-      const { errorCode, shouldSignOut } = checkUserState(gcUser.state);
+      // const { errorCode, shouldSignOut } = checkUserState(gcUser.state);
 
-      if (errorCode) {
-        const error: Error & { code?: string } = new Error();
-        error.code = errorCode;
+      // if (errorCode) {
+      // const error: Error & { code?: string } = new Error();
+      // error.code = errorCode;
+      //
+      // if (shouldSignOut) await userLogoutHandler();
 
-        if (shouldSignOut) await userLogoutHandler();
+      // throw error;
+      // }
 
-        throw error;
-      }
-
+      console.log("pushing to home");
       return push(webAppRoutes.HOME);
     } catch (error: any) {
       setError(error);

@@ -7,15 +7,13 @@ import { onboardingStepToPageMap, privacyPolicyUrl, termsOfServiceUrl } from "@/
 import { useGlobal } from "@/shared/context/global";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { useConfirmUnload } from "@/shared/hooks";
-import { signInWithPhoneNumber } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
 import FormControlSelect from "../../components/form-control/FormControlSelect";
 import { EUsaStates } from "../../shared/types";
-import { trackEvent, trackPage } from "../../utils/analytics/analytics";
-import { EScreenEventTitle, ETrackEvent } from "../../utils/types";
+import { trackPage } from "../../utils/analytics/analytics";
+import { EScreenEventTitle } from "../../utils/types";
 import { navigateWithQuery } from "../../shared/http/util";
 import { useErrorContext } from "@/shared/context/error";
-import { ESupportedErrorCodes } from "@/shared/error";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function OnboardingIndexPage() {
@@ -57,21 +55,21 @@ export default function OnboardingIndexPage() {
     }
 
     if (stateValue && userStateCoverageMap && !userStateCoverageMap[stateValue]) {
-      trackEvent({
-        event: ETrackEvent.USER_STATE_VALIDATION_FAILED,
-        options: { phone, email, state: stateMask },
-      });
-      setErrorCode(ESupportedErrorCodes.STATE_NOT_SUPPORTED);
+      // trackEvent({
+      //   event: ETrackEvent.USER_STATE_VALIDATION_FAILED,
+      //   options: { phone, email, state: stateMask },
+      // });
+      // setErrorCode(ESupportedErrorCodes.STATE_NOT_SUPPORTED);
       return;
     }
     setIsLoading(true);
     try {
       setDimBackground(true);
-      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
-      recaptchaVerifier?.clear();
+      // const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+      // recaptchaVerifier?.clear();
       setDimBackground(false);
 
-      setConfirmationResult(res);
+      // setConfirmationResult(res);
       setOnboardingStep("USER_IDENTITY_VERIFICATION");
       push(urlWithQuery);
     } catch (e) {
@@ -83,14 +81,14 @@ export default function OnboardingIndexPage() {
     stateMask,
     indexPageIsValid,
     userStateCoverageMap,
-    phone,
-    email,
-    auth,
-    recaptchaVerifier,
-    setConfirmationResult,
+    // phone,
+    // email,
+    // auth,
+    // recaptchaVerifier,
+    // setConfirmationResult,
     setOnboardingStep,
     push,
-    setErrorCode,
+    // setErrorCode,
   ]);
 
   return (

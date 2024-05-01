@@ -3,14 +3,12 @@ import OnboardingLayout from "@/components/OnboardingLayout";
 import SubTitle from "@/components/SubTitle";
 import Title from "@/components/Title";
 import FormControlText from "@/components/form-control/FormControlText";
-import { hardcodedPlan, onboardingStepToPageMap } from "@/shared/constants";
 import { useGlobal } from "@/shared/context/global";
-import { OnboardingOperationsMap, useOnboarding } from "@/shared/context/onboarding";
-import { EFeature, init, isFeatureEnabled } from "@/shared/feature";
+import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import pagesRouterHttpClient from "@/shared/http/clients/pages-router";
 import { UserHttpService } from "@/shared/http/services/user";
-import { EOtpErrorCode, EStepStatus } from "@/shared/types";
+import { EOtpErrorCode } from "@/shared/types";
 import { ELocalStorageKeys, EScreenEventTitle, ETrackEvent } from "@/utils/types";
 import { signInWithPhoneNumber } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -26,8 +24,9 @@ import {
   userLimitErrors,
 } from "../../shared/error";
 import useTrackPage from "../../shared/hooks/useTrackPage";
-import { GCUser, KYCAttemptState } from "../../shared/http/types";
-import { setUserId, setUserProperties, trackEvent } from "../../utils/analytics/analytics";
+import { GCUser } from "../../shared/http/types";
+import { trackEvent } from "../../utils/analytics/analytics";
+import { onboardingStepToPageMap } from "@/shared/constants";
 
 const {
   createUser,
@@ -129,87 +128,89 @@ export default function OnboardingVerifyPage() {
   }, [auth, flowName, setErrorCode]);
 
   const onContinue = useCallback(async () => {
-    const user = await confirmPhone();
-    if (!user) return;
+    console.log("onContinue is called when verifying");
+    console.log("version", version);
+    // const user = await confirmPhone();
+    // if (!user) return;
 
-    const token = await user.getIdToken();
-    const gcUser = await getUser(token).catch(userCreationHandler);
+    // const token = await user.getIdToken();
+    // const gcUser = await getUser(token).catch(userCreationHandler);
 
-    if (typeof gcUser === "string" || !gcUser) {
-      return onboardingStepHandler(EStepStatus.FAILED);
-    }
-    await mergeOnboardingStateHandler(token);
-    setUser(gcUser);
-    await init(gcUser.id);
-    setUserId(gcUser?.id);
-    setUserProperties({
-      ...(userSession?.fbc && { fbc: userSession?.fbc }),
-      ...(userSession?.fbp && { fbp: userSession?.fbp }),
-      ...(navigator.userAgent && { user_agent: navigator.userAgent }),
-    });
-    trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
+    // if (typeof gcUser === "string" || !gcUser) {
+    //   return onboardingStepHandler(EStepStatus.FAILED);
+    // }
+    // await mergeOnboardingStateHandler(token);
+    // setUser(gcUser);
+    // await init(gcUser.id);
+    // setUserId(gcUser?.id);
+    // setUserProperties({
+    //   ...(userSession?.fbc && { fbc: userSession?.fbc }),
+    //   ...(userSession?.fbp && { fbp: userSession?.fbp }),
+    //   ...(navigator.userAgent && { user_agent: navigator.userAgent }),
+    // });
+    // trackEvent({ event: ETrackEvent.USER_LOGGED_IN_SUCCESSFULLY });
 
-    switch (gcUser?.state) {
-      case "BLOCKED":
-        return setIsUserBlocked(true);
-      case "DELETED":
-        return setErrorCode(ESupportedErrorCodes.GENERIC);
+    // switch (gcUser?.state) {
+    //   case "BLOCKED":
+    //     return setIsUserBlocked(true);
+    //   case "DELETED":
+    //     return setErrorCode(ESupportedErrorCodes.GENERIC);
 
-      case "LIVE":
-        return onboardingStepHandler(EStepStatus.COMPLETED);
-    }
+    //   case "LIVE":
+    //     return onboardingStepHandler(EStepStatus.COMPLETED);
+    // }
 
-    const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);
-    const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
+    // const plaidIdvEnabled = await isFeatureEnabled(gcUser.id, EFeature.PLAID_UI_IDV, true);
+    // const targetSept = plaidIdvEnabled ? "KYC" : "CONTACT_INFO";
 
     setOnboardingStep(version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING");
-    patchUserOnboarding({
-      firstName,
-      lastName,
-      phone,
-      email,
-      user: gcUser,
-      onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
-      onboardingOperationsMap: { userCreated: true },
-      plan: hardcodedPlan.id,
-    });
-    setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
-    const onboardingState = await getUserOnboarding(token).catch(() => null);
-    const kycAttempt = await getLatestKycAttempt();
+    // patchUserOnboarding({
+    //   firstName,
+    //   lastName,
+    //   phone,
+    //   email,
+    //   user: gcUser,
+    //   onboardingStep: version == 1 ? "FUNDING_CARD_LINKING" : "BANK_ACCOUNT_LINKING",
+    //   onboardingOperationsMap: { userCreated: true },
+    //   plan: hardcodedPlan.id,
+    // });
+    // setOnboardingOperationsMap((prev) => ({ ...prev, userCreated: true }));
+    // const onboardingState = await getUserOnboarding(token).catch(() => null);
+    // const kycAttempt = await getLatestKycAttempt();
 
-    if (
-      !onboardingState?.onboardingOperationsMap?.userKycSubmitted &&
-      targetSept === "KYC" &&
-      kycAttempt.state !== KYCAttemptState.ACCEPTED
-    ) {
-      return setShowKycView(true);
-    } else if (targetSept === "CONTACT_INFO") {
-      push(onboardingStepToPageMap.USER_CONTACT_INFO);
-    } else {
-      const userOnboardingVersion = await getUserOnboardingVersion(token);
-      return onboardingStepHandler(EStepStatus.IN_PROGRESS, {
-        currentVersion: userOnboardingVersion?.version,
-        onboardingData: onboardingState?.onboardingOperationsMap as OnboardingOperationsMap,
-      });
-    }
+    // if (
+    //   !onboardingState?.onboardingOperationsMap?.userKycSubmitted &&
+    //   targetSept === "KYC" &&
+    //   kycAttempt.state !== KYCAttemptState.ACCEPTED
+    // ) {
+    //   return setShowKycView(true);
+    // } else if (targetSept === "CONTACT_INFO") {
+    push(onboardingStepToPageMap.USER_CONTACT_INFO);
+    // } else {
+    //   const userOnboardingVersion = await getUserOnboardingVersion(token);
+    //   return onboardingStepHandler(EStepStatus.IN_PROGRESS, {
+    //     currentVersion: userOnboardingVersion?.version,
+    //     onboardingData: onboardingState?.onboardingOperationsMap as OnboardingOperationsMap,
+    //   });
+    // }
   }, [
-    confirmPhone,
-    userCreationHandler,
-    mergeOnboardingStateHandler,
-    setUser,
-    userSession?.fbc,
-    userSession?.fbp,
+    // confirmPhone,
+    // userCreationHandler,
+    // mergeOnboardingStateHandler,
+    // setUser,
+    // userSession?.fbc,
+    // userSession?.fbp,
     setOnboardingStep,
-    firstName,
-    lastName,
-    phone,
-    email,
-    setOnboardingOperationsMap,
-    setIsUserBlocked,
+    // firstName,
+    // lastName,
+    // phone,
+    // email,
+    // setOnboardingOperationsMap,
+    // setIsUserBlocked,
     push,
     version,
-    onboardingStepHandler,
-    setErrorCode,
+    // onboardingStepHandler,
+    // setErrorCode,
   ]);
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {

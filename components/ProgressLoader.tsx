@@ -1,9 +1,11 @@
-import Lottie from "react-lottie";
+import dynamic from "next/dynamic";
 import OnboardingLayout from "./OnboardingLayout";
 import SubTitle from "./SubTitle";
 import * as animationData from "../public/lottie/growing-tree.json";
 import { useEffect, useState } from "react";
 import { ProgressLoaderDefs } from "../shared/constants";
+
+const ReactLottie = dynamic(() => import("react-lottie"), { ssr: false });
 
 interface IProgressLoaderProps {
   type: keyof typeof ProgressLoaderDefs;
@@ -24,7 +26,7 @@ const ProgressLoader = ({ type, animate = true, initialValue = 0 }: IProgressLoa
     <OnboardingLayout>
       <div className="flex flex-col justify-center items-center">
         <div className="w-[200px] h-[200px] mb-8 relative rounded-full bg-white justify-center items-center">
-          <Lottie
+          <ReactLottie
             style={{
               position: "absolute",
               width: 600,

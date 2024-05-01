@@ -1,5 +1,3 @@
-import type { FirebaseOptions } from "firebase/app";
-
 export type GoodcashEnvironment = "local" | "sandbox" | "production";
 
 export const goodcashEnvironment: GoodcashEnvironment =
@@ -8,9 +6,20 @@ export const goodcashEnvironment: GoodcashEnvironment =
 export const domain = process.env["NEXT_PUBLIC_DOMAIN"];
 export const isLocalhost = domain?.startsWith("http://localhost");
 
-export const firebaseConfig = JSON.parse(
-  process.env["NEXT_PUBLIC_FIREBASE_CONFIG"] ?? ""
-) as FirebaseOptions;
+export const firebaseConfig = {
+  apiKey: "AIzaSyB02xkZqCrbbt5hSvGJP4KYA1lA0fCidpw",
+  authDomain: "honor-card.firebaseapp.com",
+  databaseURL: "https://honor-card-default-rtdb.firebaseio.com",
+  projectId: "honor-card",
+  storageBucket: "honor-card.appspot.com",
+  messagingSenderId: "908886560721",
+  appId: "1:908886560721:web:0d759cc8134f81788d1af0",
+  measurementId: "G-3WL4623FLX",
+};
+
+// export const firebaseConfig = JSON.parse(
+// process.env["NEXT_PUBLIC_FIREBASE_CONFIG"] ?? ""
+// ) as FirebaseOptions;
 
 export const kardTermsVersion = process.env["NEXT_PUBLIC_KARD_TERMS_VERSION"];
 export const appStoreId = "";

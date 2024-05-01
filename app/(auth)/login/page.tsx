@@ -9,7 +9,6 @@ import { trackPage } from "@/utils/analytics/analytics";
 import { EScreenEventTitle } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../auth-context";
-import { signInWithPhoneNumber } from "firebase/auth";
 
 export default function LoginPage() {
   const { phone, setPhone, setConfirmationResult, auth, recaptchaVerifier } = useAuth();
@@ -23,14 +22,14 @@ export default function LoginPage() {
   }, []);
 
   const onContinue = useCallback(async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
-      setDimBackground(true);
-      const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
-      recaptchaVerifier?.clear();
-      setConfirmationResult(res);
-      setDimBackground(false);
-
+      // setDimBackground(true);
+      // const res = await signInWithPhoneNumber(auth!, phone, recaptchaVerifier!);
+      // recaptchaVerifier?.clear();
+      // setConfirmationResult(res);
+      // setDimBackground(false);
+      console.log("pushing next route");
       push(webAppRoutes.VERIFY);
     } catch (e) {
       setIsLoading(false);

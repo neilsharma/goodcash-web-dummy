@@ -7,14 +7,12 @@ import Title from "@/components/Title";
 import { useOnboarding } from "@/shared/context/onboarding";
 import { redirectIfServerSideRendered, useConfirmUnload } from "@/shared/hooks";
 import { UserHttpService } from "@/shared/http/services/user";
-import { OnboardingErrorDefs, privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
+import { privacyPolicyUrl, termsOfServiceUrl } from "@/shared/constants";
 import { EScreenEventTitle } from "../../../utils/types";
 import useTrackPage from "../../../shared/hooks/useTrackPage";
 import { LoanAgreementsHttpService } from "@/shared/http/services/loanAgreements";
-import { ELoanAgreementStatus } from "@/shared/http/types";
 import PDFViewer from "../../../components/PdfViewer";
 import { EStepStatus } from "../../../shared/types";
-import { trackGTagConversion, ConversionEvent } from "../../../utils/analytics/gtag-analytics";
 import ProgressLoader from "../../../components/ProgressLoader";
 import { useErrorContext } from "../../../shared/context/error";
 import { extractApiErrorCode } from "../../../shared/error";
@@ -47,14 +45,14 @@ export default function OneLastStep() {
     async (status: "COMPLETED" | "FAILED") => {
       try {
         if (status === "COMPLETED") {
-          trackGTagConversion(ConversionEvent.OnboardingCompleted);
+          // trackGTagConversion(ConversionEvent.OnboardingCompleted);
 
           setOnboardingStep("LOAN_AGREEMENT_CREATION");
           setOnboardingOperationsMap((p) => ({ ...p, onboardingCompleted: true }));
-          patchUserOnboarding({
-            onboardingStep: "LOAN_AGREEMENT_CREATION",
-            onboardingOperationsMap: { onboardingCompleted: true },
-          });
+          // patchUserOnboarding({
+          //   onboardingStep: "LOAN_AGREEMENT_CREATION",
+          //   onboardingOperationsMap: { onboardingCompleted: true },
+          // });
 
           onboardingStepHandler(EStepStatus.COMPLETED);
         }
@@ -69,25 +67,26 @@ export default function OneLastStep() {
   );
 
   const createLoanAgreementHandler = useCallback(async () => {
+    console.log("createLoanAggreementHandler called");
     try {
       if (!onboardingOperationsMap.loanAgreementCreated) {
-        await createLoanAgreement();
-        const status = await longPollLongAgreementStatus([
-          ELoanAgreementStatus.SIGNED,
-          ELoanAgreementStatus.SIGN_FAILED,
-        ]);
+        // await createLoanAgreement();
+        // const status = await longPollLongAgreementStatus([
+        //   ELoanAgreementStatus.SIGNED,
+        //   ELoanAgreementStatus.SIGN_FAILED,
+        // ]);
 
-        if (status === ELoanAgreementStatus.SIGNED) {
-          setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCreated: true }));
-          patchUserOnboarding({
-            onboardingOperationsMap: { loanAgreementCreated: true },
-          });
+        // if (status === ELoanAgreementStatus.SIGNED) {
+        setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCreated: true }));
+        // patchUserOnboarding({
+        //   onboardingOperationsMap: { loanAgreementCreated: true },
+        // });
 
-          setLoanAgreementDocumentUrl(await getLoanAgreementUrl());
-        } else if (status === ELoanAgreementStatus.SIGN_FAILED) {
-          setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_SIGN_FAILED);
-          throw new Error("Loan Agreement Creation Failed");
-        }
+        // setLoanAgreementDocumentUrl(await getLoanAgreementUrl());
+        // } else if (status === ELoanAgreementStatus.SIGN_FAILED) {
+        // setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_SIGN_FAILED);
+        // throw new Error("Loan Agreement Creation Failed");
+        // }
       }
     } catch (e) {
       onboardingStepHandler(EStepStatus.FAILED);
@@ -96,7 +95,7 @@ export default function OneLastStep() {
   }, [
     onboardingOperationsMap.loanAgreementCreated,
     setOnboardingOperationsMap,
-    setLoanAgreementDocumentUrl,
+    // setLoanAgreementDocumentUrl,
     setErrorCode,
     onboardingStepHandler,
   ]);
@@ -108,31 +107,35 @@ export default function OneLastStep() {
 
   const [isLoading, setIsLoading] = useState(false);
   const completeLoanAgreementHandler = useCallback(async () => {
+    console.log("completeLoanAgreementHandler called");
     setIsLoading(true);
     try {
-      if (onboardingOperationsMap.loanAgreementCompleted)
-        return onboardingStepHandler(EStepStatus.COMPLETED);
-      if (!documentSigned) return;
+      // if (onboardingOperationsMap.loanAgreementCompleted)
+      //   return onboardingStepHandler(EStepStatus.COMPLETED);
+      // if (!documentSigned) return;
 
-      await completeLoanAgreement();
-      const status = await longPollLongAgreementStatus([
-        ELoanAgreementStatus.COMPLETED,
-        ELoanAgreementStatus.COMPLETION_FAILED,
-      ]);
-      if (status === ELoanAgreementStatus.COMPLETED) {
-        setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCompleted: true }));
-        setOnboardingStep("APP_DOWNLOAD");
-        patchUserOnboarding({
-          onboardingStep: "APP_DOWNLOAD",
-          onboardingOperationsMap: { loanAgreementCompleted: true },
-        });
+      // await completeLoanAgreement();
+      // const status = await longPollLongAgreementStatus([
+      //   ELoanAgreementStatus.COMPLETED,
+      //   ELoanAgreementStatus.COMPLETION_FAILED,
+      // ]);
+      // if (status === ELoanAgreementStatus.COMPLETED) {
+      setOnboardingOperationsMap((p) => ({ ...p, loanAgreementCompleted: true }));
+      setOnboardingStep("APP_DOWNLOAD");
+      // patchUserOnboarding({
+      //   onboardingStep: "APP_DOWNLOAD",
+      //   onboardingOperationsMap: { loanAgreementCompleted: true },
+      // });
 
-        const onboardingStatus = await longPollOnboardingCompletionStatus();
-        await finish(onboardingStatus);
-      } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
-        setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_COMPLETION_FAILED);
-        throw new Error("Loan Agreement Completion Failed");
-      }
+      // const onboardingStatus = await longPollOnboardingCompletionStatus();
+      // await finish("onboardingStatus");
+      console.log("calling finish");
+      await finish("COMPLETED");
+      console.log("finished");
+      // } else if (status === ELoanAgreementStatus.COMPLETION_FAILED) {
+      //   setErrorCode(OnboardingErrorDefs.LOAN_AGREEMENT_COMPLETION_FAILED);
+      //   throw new Error("Loan Agreement Completion Failed");
+      // }
     } catch (error) {
       onboardingStepHandler(EStepStatus.FAILED);
       setIsLoading(false);
@@ -175,7 +178,8 @@ export default function OneLastStep() {
 
       <Button
         className="mt-12"
-        disabled={!documentSigned}
+        // disabled={!documentSigned}
+        disabled={false}
         onClick={completeLoanAgreementHandler}
         isLoading={isLoading}
       >

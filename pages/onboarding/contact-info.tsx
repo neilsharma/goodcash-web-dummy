@@ -76,42 +76,41 @@ export default function OnboardingContactInfoPage() {
       setIsLoading(true);
 
       if (!onboardingOperationsMap.userAddressCreated) {
-        await updateUserAddress({
-          address_line_1: legalAddress,
-          ...(aptNumber ? { address_line_2: aptNumber } : null),
-          city,
-          country: "USA",
-          postal_code: zipCode,
-          state,
-        });
+        // await updateUserAddress({
+        //   address_line_1: legalAddress,
+        //   ...(aptNumber ? { address_line_2: aptNumber } : null),
+        //   city,
+        //   country: "USA",
+        //   postal_code: zipCode,
+        //   state,
+        // });
 
         setOnboardingOperationsMap((p) => ({ ...p, userAddressCreated: true }));
-        patchUserOnboarding({ onboardingOperationsMap: { userAddressCreated: true } });
+        // patchUserOnboarding({ onboardingOperationsMap: { userAddressCreated: true } });
       }
-
       if (!onboardingOperationsMap.userIdentityBasisCreated) {
-        await updateUserIdentityBasic({
-          birth_date: dateOfBirth?.toISOString(),
-          email_address: email,
-          first_name: firstName,
-          last_name: lastName,
-        });
+        // await updateUserIdentityBasic({
+        //   birth_date: dateOfBirth?.toISOString(),
+        //   email_address: email,
+        //   first_name: firstName,
+        //   last_name: lastName,
+        // });
 
         setOnboardingOperationsMap((p) => ({ ...p, userIdentityBasisCreated: true }));
-        patchUserOnboarding({ onboardingOperationsMap: { userIdentityBasisCreated: true } });
+        // patchUserOnboarding({ onboardingOperationsMap: { userIdentityBasisCreated: true } });
       }
 
       if (!onboardingOperationsMap.userTaxInfoIsSet) {
-        await updateTaxInfo({ social_security_number: ssnMask });
+        // await updateTaxInfo({ social_security_number: ssnMask });
 
         setOnboardingOperationsMap((p) => ({ ...p, userTaxInfoIsSet: true }));
-        patchUserOnboarding({
-          agreedToCardHolderAgreement,
-          agreedToAutopay,
-          agreedToTermsOfService,
-          onboardingOperationsMap: { userTaxInfoIsSet: true },
-          onboardingStep: "BANK_ACCOUNT_LINKING",
-        });
+        // patchUserOnboarding({
+        //   agreedToCardHolderAgreement,
+        //   agreedToAutopay,
+        //   agreedToTermsOfService,
+        //   onboardingOperationsMap: { userTaxInfoIsSet: true },
+        //   onboardingStep: "BANK_ACCOUNT_LINKING",
+        // });
       }
 
       setOnboardingStep("BANK_ACCOUNT_LINKING");
@@ -126,20 +125,20 @@ export default function OnboardingContactInfoPage() {
     onboardingOperationsMap.userTaxInfoIsSet,
     setOnboardingStep,
     onboardingStepHandler,
-    legalAddress,
-    aptNumber,
-    city,
-    zipCode,
-    state,
+    // legalAddress,
+    // aptNumber,
+    // city,
+    // zipCode,
+    // state,
     setOnboardingOperationsMap,
-    dateOfBirth,
-    email,
-    firstName,
-    lastName,
-    ssnMask,
-    agreedToCardHolderAgreement,
-    agreedToAutopay,
-    agreedToTermsOfService,
+    // dateOfBirth,
+    // email,
+    // firstName,
+    // lastName,
+    // ssnMask,
+    // agreedToCardHolderAgreement,
+    // agreedToAutopay,
+    // agreedToTermsOfService,
     setErrorCode,
   ]);
 
